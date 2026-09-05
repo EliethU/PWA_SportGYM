@@ -1,0 +1,400 @@
+/* =====================================================
+   ESTILOS HOME
+===================================================== */
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6f6;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #172326;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background-color: #172a2d;
+  color: #ffffff;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.logoContainer {
+  padding: 27px 25px 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logoImage {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* MENU */
+.menu {
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menuItem {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #d6dede;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.menuItem:hover {
+  background-color: rgba(76, 154, 58, 0.1);
+}
+
+.activeMenu {
+  background-color: #4c9a3a;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* MAIN */
+.main {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  height: 76px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e3e7e7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 34px;
+  box-sizing: border-box;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 700;
+  color: #172326;
+}
+
+.pageDescription {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: #7b8788;
+}
+
+/* USUARIO */
+.userButton {
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+
+.userButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.userInfo strong {
+  color: #172326;
+}
+
+.userInfo span {
+  color: #7b8788;
+}
+
+/* CONTENIDO */
+.content {
+  padding: 35px;
+}
+
+.welcome {
+  margin-bottom: 28px;
+}
+
+.welcome h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.welcome p {
+  margin: 5px 0 0;
+  color: #7b8788;
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 22px;
+  min-height: 130px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cardTitle {
+  font-size: 13px;
+  color: #697778;
+  margin-bottom: 9px;
+}
+
+.cardNumber {
+  font-size: 27px;
+  color: #4c9a3a;
+  font-weight: 700;
+}
+
+.cardDescription {
+  font-size: 11px;
+  color: #929c9d;
+  margin-top: 5px;
+}
+
+/* SUMMARY CARDS */
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summaryCard {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 20px;
+  min-height: 120px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.summaryCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.summaryCard.income::before {
+  background-color: #4c9a3a;
+}
+
+.summaryCard.sales::before {
+  background-color: #4c9a3a;
+}
+
+.summaryCard.expenses::before {
+  background-color: #e74c3c;
+}
+
+.summaryCard.utility::before {
+  background-color: #4c9a3a;
+}
+
+.summaryCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cardIcon {
+  color: #4c9a3a;
+}
+
+.summaryCard.expenses .cardIcon {
+  color: #e74c3c;
+}
+
+.summaryCard .cardTitle {
+  font-size: 13px;
+  color: #697778;
+  margin-bottom: 0;
+}
+
+.summaryCard .cardNumber {
+  font-size: 24px;
+  color: #172326;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.summaryCard .cardDescription {
+  font-size: 11px;
+  color: #929c9d;
+  margin-top: 0;
+}
+
+/* CHARTS CONTAINER */
+.chartsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.chartCard {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s ease;
+}
+
+.chartCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.chartTitle {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+.chartContent {
+  min-height: 300px;
+}
+
+/* RECENT ACTIVITY */
+.recentActivity {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+}
+
+.sectionTitle {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+.activityItem:hover {
+  background-color: #f0f1f2;
+}
+
+.activityIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activityInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.activityText {
+  font-size: 13px;
+  color: #172326;
+  font-weight: 500;
+}
+
+.activityTime {
+  font-size: 11px;
+  color: #929c9d;
+}

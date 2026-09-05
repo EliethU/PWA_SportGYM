@@ -1,0 +1,146 @@
+/* =====================================================
+   ESTILOS ASISTENCIA
+===================================================== */
+
+/* ASSISTANCE CONTAINER */
+.assistanceContainer {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+}
+
+/* CAMERA SECTION */
+.cameraSection {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+}
+
+.sectionTitle {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+.cameraPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 60px 40px;
+  background-color: #2d3436;
+  border-radius: 8px;
+  min-height: 400px;
+}
+
+.cameraIcon {
+  color: #636e72;
+}
+
+.cameraPlaceholder p {
+  color: #b2bec3;
+  font-size: 16px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.cameraHint {
+  color: #636e72;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ATTENDANCE LIST */
+.attendanceList {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+  height: fit-content;
+}
+
+.attendanceItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.emptyAttendance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 40px 20px;
+  color: #929c9d;
+}
+
+.emptyIcon {
+  color: #d6dede;
+}
+
+.emptyAttendance p {
+  font-size: 14px;
+  margin: 0;
+  text-align: center;
+}
+
+/* ATTENDANCE ITEM (for future use) */
+.attendanceItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+.attendanceItem:hover {
+  background-color: #f0f1f2;
+}
+
+.attendanceAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.attendanceInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.attendanceName {
+  font-size: 14px;
+  color: #172326;
+  font-weight: 600;
+}
+
+.attendanceTime {
+  font-size: 12px;
+  color: #929c9d;
+}
+
+.attendanceConfidence {
+  font-size: 12px;
+  color: #4c9a3a;
+  font-weight: 600;
+}

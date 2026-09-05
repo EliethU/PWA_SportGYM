@@ -1,0 +1,167 @@
+/* =====================================================
+   ESTILOS INVENTARIO
+===================================================== */
+
+/* INVENTORY HEADER */
+.inventoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 20px;
+}
+
+/* SEARCH CONTAINER */
+.searchContainer {
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: #929c9d;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border: 1px solid #e0e5e5;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #172326;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #4c9a3a;
+  box-shadow: 0 0 0 3px rgba(76, 154, 58, 0.1);
+}
+
+.searchInput::placeholder {
+  color: #929c9d;
+}
+
+/* NEW BUTTON */
+.newButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.newButton:hover {
+  background-color: #3d8a30;
+}
+
+.newButton:active {
+  transform: scale(0.98);
+}
+
+/* INVENTORY TABLE CONTAINER */
+.inventoryTableContainer {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+}
+
+.tableTitle {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+/* INVENTORY TABLE */
+.inventoryTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.inventoryTable thead {
+  background-color: #f8f9fa;
+}
+
+.inventoryTable th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #697778;
+  font-size: 13px;
+  border-bottom: 2px solid #e0e5e5;
+}
+
+.inventoryTable td {
+  padding: 14px 16px;
+  color: #172326;
+  border-bottom: 1px solid #e0e5e5;
+}
+
+.inventoryTable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.inventoryTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* EMPTY ROW */
+.emptyRow {
+  background-color: #f8f9fa;
+}
+
+.emptyCell {
+  text-align: center;
+  padding: 40px 16px !important;
+  color: #929c9d;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* STATUS BADGES */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusBadge.available {
+  background-color: rgba(76, 154, 58, 0.1);
+  color: #4c9a3a;
+}
+
+.statusBadge.low {
+  background-color: rgba(241, 196, 15, 0.1);
+  color: #f39c12;
+}
+
+.statusBadge.out {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}

@@ -1,0 +1,156 @@
+/* =====================================================
+   ESTILOS VENTAS
+===================================================== */
+
+/* SALES CONTAINER */
+.salesContainer {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+}
+
+/* SALES LIST */
+.salesList {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+}
+
+.sectionTitle {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+/* SALES ITEMS */
+.salesItems {
+  min-height: 300px;
+}
+
+.emptySales {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 40px 20px;
+  color: #929c9d;
+}
+
+.emptyIcon {
+  color: #d6dede;
+}
+
+.emptySales p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.addProductButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.addProductButton:hover {
+  background-color: #3d8a30;
+}
+
+.addProductButton:active {
+  transform: scale(0.98);
+}
+
+/* SALES SUMMARY */
+.salesSummary {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+  height: fit-content;
+}
+
+.summaryDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.summaryRow:last-child {
+  border-bottom: none;
+}
+
+.summaryRow.total {
+  padding: 12px 0;
+  border-top: 2px solid #e0e5e5;
+  border-bottom: none;
+  margin-top: 8px;
+}
+
+.summaryLabel {
+  font-size: 14px;
+  color: #697778;
+  font-weight: 500;
+}
+
+.summaryRow.total .summaryLabel {
+  font-size: 16px;
+  font-weight: 700;
+  color: #172326;
+}
+
+.summaryValue {
+  font-size: 15px;
+  color: #172326;
+  font-weight: 600;
+}
+
+.summaryRow.total .summaryValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4c9a3a;
+}
+
+.completeSaleButton {
+  width: 100%;
+  padding: 14px 20px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.completeSaleButton:hover {
+  background-color: #3d8a30;
+}
+
+.completeSaleButton:active {
+  transform: scale(0.98);
+}

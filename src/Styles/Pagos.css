@@ -1,0 +1,71 @@
+/* =====================================================
+   ESTILOS PAGOS
+===================================================== */
+
+/* PAYMENT DETAILS */
+.paymentDetails {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+.paymentInfo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.paymentField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  color: #697778;
+  font-weight: 500;
+}
+
+.fieldValue {
+  font-size: 15px;
+  color: #172326;
+  font-weight: 600;
+}
+
+/* RECEIPT SECTION */
+.receiptSection {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+}
+
+.receiptInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.receiptLabel {
+  font-size: 14px;
+  color: #697778;
+  font-weight: 500;
+}
+
+.receiptNumber {
+  font-size: 16px;
+  color: #172326;
+  font-weight: 700;
+}

@@ -1,0 +1,102 @@
+/* =====================================================
+   ESTILOS GASTOS
+===================================================== */
+
+/* GASTOS HEADER */
+.gastosHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 25px;
+}
+
+/* NEW BUTTON */
+.newButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.newButton:hover {
+  background-color: #3d8a30;
+}
+
+.newButton:active {
+  transform: scale(0.98);
+}
+
+/* GASTOS TABLE CONTAINER */
+.gastosTableContainer {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+}
+
+.tableTitle {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+/* GASTOS TABLE */
+.gastosTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.gastosTable thead {
+  background-color: #f8f9fa;
+}
+
+.gastosTable th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #697778;
+  font-size: 13px;
+  border-bottom: 2px solid #e0e5e5;
+}
+
+.gastosTable td {
+  padding: 14px 16px;
+  color: #172326;
+  border-bottom: 1px solid #e0e5e5;
+}
+
+.gastosTable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.gastosTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* EMPTY ROW */
+.emptyRow {
+  background-color: #f8f9fa;
+}
+
+.emptyCell {
+  text-align: center;
+  padding: 40px 16px !important;
+  color: #929c9d;
+  font-style: italic;
+  font-size: 14px;
+}

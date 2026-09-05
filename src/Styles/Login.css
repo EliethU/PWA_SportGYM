@@ -1,0 +1,429 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #1d1d1d;
+}
+
+/* CONTENEDOR PRINCIPAL */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* TARJETA */
+
+.login-container {
+  width: 100%;
+  max-width: 1100px;
+  min-height: 620px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  display: flex;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================
+   FORMULARIO
+========================= */
+
+.login-form {
+  width: 52%;
+
+  padding: 55px 70px;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+
+/* LOGO */
+
+.login-logo {
+  width: 400px;
+  height: auto;
+
+  object-fit: contain;
+
+  margin: 0 auto 40px auto;
+
+  display: block;
+}
+
+
+/* TITULO */
+
+.login-form h1 {
+  margin: 0;
+
+  font-size: 36px;
+
+  font-weight: 700;
+
+  color: #171717;
+
+  text-align: center;
+
+  letter-spacing: -0.5px;
+}
+
+
+/* SUBTITULO */
+
+.login-subtitle {
+  margin-top: 12px;
+  margin-bottom: 35px;
+
+  color: #666;
+
+  font-size: 15px;
+
+  text-align: center;
+
+  line-height: 1.5;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid #fcc;
+  margin-bottom: 25px;
+  font-size: 14px;
+  text-align: center;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+.input-group {
+  width: 100%;
+
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom: 2px solid #e0e0e0;
+
+  margin-bottom: 25px;
+
+  transition: border-color 0.3s ease;
+}
+
+
+.input-group:focus-within {
+  border-bottom-color: #55a9e8;
+}
+
+
+.input-icon {
+  width: 35px;
+
+  font-size: 18px;
+
+  color: #999;
+
+  transition: color 0.3s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-icon i {
+  font-size: 18px;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+
+.input-group:focus-within .input-icon,
+.input-group:focus-within .input-icon i {
+  color: #55a9e8;
+}
+
+
+.input-group input {
+  flex: 1;
+
+  border: none;
+  outline: none;
+
+  font-size: 15px;
+
+  color: #333;
+
+  background: transparent;
+
+  font-weight: 400;
+
+  transition: all 0.3s ease;
+}
+
+
+.input-group input:focus {
+  background: rgba(85, 169, 232, 0.05);
+}
+
+
+/* Animación cuando el input tiene contenido */
+.input-group input:not(:placeholder-shown) {
+  background: rgba(85, 169, 232, 0.08);
+}
+
+.input-group:not(:placeholder-shown) .input-icon,
+.input-group:not(:placeholder-shown) .input-icon i {
+  color: #55a9e8;
+}
+
+.input-group:not(:placeholder-shown) .input-icon i {
+  transform: scale(1.1);
+}
+
+
+.input-group input::placeholder {
+  color: #bbb;
+
+  font-weight: 400;
+
+  transition: color 0.3s ease;
+}
+
+
+.input-group input:focus::placeholder {
+  color: #ddd;
+}
+
+
+/* BOTÓN DE VER CONTRASEÑA */
+.password-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.7;
+  color: #999;
+}
+
+.password-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  color: #55a9e8;
+}
+
+.password-toggle:active {
+  transform: scale(0.95);
+}
+
+.password-toggle i {
+  font-size: 18px;
+}
+
+
+/* =========================
+   BOTÓN
+========================= */
+
+.login-button {
+  width: 100%;
+
+  height: 52px;
+
+  margin-top: 25px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: #55a9e8;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 12px;
+
+  letter-spacing: 0.3px;
+}
+
+
+.login-button span {
+  font-size: 20px;
+}
+
+
+.login-button:hover {
+  background: #3696dc;
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================
+   IMAGEN
+========================= */
+
+.login-image {
+  width: 48%;
+
+  position: relative;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  overflow: hidden;
+
+  background: #ffffff;
+}
+
+
+.gym-image {
+  position: relative;
+
+  z-index: 2;
+
+  width: 90%;
+
+  max-width: 520px;
+
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+/* MANCHA AZUL DETRÁS */
+
+.image-background {
+  position: absolute;
+
+  width: 430px;
+
+  height: 430px;
+
+  border-radius: 50%;
+
+  background: #e8f4ff;
+
+  z-index: 1;
+
+  opacity: 0.9;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 850px) {
+
+  .login-page {
+    padding: 20px;
+  }
+
+  .login-container {
+    max-width: 550px;
+
+    flex-direction: column;
+  }
+
+  .login-form {
+    width: 100%;
+
+    padding: 45px 40px;
+  }
+
+  .login-logo {
+    width: 320px;
+    margin: 0 auto 35px auto;
+  }
+
+  .login-image {
+    width: 100%;
+
+    min-height: 300px;
+  }
+
+  .gym-image {
+    width: 70%;
+  }
+
+  .image-background {
+    width: 280px;
+    height: 280px;
+  }
+}
+
+
+@media (max-width: 500px) {
+
+  .login-page {
+    padding: 10px;
+  }
+
+  .login-container {
+    border-radius: 12px;
+  }
+
+  .login-form {
+    padding: 35px 25px;
+  }
+
+  .login-logo {
+    width: 300px;
+    margin: 0 auto 30px auto;
+  }
+
+  .login-form h1 {
+    font-size: 32px;
+  }
+
+  .login-image {
+    min-height: 240px;
+  }
+
+  .gym-image {
+    width: 85%;
+  }
+
+}

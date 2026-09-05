@@ -1,0 +1,205 @@
+/* =====================================================
+   ESTILOS CONFIGURACIÓN
+===================================================== */
+
+/* CONFIG CONTAINER */
+.configContainer {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* CONFIG SECTION */
+.configSection {
+  background-color: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
+}
+
+.configSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sectionIcon {
+  color: #4c9a3a;
+}
+
+.configSectionTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172326;
+}
+
+/* CONFIG FORM */
+.configForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* FORM GROUP */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #697778;
+}
+
+.formInput {
+  padding: 12px 14px;
+  border: 1px solid #e0e5e5;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #172326;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #4c9a3a;
+  box-shadow: 0 0 0 3px rgba(76, 154, 58, 0.1);
+}
+
+.formInput::placeholder {
+  color: #929c9d;
+}
+
+/* FORM ROW */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* TOGGLE ITEM */
+.toggleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.toggleItem:last-child {
+  border-bottom: none;
+}
+
+.toggleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #172326;
+}
+
+.toggleDescription {
+  font-size: 12px;
+  color: #929c9d;
+}
+
+/* TOGGLE SWITCH */
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggleSwitch input:checked + .toggleSlider {
+  background-color: #4c9a3a;
+}
+
+.toggleSwitch input:checked + .toggleSlider:before {
+  transform: translateX(24px);
+}
+
+/* CONFIG ACTIONS */
+.configActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.saveButton:hover {
+  background-color: #3d8a30;
+}
+
+.saveButton:active {
+  transform: scale(0.98);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .configContainer {
+    max-width: 100%;
+  }
+}
