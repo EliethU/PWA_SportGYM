@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { collection, onSnapshot } from "firebase/firestore";
 import {
   LayoutDashboard,
   Users,
@@ -17,6 +18,7 @@ import {
   Plus,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
+import { db } from "../assets/database/firebaseconfig";
 import "../Styles/Home.css";
 import "../Styles/Clientes.css";
 
@@ -38,6 +40,29 @@ const menuItems = [
 
 export default function Clientes() {
   const navigate = useNavigate();
+  const [clients, setClients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "clientes"),
+      (snapshot) => {
+        setClients(snapshot.docs.map((client) => ({ id: client.id, ...client.data() })));
+        setError("");
+      },
+      (snapshotError) => {
+        console.error("Error al cargar los clientes:", snapshotError);
+        setError("No se pudieron cargar los clientes. Revisa la conexión con Firebase.");
+      },
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const filteredClients = clients.filter((client) =>
+    client.nombre?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
     <div className="app">
@@ -96,6 +121,8 @@ export default function Clientes() {
                 type="text"
                 placeholder="Buscar cliente..."
                 className="searchInput"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
               />
             </div>
             <button className="newButton" onClick={() => navigate("/nuevo-cliente")}>
@@ -119,15 +146,27 @@ export default function Clientes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Datos vacíos - sin base de datos */}
-                  <tr className="emptyRow">
-                    <td colSpan="5" className="emptyCell">
-                      No hay clientes registrados
-                    </td>
-                  </tr>
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map((client) => (
+                      <tr key={client.id}>
+                        <td>{client.nombre}</td>
+                        <td>{client.membresia || "-"}</td>
+                        <td><span className="statusBadge active">{client.estado || "Activo"}</span></td>
+                        <td>-</td>
+                        <td>-</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr className="emptyRow">
+                      <td colSpan="5" className="emptyCell">
+                        {searchTerm ? "No se encontraron clientes" : "No hay clientes registrados"}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
+            {error && <p className="clientsError">{error}</p>}
           </div>
 
         </section>

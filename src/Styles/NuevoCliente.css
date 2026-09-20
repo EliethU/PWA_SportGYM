@@ -43,6 +43,45 @@
   color: #172326;
 }
 
+.credentialsBox {
+  margin-bottom: 25px;
+  padding: 18px;
+  background-color: #f1f8ef;
+  border: 1px solid #b9dcae;
+  border-radius: 8px;
+}
+
+.credentialsTitle {
+  margin: 0 0 8px;
+  color: #2f7624;
+  font-size: 16px;
+}
+
+.credentialsBox p {
+  margin: 0 0 14px;
+  color: #536655;
+  font-size: 13px;
+}
+
+.credentialsRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 7px;
+  color: #172326;
+  font-size: 14px;
+}
+
+.newClientButton {
+  margin-top: 16px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 7px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* CLIENT FORM */
 .clientForm {
   display: flex;
@@ -140,6 +179,12 @@
   margin-top: 10px;
 }
 
+.formError {
+  margin: 0;
+  color: #c0392b;
+  font-size: 13px;
+}
+
 .cancelButton,
 .saveButton {
   flex: 1;
@@ -179,6 +224,11 @@
 
 .saveButton:active {
   transform: scale(0.98);
+}
+
+.saveButton:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 /* RESPONSIVE */

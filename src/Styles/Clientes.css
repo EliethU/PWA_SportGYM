@@ -141,6 +141,12 @@
   font-size: 14px;
 }
 
+.clientsError {
+  margin: 15px 0 0;
+  color: #c0392b;
+  font-size: 13px;
+}
+
 /* STATUS BADGES (for future use) */
 .statusBadge {
   display: inline-flex;
