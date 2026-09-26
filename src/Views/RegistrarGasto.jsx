@@ -10,6 +10,7 @@ import {
   Receipt,
   FileText,
   Settings,
+  LogOut,
   ArrowLeft,
   Save,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
   { name: "Configuración", icon: Settings, path: "/configuracion" },
+  { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
 export default function RegistrarGasto() {
@@ -57,7 +59,7 @@ export default function RegistrarGasto() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Gastos" ? 'activeMenu' : ''}`}
+                className={`menuItem ${item.name === "Gastos" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

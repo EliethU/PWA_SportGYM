@@ -11,6 +11,7 @@ import {
   Receipt,
   FileText,
   Settings,
+  LogOut,
   Search,
   Plus,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
   { name: "Configuración", icon: Settings, path: "/configuracion" },
+  { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
 export default function Clientes() {
@@ -82,7 +84,7 @@ export default function Clientes() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Clientes" ? 'activeMenu' : ''}`}
+                className={`menuItem ${item.name === "Clientes" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

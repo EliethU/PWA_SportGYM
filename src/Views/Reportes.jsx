@@ -11,6 +11,7 @@ import {
   Dumbbell,
   FileText,
   Settings,
+  LogOut,
   Download,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
@@ -27,6 +28,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
   { name: "Configuración", icon: Settings, path: "/configuracion" },
+  { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
 export default function Reportes() {
@@ -57,7 +59,7 @@ export default function Reportes() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Reportes" ? 'activeMenu' : ''}`}
+                className={`menuItem ${item.name === "Reportes" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

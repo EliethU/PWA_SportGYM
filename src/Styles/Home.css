@@ -82,6 +82,10 @@
   transition: all 0.2s ease;
 }
 
+.logoutMenuItem {
+  margin-top: auto;
+}
+
 .menuItem:hover {
   background-color: rgba(76, 154, 58, 0.1);
 }
