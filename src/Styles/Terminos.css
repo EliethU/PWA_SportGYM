@@ -1,0 +1,147 @@
+.terms-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 20px;
+  background-color: #f4f6f6;
+  color: #172326;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.terms-card {
+  width: min(100%, 560px);
+  overflow: hidden;
+  border: 1px solid #e0e5e5;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(23, 35, 38, 0.08);
+}
+
+.terms-banner {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2.5 / 1;
+  object-fit: cover;
+}
+
+.terms-content {
+  padding: 24px;
+}
+
+.terms-copy {
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.terms-copy p {
+  margin: 0 0 10px;
+}
+
+.terms-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.terms-copy strong {
+  color: #172326;
+  font-weight: 700;
+}
+
+.terms-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid #e0e5e5;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.terms-acceptance {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #172326;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.terms-acceptance input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: #4c9a3a;
+  flex: 0 0 auto;
+}
+
+.terms-continue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 136px;
+  min-height: 40px;
+  margin-left: auto;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background-color: #4c9a3a;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.terms-continue span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.terms-continue:disabled {
+  background-color: #929c9d;
+  cursor: not-allowed;
+}
+
+.terms-continue:not(:disabled):hover {
+  background-color: #3d8a30;
+}
+
+.terms-continue:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.terms-continue:focus-visible,
+.terms-acceptance input:focus-visible {
+  outline: 3px solid rgba(76, 154, 58, 0.25);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .terms-page {
+    align-items: flex-start;
+    padding: 16px 12px;
+  }
+
+  .terms-content {
+    padding: 18px;
+  }
+
+  .terms-copy {
+    font-size: 13px;
+  }
+
+  .terms-actions {
+    align-items: stretch;
+    margin-top: 18px;
+  }
+
+  .terms-continue {
+    width: 100%;
+  }
+}

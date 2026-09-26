@@ -133,7 +133,7 @@ body {
 
 
 .input-group:focus-within {
-  border-bottom-color: #55a9e8;
+  border-bottom-color: #4c9a3a;
 }
 
 
@@ -142,7 +142,7 @@ body {
 
   font-size: 18px;
 
-  color: #999;
+  color: #4c9a3a;
 
   transition: color 0.3s ease;
 
@@ -159,7 +159,7 @@ body {
 
 .input-group:focus-within .input-icon,
 .input-group:focus-within .input-icon i {
-  color: #55a9e8;
+  color: #4c9a3a;
 }
 
 
@@ -182,18 +182,18 @@ body {
 
 
 .input-group input:focus {
-  background: rgba(85, 169, 232, 0.05);
+  background: rgba(76, 154, 58, 0.05);
 }
 
 
 /* Animación cuando el input tiene contenido */
 .input-group input:not(:placeholder-shown) {
-  background: rgba(85, 169, 232, 0.08);
+  background: rgba(76, 154, 58, 0.08);
 }
 
 .input-group:not(:placeholder-shown) .input-icon,
 .input-group:not(:placeholder-shown) .input-icon i {
-  color: #55a9e8;
+  color: #4c9a3a;
 }
 
 .input-group:not(:placeholder-shown) .input-icon i {
@@ -233,7 +233,7 @@ body {
 .password-toggle:hover {
   opacity: 1;
   transform: scale(1.1);
-  color: #55a9e8;
+  color: #4c9a3a;
 }
 
 .password-toggle:active {
@@ -260,7 +260,7 @@ body {
 
   border-radius: 6px;
 
-  background: #55a9e8;
+  background: #4c9a3a;
 
   color: white;
 
@@ -290,7 +290,7 @@ body {
 
 
 .login-button:hover {
-  background: #3696dc;
+  background: #3d8a30;
 
   transform: translateY(-2px);
 }

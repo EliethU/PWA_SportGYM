@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import inicioImage from "../Imagen/inicio.jpg";
 import "../Styles/Login.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -15,8 +16,8 @@ const Login = () => {
 
     // Validación de credenciales inventadas
     if (email === "sportgym26@gmail.com" && password === "123456") {
-      // Login exitoso - redirigir al Home
-      navigate("/home");
+      // Login exitoso - mostrar términos antes de entrar al Home
+      navigate("/terminos");
     } else {
       // Credenciales incorrectas
       setError("Usuario o contraseña incorrectos");
@@ -103,7 +104,7 @@ const Login = () => {
           <div className="image-background"></div>
 
           <img
-            src="/login-gym.png"
+            src={inicioImage}
             alt="Port Gym"
             className="gym-image"
           />
