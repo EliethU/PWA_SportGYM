@@ -18,6 +18,10 @@ import {
   Mail,
   User,
   Calendar,
+  ShieldCheck,
+  KeyRound,
+  History,
+  ReceiptText,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import { db } from "../assets/database/firebaseconfig";
@@ -96,6 +100,7 @@ export default function NuevoCliente() {
         usuario: username,
         contrasena: password,
         estado: "Activo",
+        estadoPago: "pendiente",
         creadoEn: serverTimestamp(),
       });
       setCredentials({ username, password });
@@ -164,7 +169,13 @@ export default function NuevoCliente() {
 
           {/* FORMULARIO DE CLIENTE */}
           <div className="clientFormContainer">
-            <h3 className="formTitle">Información del cliente</h3>
+            <div className="clientFormHeading">
+              <div>
+                <span className="clientFormEyebrow">REGISTRO DE CLIENTE</span>
+                <h3 className="formTitle">Información del cliente</h3>
+              </div>
+              <span className="requiredHint">* Campos obligatorios</span>
+            </div>
 
             {credentials && (
               <div className="credentialsBox">
@@ -185,72 +196,90 @@ export default function NuevoCliente() {
             )}
             
             {!credentials && <form className="clientForm" onSubmit={handleSubmit}>
-              <div className="formSection">
-                <h4 className="formSectionTitle">Datos personales</h4>
-                
-                <div className="formGroup">
-                  <label className="formLabel">
-                    <User size={16} className="labelIcon" />
-                    Nombre completo
-                  </label>
-                  <input
-                    type="text"
-                    name="nombre"
-                    className="formInput"
-                    placeholder="Nombre del cliente"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+              <div className="formSectionsGrid">
+                <section className="formSection">
+                  <h4 className="formSectionTitle">
+                    <span className="sectionIcon"><User size={17} /></span>
+                    Datos personales
+                  </h4>
 
-                <div className="formRow">
                   <div className="formGroup">
-                    <label className="formLabel">
-                      <Phone size={16} className="labelIcon" />
-                      Teléfono
-                    </label>
+                    <label className="formLabel" htmlFor="client-name">Nombre completo <span>*</span></label>
                     <input
-                      type="tel"
-                      name="telefono"
+                      id="client-name"
+                      type="text"
+                      name="nombre"
                       className="formInput"
-                      placeholder="Número de teléfono"
-                      value={formData.telefono}
+                      placeholder="Nombre del cliente"
+                      value={formData.nombre}
                       onChange={handleChange}
+                      required
                     />
                   </div>
 
                   <div className="formGroup">
-                    <label className="formLabel">
-                      <Mail size={16} className="labelIcon" />
-                      Correo electrónico
-                    </label>
-                    <input
-                      type="email"
-                      name="correo"
-                      className="formInput"
-                      placeholder="correo@ejemplo.com"
-                      value={formData.correo}
+                    <label className="formLabel" htmlFor="client-phone">Teléfono</label>
+                    <div className="inputWithIcon">
+                      <Phone size={17} />
+                      <input
+                        id="client-phone"
+                        type="tel"
+                        name="telefono"
+                        className="formInput"
+                        placeholder="Número de teléfono"
+                        value={formData.telefono}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="formGroup">
+                    <label className="formLabel" htmlFor="client-email">Correo electrónico</label>
+                    <div className="inputWithIcon">
+                      <Mail size={17} />
+                      <input
+                        id="client-email"
+                        type="email"
+                        name="correo"
+                        className="formInput"
+                        placeholder="correo@ejemplo.com"
+                        value={formData.correo}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="formGroup">
+                    <label className="formLabel" htmlFor="client-notes">Notas adicionales</label>
+                    <textarea
+                      id="client-notes"
+                      name="notas"
+                      className="formTextarea"
+                      placeholder="Observaciones sobre el cliente"
+                      rows={2}
+                      value={formData.notas}
                       onChange={handleChange}
                     />
                   </div>
-                </div>
-              </div>
+                </section>
 
-              <div className="formSection">
-                <h4 className="formSectionTitle">Información de membresía</h4>
-                
-                <div className="formRow">
+                <section className="formSection">
+                  <h4 className="formSectionTitle">
+                    <span className="sectionIcon"><Calendar size={17} /></span>
+                    Información de membresía
+                  </h4>
+
                   <div className="formGroup">
-                    <label className="formLabel">Tipo de membresía</label>
+                    <label className="formLabel" htmlFor="client-membership">Tipo de membresía <span>*</span></label>
                     <select
+                      id="client-membership"
                       name="membresia"
                       className="formSelect"
                       value={formData.membresia}
                       onChange={handleChange}
                       required
                     >
-                      <option value="">Seleccionar membresía</option>
+                      <option value="">Seleccione membresía</option>
                       <option value="premium">Premium</option>
                       <option value="mensual">Mensual</option>
                       <option value="semanal">Semanal</option>
@@ -259,47 +288,84 @@ export default function NuevoCliente() {
                   </div>
 
                   <div className="formGroup">
-                    <label className="formLabel">
-                      <Calendar size={16} className="labelIcon" />
-                      Fecha de inicio
-                    </label>
-                    <input
-                      type="date"
-                      name="fechaInicio"
-                      className="formInput"
-                      value={formData.fechaInicio}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label className="formLabel" htmlFor="client-start-date">Fecha de inicio <span>*</span></label>
+                    <div className="inputWithIcon">
+                      <Calendar size={17} />
+                      <input
+                        id="client-start-date"
+                        type="date"
+                        name="fechaInicio"
+                        className="formInput"
+                        value={formData.fechaInicio}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
+                  <p className="sectionHint">La membresía y la fecha se utilizarán para iniciar el registro del cliente.</p>
+                </section>
+
+                <section className="formSection accountSection">
+                  <h4 className="formSectionTitle">
+                    <span className="sectionIcon"><ShieldCheck size={17} /></span>
+                    Datos de cuenta
+                  </h4>
+                  <div className="formRow">
+                    <div className="formGroup">
+                      <label className="formLabel" htmlFor="client-username">Usuario</label>
+                      <div className="inputWithIcon">
+                        <User size={17} />
+                        <input
+                          id="client-username"
+                          className="formInput"
+                          value={formData.nombre ? createUsernameBase(formData.nombre) : ""}
+                          placeholder="Nombre usuario"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="formGroup">
+                      <label className="formLabel" htmlFor="client-password">Contraseña</label>
+                      <div className="inputWithIcon">
+                        <KeyRound size={17} />
+                        <input
+                          id="client-password"
+                          className="formInput"
+                          value=""
+                          placeholder="Se genera al guardar"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="sectionHint">Las credenciales se generarán automáticamente al guardar.</p>
+                </section>
               </div>
 
-              <div className="formSection">
-                <h4 className="formSectionTitle">Información adicional</h4>
-                
-                <div className="formGroup">
-                  <label className="formLabel">Notas adicionales</label>
-                  <textarea
-                    name="notas"
-                    className="formTextarea"
-                    placeholder="Observaciones o notas sobre el cliente..."
-                    rows={3}
-                    value={formData.notas}
-                    onChange={handleChange}
-                  />
+              <section className="transactionsSection">
+                <div className="transactionsHeading">
+                  <h4 className="formSectionTitle">
+                    <span className="sectionIcon"><History size={17} /></span>
+                    Historial reciente de transacciones
+                  </h4>
+                  <span className="transactionCount">0 transacciones</span>
                 </div>
-              </div>
+                <div className="transactionEmptyState">
+                  <ReceiptText size={21} />
+                  <span>No hay transacciones registradas para este cliente.</span>
+                </div>
+              </section>
 
-              {error && <p className="formError">{error}</p>}
+              {error && <p className="formError" role="alert">{error}</p>}
 
               <div className="formActions">
                 <button type="button" className="cancelButton" onClick={() => navigate("/clientes")}>
-                  Cancelar
+                  <ArrowLeft size={17} />
+                  <span>Cancelar</span>
                 </button>
                 <button type="submit" className="saveButton" disabled={isSaving}>
                   <Save size={18} />
-                  <span>{isSaving ? "Guardando..." : "Guardar cliente"}</span>
+                  <span>{isSaving ? "Guardando..." : "Guardar"}</span>
                 </button>
               </div>
             </form>}
