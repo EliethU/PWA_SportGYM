@@ -1,0 +1,92 @@
+rules_version = '2';
+
+// Prototype data model:
+// usuarios/{uid}: uid, email, rol (admin|cliente), clienteId, creadoEn.
+// clientes/{id}: uid, nombre, telefono, correo, usuario, membresia,
+// fechaInicio, notas, estado, estadoPago, creadoEn. Legacy records may also
+// contain fields such as apellido, username, fechaRegistro or contrasena.
+// Administrative collections (planes, pagos, ventas, gastos, inventario, etc.)
+// are accessed only by an administrator.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function validShortString(data, field, maxLength) {
+      return !(field in data)
+        || (data[field] is string && data[field].size() <= maxLength);
+    }
+
+    function validEmail(value) {
+      return value is string
+        && value.size() <= 254
+        && value.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+    }
+
+    function validUserProfile(data) {
+      return data.keys().hasOnly(['uid', 'email', 'rol', 'clienteId', 'creadoEn'])
+        && data.uid is string
+        && data.uid.size() <= 128
+        && validEmail(data.email)
+        && data.rol in ['admin', 'cliente']
+        && validShortString(data, 'clienteId', 128)
+        && (!('creadoEn' in data) || data.creadoEn is timestamp);
+    }
+
+    function validClient(data) {
+      return data.keys().hasOnly([
+          'uid', 'nombre', 'apellido', 'telefono', 'correo', 'usuario',
+          'username', 'membresia', 'tipoMembresia', 'fechaInicio',
+          'fechaVencimiento', 'fechaNacimiento', 'fechaRegistro', 'creadoEn',
+          'notas', 'estado', 'estadoPago', 'contrasena'
+        ])
+        && validShortString(data, 'uid', 128)
+        && validShortString(data, 'nombre', 120)
+        && validShortString(data, 'apellido', 120)
+        && validShortString(data, 'telefono', 32)
+        && (!('correo' in data) || data.correo == '' || validEmail(data.correo))
+        && validShortString(data, 'usuario', 80)
+        && validShortString(data, 'username', 80)
+        && validShortString(data, 'membresia', 80)
+        && validShortString(data, 'tipoMembresia', 80)
+        && validShortString(data, 'fechaInicio', 40)
+        && validShortString(data, 'fechaVencimiento', 40)
+        && validShortString(data, 'fechaNacimiento', 40)
+        && validShortString(data, 'notas', 1000)
+        && validShortString(data, 'contrasena', 128)
+        && (!('estado' in data) || data.estado in ['Activo', 'activo', 'Inactivo', 'inactivo'])
+        && (!('estadoPago' in data) || data.estadoPago in ['pagado', 'pendiente', 'vencido'])
+        && (!('creadoEn' in data) || data.creadoEn is timestamp)
+        && (!('fechaRegistro' in data) || data.fechaRegistro is timestamp || data.fechaRegistro is string);
+    }
+
+    match /usuarios/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && validUserProfile(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /clientes/{clienteId} {
+      allow get: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && validClient(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

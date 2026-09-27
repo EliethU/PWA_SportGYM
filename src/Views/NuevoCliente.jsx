@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addDoc, collection, getDocs, query, serverTimestamp, where } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import {
   LayoutDashboard,
   Users,
@@ -24,7 +24,7 @@ import {
   ReceiptText,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
-import { db } from "../assets/database/firebaseconfig";
+import { appfirebase } from "../assets/database/firebaseconfig";
 import "../Styles/Home.css";
 import "../Styles/NuevoCliente.css";
 
@@ -41,6 +41,8 @@ const menuItems = [
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
+const registrarCliente = httpsCallable(getFunctions(appfirebase, "us-central1"), "registrarCliente");
+
 const createUsernameBase = (name) =>
   name
     .normalize("NFD")
@@ -48,13 +50,6 @@ const createUsernameBase = (name) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ".")
     .replace(/^\.|\.$/g, "");
-
-const createPassword = () => {
-  const length = Math.floor(Math.random() * 3) + 6;
-  const randomValues = new Uint32Array(length);
-  crypto.getRandomValues(randomValues);
-  return Array.from(randomValues, (value) => value % 10).join("");
-};
 
 export default function NuevoCliente() {
   const navigate = useNavigate();
@@ -81,32 +76,19 @@ export default function NuevoCliente() {
     setIsSaving(true);
 
     try {
-      const usernameBase = createUsernameBase(formData.nombre);
-      const existingUsers = await getDocs(
-        query(collection(db, "clientes"), where("usuario", ">=", usernameBase), where("usuario", "<", `${usernameBase}\uf8ff`)),
-      );
-      const existingUsernames = new Set(existingUsers.docs.map((client) => client.data().usuario));
-      let username = usernameBase;
-      let suffix = 2;
-
-      while (existingUsernames.has(username)) {
-        username = `${usernameBase}${suffix}`;
-        suffix += 1;
-      }
-
-      const password = createPassword();
-      await addDoc(collection(db, "clientes"), {
-        ...formData,
-        usuario: username,
-        contrasena: password,
-        estado: "Activo",
-        estadoPago: "pendiente",
-        creadoEn: serverTimestamp(),
+      const result = await registrarCliente(formData);
+      setCredentials({
+        username: result.data.usuario,
+        email: result.data.correo,
+        password: result.data.contrasenaTemporal,
       });
-      setCredentials({ username, password });
     } catch (saveError) {
       console.error("Error al registrar el cliente:", saveError);
-      setError("No se pudo registrar el cliente. Revisa la conexión con Firebase.");
+      setError(
+        saveError.code === "functions/already-exists"
+          ? "Ya existe una cuenta con ese correo."
+          : "No se pudo registrar el cliente. Verifica que la sesión de administrador esté activa y que la función esté desplegada.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -186,9 +168,14 @@ export default function NuevoCliente() {
                   <span>{credentials.username}</span>
                 </div>
                 <div className="credentialsRow">
+                  <strong>Correo:</strong>
+                  <span>{credentials.email}</span>
+                </div>
+                <div className="credentialsRow">
                   <strong>Contraseña:</strong>
                   <span>{credentials.password}</span>
                 </div>
+                <p className="credentialsSecurityNote">La contraseña temporal solo se muestra ahora. Entrégasela al cliente de forma segura.</p>
                 <button type="button" className="newClientButton" onClick={() => navigate("/clientes")}>
                   Ir a clientes
                 </button>
@@ -234,7 +221,7 @@ export default function NuevoCliente() {
                   </div>
 
                   <div className="formGroup">
-                    <label className="formLabel" htmlFor="client-email">Correo electrónico</label>
+                    <label className="formLabel" htmlFor="client-email">Correo electrónico <span>*</span></label>
                     <div className="inputWithIcon">
                       <Mail size={17} />
                       <input
@@ -245,6 +232,7 @@ export default function NuevoCliente() {
                         placeholder="correo@ejemplo.com"
                         value={formData.correo}
                         onChange={handleChange}
+                        required
                       />
                     </div>
                   </div>
@@ -338,7 +326,7 @@ export default function NuevoCliente() {
                       </div>
                     </div>
                   </div>
-                  <p className="sectionHint">Las credenciales se generarán automáticamente al guardar.</p>
+                  <p className="sectionHint">El usuario se crea con este correo. La contraseña temporal se genera en Firebase Authentication y no se guarda en Firestore.</p>
                 </section>
               </div>
 

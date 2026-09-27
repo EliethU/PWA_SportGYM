@@ -1,0 +1,200 @@
+.clientPortal {
+  min-height: 100vh;
+  background: #f4f6f6;
+  color: #172326;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.clientPortalHeader {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px clamp(18px, 5vw, 64px);
+  background: #ffffff;
+  border-bottom: 1px solid #e3e7e7;
+}
+
+.clientPortalHeader img {
+  width: 178px;
+  max-height: 48px;
+  object-fit: contain;
+}
+
+.clientPortalLogout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid #e0e5e5;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #536160;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.clientPortalLogout:hover {
+  border-color: #c9d7c5;
+  color: #367d2b;
+}
+
+.clientPortalContent {
+  width: min(100% - 36px, 900px);
+  margin: 0 auto;
+  padding: clamp(35px, 7vw, 76px) 0 50px;
+}
+
+.clientPortalEyebrow {
+  margin: 0 0 8px;
+  color: #4c9a3a;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.clientPortalContent h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.clientPortalIntro {
+  margin: 10px 0 28px;
+  color: #697778;
+  font-size: 14px;
+}
+
+.clientMembershipPanel {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e0e5e5;
+  border-radius: 8px;
+}
+
+.clientMembershipHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px;
+  border-bottom: 1px solid #edf0f0;
+}
+
+.clientMembershipIcon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #edf5eb;
+  color: #4c9a3a;
+}
+
+.clientMembershipHeader div:nth-child(2) {
+  min-width: 0;
+}
+
+.clientMembershipHeader div:nth-child(2) > span,
+.clientMembershipDetails div > span {
+  color: #7b8788;
+  font-size: 12px;
+}
+
+.clientMembershipHeader h2 {
+  margin: 3px 0 0;
+  font-size: 18px;
+  text-transform: capitalize;
+}
+
+.clientPortalStatus {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.clientPortalStatus.pagado {
+  background: #e9f5e6;
+  color: #367d2b;
+}
+
+.clientPortalStatus.pendiente {
+  background: #fff4dc;
+  color: #966500;
+}
+
+.clientPortalStatus.vencido {
+  background: #fdebea;
+  color: #b83e35;
+}
+
+.clientMembershipDetails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 20px 22px;
+}
+
+.clientMembershipDetails div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 19px 1fr;
+  align-items: center;
+  column-gap: 9px;
+  row-gap: 5px;
+}
+
+.clientMembershipDetails svg {
+  grid-row: span 2;
+  color: #4c9a3a;
+}
+
+.clientMembershipDetails strong {
+  overflow-wrap: anywhere;
+  color: #172326;
+  font-size: 13px;
+}
+
+.clientPortalMessage,
+.clientPortalError {
+  padding: 15px 17px;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #697778;
+  font-size: 13px;
+}
+
+.clientPortalError {
+  color: #b83e35;
+}
+
+@media (max-width: 600px) {
+  .clientPortalHeader img {
+    width: 145px;
+  }
+
+  .clientPortalLogout span {
+    display: none;
+  }
+
+  .clientPortalContent h1 {
+    font-size: 25px;
+  }
+
+  .clientMembershipHeader {
+    flex-wrap: wrap;
+    padding: 18px;
+  }
+
+  .clientPortalStatus {
+    margin-left: 56px;
+  }
+
+  .clientMembershipDetails {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+}
