@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
+  Home,
   Users,
   CreditCard,
   Wallet,
@@ -13,13 +13,44 @@ import {
   TrendingUp,
   TrendingDown,
   LogOut,
+  DollarSign,
+  AlertCircle,
+  Clock,
+  UserPlus,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import "../Styles/Home.css";
 import Encabezado from "../Components/Encabezado";
 
+/* ------------------------------------------------------------------ */
+/*  TOKENS DE DISEÑO                                                   */
+/* ------------------------------------------------------------------ */
+const DESIGN_TOKENS = {
+  colors: {
+    fondo: '#F2F5F0',
+    tarjeta: '#FFFFFF',
+    borde: '#E1E8DD',
+    tinta: '#14201F',
+    tintaSuave: '#66756F',
+    verde: '#4C9A3A',
+    verdeOscuro: '#173230',
+    verdeClaro: '#E6F2E1',
+    azul: '#2F80B8',
+    azulClaro: '#E3F0F8',
+    rojo: '#D64545',
+    rojoClaro: '#FBE7E7',
+    ambar: '#E0902B',
+    ambarClaro: '#FCF0DD',
+  },
+  spacing: {
+    chico: 10,
+    medio: 16,
+    grande: 22,
+  }
+};
+
 const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/home" },
+  { name: "Inicio", icon: Home, path: "/home" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
@@ -31,8 +62,43 @@ const menuItems = [
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  DATOS MOCKUP (reemplaza con datos reales de tu API)                */
+/* ------------------------------------------------------------------ */
+const MOCK_DATA = {
+  clientesActivos: 0,
+  nuevosClientes: 0,
+  membresiasPorVencer: 0,
+  membresiasVencidas: 0,
+  ingresosHoy: 0,
+  ingresosSemanales: 0,
+  ingresosMensuales: 0,
+  gastosMensuales: 0,
+  ganancia: 0,
+};
+
+const formatCurrency = (n) => 'C$ ' + n.toLocaleString('en-US');
+
+/* ------------------------------------------------------------------ */
+/*  COMPONENTES REUTILIZABLES                                          */
+/* ------------------------------------------------------------------ */
+function KpiCard({ titulo, valor, icono: Icon, color, fondo, acento }) {
+  return (
+    <div className={`kpi-card ${acento ? 'kpi-card-accent' : ''}`} style={{ '--accent-color': color }}>
+      <div className="kpi-icon" style={{ backgroundColor: fondo }}>
+        <Icon size={22} color={color} />
+      </div>
+      <div className="kpi-content">
+        <h3 className="kpi-title">{titulo}</h3>
+        <p className="kpi-value">{valor}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
+
   return (
     <div className="app">
 
@@ -75,136 +141,205 @@ export default function Home() {
       <main className="main">
 
         {/* ENCABEZADO SUPERIOR */}
-        <Encabezado title="Inicio" description="Panel administrativo" />
+        <Encabezado
+          title="Inicio"
+          description="Panel administrativo"
+        />
 
         {/* =========================
             CONTENIDO DASHBOARD
         ========================== */}
         <section className="content">
 
-          <div className="welcome">
-            <h1>Bienvenido a SPORT GYM</h1>
-            <p>
-              Administra fácilmente las operaciones de tu gimnasio.
-            </p>
+          {/* HÉROE: Ganancia aproximada */}
+          <div className="hero-section">
+            <div className="hero-circle hero-circle-1" />
+            <div className="hero-circle hero-circle-2" />
+            <div className="hero-content">
+              <div className="hero-header">
+                <div className="hero-icon">
+                  <DollarSign size={26} color="#fff" />
+                </div>
+                <h2 className="hero-title">Ganancia aproximada</h2>
+              </div>
+              <p className="hero-value">{formatCurrency(MOCK_DATA.ganancia)}</p>
+              <div className="hero-footer">
+                <div className="hero-mini">
+                  <span className="hero-mini-label">Ingresos del mes</span>
+                  <span className="hero-mini-value">{formatCurrency(MOCK_DATA.ingresosMensuales)}</span>
+                </div>
+                <div className="hero-divider" />
+                <div className="hero-mini">
+                  <span className="hero-mini-label">Gastos del mes</span>
+                  <span className="hero-mini-value">{formatCurrency(MOCK_DATA.gastosMensuales)}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* TARJETAS DE RESUMEN */}
-          <div className="summaryCards">
+          {/* CLIENTES */}
+          <h3 className="section-group">Clientes</h3>
+          <div className="kpi-grid">
+            <KpiCard
+              titulo="Clientes activos"
+              valor={String(MOCK_DATA.clientesActivos)}
+              icono={Users}
+              color={DESIGN_TOKENS.colors.azul}
+              fondo={DESIGN_TOKENS.colors.azulClaro}
+            />
+            <KpiCard
+              titulo="Nuevos clientes"
+              valor={String(MOCK_DATA.nuevosClientes)}
+              icono={UserPlus}
+              color={DESIGN_TOKENS.colors.verde}
+              fondo={DESIGN_TOKENS.colors.verdeClaro}
+            />
+            <KpiCard
+              titulo="Membresías por vencer"
+              valor={String(MOCK_DATA.membresiasPorVencer)}
+              icono={Clock}
+              color={DESIGN_TOKENS.colors.ambar}
+              fondo={DESIGN_TOKENS.colors.ambarClaro}
+              acento
+            />
+            <KpiCard
+              titulo="Membresías vencidas"
+              valor={String(MOCK_DATA.membresiasVencidas).padStart(2, '0')}
+              icono={AlertCircle}
+              color={DESIGN_TOKENS.colors.rojo}
+              fondo={DESIGN_TOKENS.colors.rojoClaro}
+              acento
+            />
+          </div>
 
-            <div className="summaryCard income">
-              <div className="cardHeader">
-                <span className="cardTitle">Ingresos</span>
-                <TrendingUp size={18} className="cardIcon" />
-              </div>
-              <strong className="cardNumber">C$ 0</strong>
-              <span className="cardDescription">
-                Ingresos del mes
-              </span>
-            </div>
-
-            <div className="summaryCard sales">
-              <div className="cardHeader">
-                <span className="cardTitle">Ventas</span>
-                <TrendingUp size={18} className="cardIcon" />
-              </div>
-              <strong className="cardNumber">C$ 0</strong>
-              <span className="cardDescription">
-                Ventas del mes
-              </span>
-            </div>
-
-            <div className="summaryCard expenses">
-              <div className="cardHeader">
-                <span className="cardTitle">Gastos</span>
-                <TrendingDown size={18} className="cardIcon" />
-              </div>
-              <strong className="cardNumber">C$ 0</strong>
-              <span className="cardDescription">
-                Gastos del mes
-              </span>
-            </div>
-
-            <div className="summaryCard utility">
-              <div className="cardHeader">
-                <span className="cardTitle">Utilidad</span>
-                <TrendingUp size={18} className="cardIcon" />
-              </div>
-              <strong className="cardNumber">C$ 0</strong>
-              <span className="cardDescription">
-                Utilidad del mes
-              </span>
-            </div>
-
+          {/* DINERO */}
+          <h3 className="section-group">Dinero</h3>
+          <div className="kpi-grid">
+            <KpiCard
+              titulo="Ingresos hoy"
+              valor={formatCurrency(MOCK_DATA.ingresosHoy)}
+              icono={TrendingUp}
+              color={DESIGN_TOKENS.colors.verde}
+              fondo={DESIGN_TOKENS.colors.verdeClaro}
+            />
+            <KpiCard
+              titulo="Ingresos semanales"
+              valor={formatCurrency(MOCK_DATA.ingresosSemanales)}
+              icono={TrendingUp}
+              color={DESIGN_TOKENS.colors.verde}
+              fondo={DESIGN_TOKENS.colors.verdeClaro}
+            />
+            <KpiCard
+              titulo="Ingresos mensuales"
+              valor={formatCurrency(MOCK_DATA.ingresosMensuales)}
+              icono={TrendingUp}
+              color={DESIGN_TOKENS.colors.verde}
+              fondo={DESIGN_TOKENS.colors.verdeClaro}
+            />
+            <KpiCard
+              titulo="Gastos mensuales"
+              valor={formatCurrency(MOCK_DATA.gastosMensuales)}
+              icono={TrendingDown}
+              color={DESIGN_TOKENS.colors.rojo}
+              fondo={DESIGN_TOKENS.colors.rojoClaro}
+            />
           </div>
 
           {/* GRÁFICOS */}
-          <div className="chartsContainer">
+          <h3 className="section-group">Resumen</h3>
+          <div className="charts-container">
 
             {/* GRÁFICO DE INGRESOS VS GASTOS */}
-            <div className="chartCard">
-              <h3 className="chartTitle">Ingresos vs. gastos</h3>
-              <div className="chartContent">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={[]}>
+            <div className="chart-card">
+              <div className="chart-header">
+                <h3 className="chart-title">Ingresos vs. gastos</h3>
+                <div className="chart-legend">
+                  <div className="legend-item">
+                    <div className="legend-dot" style={{ backgroundColor: DESIGN_TOKENS.colors.verde }} />
+                    <span className="legend-text">Ingresos</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-dot" style={{ backgroundColor: DESIGN_TOKENS.colors.azul }} />
+                    <span className="legend-text">Gastos</span>
+                  </div>
+                </div>
+              </div>
+              <div className="chart-content">
+                <ResponsiveContainer width="100%" height={150}>
+                  <BarChart data={[
+                    { name: 'Ene', ingresos: 0, gastos: 0 },
+                    { name: 'Feb', ingresos: 0, gastos: 0 },
+                    { name: 'Mar', ingresos: 0, gastos: 0 },
+                    { name: 'Abr', ingresos: 0, gastos: 0 },
+                    { name: 'May', ingresos: 0, gastos: 0 },
+                    { name: 'Jun', ingresos: 0, gastos: 0 },
+                    { name: 'Jul', ingresos: 0, gastos: 0 },
+                    { name: 'Ago', ingresos: 0, gastos: 0 },
+                    { name: 'Sep', ingresos: 0, gastos: 0 },
+                    { name: 'Oct', ingresos: 0, gastos: 0 },
+                    { name: 'Nov', ingresos: 0, gastos: 0 },
+                    { name: 'Dic', ingresos: 0, gastos: 0 },
+                  ]}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e5e5" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#7b8788' }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#7b8788' }} />
                     <Tooltip cursor={{ fill: 'rgba(76, 154, 58, 0.1)' }} />
-                    <Bar dataKey="ingresos" fill="#4c9a3a" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="gastos" fill="#e74c3c" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="ingresos" fill={DESIGN_TOKENS.colors.verde} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="gastos" fill={DESIGN_TOKENS.colors.azul} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* GRÁFICO DE INGRESOS POR CATEGORÍA */}
-            <div className="chartCard">
-              <h3 className="chartTitle">Ingresos por categoría</h3>
-              <div className="chartContent">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={[]} layout="horizontal">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e0e5e5" />
-                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#7b8788' }} />
-                    <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#7b8788' }} width={80} />
-                    <Tooltip cursor={{ fill: 'rgba(76, 154, 58, 0.1)' }} />
-                    <Bar dataKey="value" fill="#4c9a3a" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* INVENTARIO BAJO */}
+            <div className="inventory-card">
+              <div className="card-header-section">
+                <h3 className="section-title-card">Productos con bajo inventario</h3>
+                <div className="alert-chip">
+                  <span className="alert-chip-text">4 productos</span>
+                </div>
+              </div>
+              <div className="inventory-list">
+                {[
+                  { nombre: 'Proteína Whey', cantidad: 0, maximo: 40 },
+                  { nombre: 'Creatina', cantidad: 0, maximo: 40 },
+                  { nombre: 'Botellas de agua', cantidad: 0, maximo: 60 },
+                  { nombre: 'Raptor', cantidad: 0, maximo: 40 },
+                ].map((producto, index) => {
+                  const porcentaje = Math.min(100, (producto.cantidad / producto.maximo) * 100);
+                  const critico = producto.cantidad <= 5;
+                  const color = critico ? DESIGN_TOKENS.colors.rojo : DESIGN_TOKENS.colors.ambar;
+                  return (
+                    <div key={producto.nombre} className="inventory-item">
+                      <div className="inventory-item-top">
+                        <span className="product-name">{producto.nombre}</span>
+                        <span className="product-quantity" style={{ color }}>{producto.cantidad} uds</span>
+                      </div>
+                      <div className="progress-track">
+                        <div
+                          className="progress-bar"
+                          style={{ width: `${porcentaje}%`, backgroundColor: color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
           </div>
 
           {/* ACTIVIDAD RECIENTE */}
-          <div className="recentActivity">
-            <h3 className="sectionTitle">Actividad reciente</h3>
-            <div className="activityList">
-              <div className="activityItem">
-                <div className="activityIcon">
-                  <CreditCard size={16} />
+          <h3 className="section-group">Actividad reciente</h3>
+          <div className="recent-activity">
+            <div className="activity-list">
+              <div className="activity-item">
+                <div className="activity-icon" style={{ backgroundColor: DESIGN_TOKENS.colors.verde }}>
+                  <CreditCard size={16} color="#fff" />
                 </div>
-                <div className="activityInfo">
-                  <span className="activityText">Pago membresía Juan Pérez - C$0</span>
-                  <span className="activityTime">Hace 0 minutos</span>
-                </div>
-              </div>
-              <div className="activityItem">
-                <div className="activityIcon">
-                  <ShoppingCart size={16} />
-                </div>
-                <div className="activityInfo">
-                  <span className="activityText">Venta suplemento - Proteína 2 lb - C$0</span>
-                  <span className="activityTime">Hace 0 minutos</span>
-                </div>
-              </div>
-              <div className="activityItem">
-                <div className="activityIcon">
-                  <Receipt size={16} />
-                </div>
-                <div className="activityInfo">
-                  <span className="activityText">Gasto energía eléctrica - C$0</span>
-                  <span className="activityTime">Hace 0 minutos</span>
+                <div className="activity-info">
+                  <span className="activity-text">Sin actividad reciente</span>
+                  <span className="activity-time">-</span>
                 </div>
               </div>
             </div>

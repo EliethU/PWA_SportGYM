@@ -11,14 +11,13 @@ import {
   FileText,
   Settings,
   LogOut,
-  Plus,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import "../Styles/Home.css";
 import "../Styles/Membresias.css";
 
 const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/home" },
+  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
@@ -81,14 +80,6 @@ export default function Membresias() {
             CONTENIDO MEMBRESÍAS
         ========================== */}
         <section className="content">
-
-          {/* BOTÓN NUEVO */}
-          <div className="membresiasHeader">
-            <button className="newButton">
-              <Plus size={18} />
-              <span>Nueva membresía</span>
-            </button>
-          </div>
 
           {/* TABLA DE MEMBRESÍAS */}
           <div className="membresiasTableContainer">

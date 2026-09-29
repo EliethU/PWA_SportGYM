@@ -17,7 +17,7 @@ import "../Styles/Home.css";
 import "../Styles/Pagos.css";
 
 const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/home" },
+  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CalendarDays, CreditCard, LogOut, UserRound } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../assets/database/authcontext";
-import { db } from "../assets/database/firebaseconfig";
+import { db } from "../assets/database/firebaseconfig.jsx";
 import "../Styles/PortalCliente.css";
 
 const formatDate = (value) => {

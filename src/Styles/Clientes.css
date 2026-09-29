@@ -98,7 +98,7 @@
 .clientsTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .clientsTable thead {
@@ -106,16 +106,16 @@
 }
 
 .clientsTable th {
-  padding: 14px 16px;
+  padding: 10px 12px;
   text-align: left;
   font-weight: 600;
   color: #697778;
-  font-size: 13px;
+  font-size: 11px;
   border-bottom: 2px solid #e0e5e5;
 }
 
 .clientsTable td {
-  padding: 14px 16px;
+  padding: 10px 12px;
   color: #172326;
   border-bottom: 1px solid #e0e5e5;
 }
@@ -186,7 +186,7 @@
 }
 
 .clientsTable {
-  min-width: 1320px;
+  min-width: 1000px;
 }
 
 .clientsTable th {

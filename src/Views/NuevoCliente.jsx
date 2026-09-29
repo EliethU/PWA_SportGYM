@@ -24,12 +24,12 @@ import {
   ReceiptText,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
-import { appfirebase } from "../assets/database/firebaseconfig";
+import { appfirebase } from "../assets/database/firebaseconfig.jsx";
 import "../Styles/Home.css";
 import "../Styles/NuevoCliente.css";
 
 const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/home" },
+  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },

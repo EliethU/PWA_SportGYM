@@ -20,14 +20,15 @@ import {
   Save,
   Eye,
   EyeOff,
+  AlertTriangle,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
-import { db } from "../assets/database/firebaseconfig";
+import { db } from "../assets/database/firebaseconfig.jsx";
 import "../Styles/Home.css";
 import "../Styles/Clientes.css";
 
 const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/home" },
+  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
