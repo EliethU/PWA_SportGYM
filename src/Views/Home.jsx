@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Home,
+  Home as HomeIcon,
   Users,
   CreditCard,
   Wallet,
@@ -50,7 +50,7 @@ const DESIGN_TOKENS = {
 };
 
 const menuItems = [
-  { name: "Inicio", icon: Home, path: "/home" },
+  { name: "Inicio", icon: HomeIcon, path: "/home" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
