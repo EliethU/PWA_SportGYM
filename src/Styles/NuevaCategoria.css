@@ -1,0 +1,251 @@
+.newCategoryContent {
+  padding-top: 16px;
+}
+
+.categoryBackButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: #647168;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.categoryBackButton:hover { color: #286d36; }
+
+.newCategoryForm {
+  width: min(100%, 850px);
+  margin: 0 auto;
+  padding: 24px;
+  border: 1px solid #e0e5e1;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.newCategoryFormHeading,
+.newCategoryFormActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.newCategoryFormHeading {
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e7ebe8;
+}
+
+.newCategoryFormHeading h2 { margin: 0; color: #172326; font-size: 18px; }
+.newCategoryFormHeading span { color: #768079; font-size: 11px; }
+.newCategoryFormHeading b,
+.newCategoryField b { color: #c23e4d; }
+
+.newCategoryFields {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.newCategoryField {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  color: #344138;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.newCategoryField > span { color: #879189; font-weight: 400; }
+
+.newCategoryField input,
+.newCategoryField textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 10px 11px;
+  border: 1px solid #cbd3cd;
+  border-radius: 6px;
+  background: #fff;
+  color: #202722;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.newCategoryField textarea { min-height: 100px; resize: vertical; }
+.newCategoryField input:focus,
+.newCategoryField textarea:focus { outline: 2px solid #83bd6e; outline-offset: 1px; }
+
+.newCategoryError {
+  margin: -8px 0 0;
+  color: #b42336;
+  font-size: 12px;
+}
+
+.newCategoryFormActions {
+  justify-content: flex-end;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid #e7ebe8;
+}
+
+.categoryCancelButton,
+.categorySaveButton {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid #cbd3cd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.categoryCancelButton { background: #fff; color: #47534a; }
+.categoryCancelButton:hover { background: #f4f7f4; }
+.categorySaveButton { border-color: #4c9a3a; background: #4c9a3a; color: #fff; }
+.categorySaveButton:hover { border-color: #3d8a30; background: #3d8a30; }
+.categorySaveButton:focus-visible,
+.categoryCancelButton:focus-visible { outline: 3px solid #a8cfa2; outline-offset: 2px; }
+
+@media (max-width: 620px) {
+  .newCategoryContent { padding: 12px; }
+  .newCategoryForm { padding: 17px; }
+  .newCategoryFormHeading { align-items: flex-start; flex-direction: column; gap: 7px; }
+  .newCategoryFormActions { flex-wrap: wrap; }
+  .newCategoryFormActions button { flex: 1; }
+}.newCategoryContent {
+  padding-top: 16px;
+}
+
+.categoryBackButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: #647168;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.categoryBackButton:hover { color: #286d36; }
+
+.newCategoryForm {
+  width: min(100%, 850px);
+  margin: 0 auto;
+  padding: 24px;
+  border: 1px solid #e0e5e1;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.newCategoryFormHeading,
+.newCategoryFormActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.newCategoryFormHeading {
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e7ebe8;
+}
+
+.newCategoryFormHeading h2 { margin: 0; color: #172326; font-size: 18px; }
+.newCategoryFormHeading span { color: #768079; font-size: 11px; }
+.newCategoryFormHeading b,
+.newCategoryField b { color: #c23e4d; }
+
+.newCategoryFields {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.newCategoryField {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  color: #344138;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.newCategoryField > span { color: #879189; font-weight: 400; }
+
+.newCategoryField input,
+.newCategoryField textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 10px 11px;
+  border: 1px solid #cbd3cd;
+  border-radius: 6px;
+  background: #fff;
+  color: #202722;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.newCategoryField textarea { min-height: 100px; resize: vertical; }
+.newCategoryField input:focus,
+.newCategoryField textarea:focus { outline: 2px solid #83bd6e; outline-offset: 1px; }
+
+.newCategoryError {
+  margin: -8px 0 0;
+  color: #b42336;
+  font-size: 12px;
+}
+
+.newCategoryFormActions {
+  justify-content: flex-end;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid #e7ebe8;
+}
+
+.categoryCancelButton,
+.categorySaveButton {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid #cbd3cd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.categoryCancelButton { background: #fff; color: #47534a; }
+.categoryCancelButton:hover { background: #f4f7f4; }
+.categorySaveButton { border-color: #4c9a3a; background: #4c9a3a; color: #fff; }
+.categorySaveButton:hover { border-color: #3d8a30; background: #3d8a30; }
+.categorySaveButton:focus-visible,
+.categoryCancelButton:focus-visible { outline: 3px solid #a8cfa2; outline-offset: 2px; }
+
+@media (max-width: 620px) {
+  .newCategoryContent { padding: 12px; }
+  .newCategoryForm { padding: 17px; }
+  .newCategoryFormHeading { align-items: flex-start; flex-direction: column; gap: 7px; }
+  .newCategoryFormActions { flex-wrap: wrap; }
+  .newCategoryFormActions button { flex: 1; }
+}
