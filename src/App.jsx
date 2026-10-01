@@ -8,6 +8,7 @@ import PortalCliente from './Views/PortalCliente';
 import NuevoCliente from './Views/NuevoCliente';
 import Membresias from './Views/Membresias';
 import Pagos from './Views/Pagos';
+import NuevoPago from './Views/NuevoPago';
 import Inventario from './Views/Inventario';
 import Ventas from './Views/Ventas';
 import Gastos from './Views/Gastos';
@@ -45,6 +46,7 @@ function App() {
               <Route path="/nuevo-cliente" element={<NuevoCliente />} />
               <Route path="/membresias" element={<Membresias />} />
               <Route path="/pagos" element={<Pagos />} />
+              <Route path="/nuevo-pago" element={<NuevoPago />} />
               <Route path="/inventario" element={<Inventario />} />
               <Route path="/ventas" element={<Ventas />} />
               <Route path="/gastos" element={<Gastos />} />
