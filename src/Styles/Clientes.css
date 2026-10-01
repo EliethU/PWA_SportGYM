@@ -320,7 +320,7 @@
 }
 
 .clientDialog {
-  width: min(100%, 680px);
+  width: min(100%, 820px);
   max-height: min(90vh, 780px);
   overflow-y: auto;
   padding: 25px;
@@ -366,6 +366,101 @@
   display: flex;
   flex-direction: column;
   gap: 17px;
+}
+
+.clientPaymentHistory {
+  min-width: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e8ede5;
+}
+
+.clientPaymentHistoryHeading,
+.clientPaymentHistoryHeading > div {
+  display: flex;
+  align-items: center;
+}
+
+.clientPaymentHistoryHeading {
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 11px;
+}
+
+.clientPaymentHistoryHeading > div {
+  min-width: 0;
+  gap: 9px;
+  color: #4c9a3a;
+}
+
+.clientPaymentHistoryHeading h3 {
+  margin: 0;
+  color: #172326;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.clientPaymentHistoryHeading > span {
+  color: #7b8788;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.clientPaymentHistoryTableWrapper {
+  overflow-x: auto;
+  border: 1px solid #e7ece5;
+  border-radius: 6px;
+}
+
+.clientPaymentHistoryTable {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.clientPaymentHistoryTable thead {
+  background: #f7f9f6;
+}
+
+.clientPaymentHistoryTable th,
+.clientPaymentHistoryTable td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #edf0ec;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.clientPaymentHistoryTable th {
+  color: #66756f;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.clientPaymentHistoryTable td {
+  color: #344440;
+}
+
+.clientPaymentHistoryTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.clientPaymentAmount {
+  color: #286d2b !important;
+  font-weight: 700;
+}
+
+.clientPaymentHistoryMessage {
+  margin: 0;
+  padding: 13px 14px;
+  border-radius: 6px;
+  background: #f7f9f6;
+  color: #7b8788;
+  font-size: 12px;
+}
+
+.clientPaymentHistoryError {
+  background: #fff1f1;
+  color: #a72f2f;
 }
 
 .clientEditForm .formRow {
