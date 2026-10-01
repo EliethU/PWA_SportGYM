@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { collection, onSnapshot } from "firebase/firestore";
 import {
   LayoutDashboard,
   Users,
@@ -24,7 +25,7 @@ import {
   ReceiptText,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
-import { appfirebase } from "../assets/database/firebaseconfig.jsx";
+import { appfirebase, db } from "../assets/database/firebaseconfig.jsx";
 import "../Styles/Home.css";
 import "../Styles/NuevoCliente.css";
 
@@ -53,6 +54,7 @@ const createUsernameBase = (name) =>
 
 export default function NuevoCliente() {
   const navigate = useNavigate();
+  const [memberships, setMemberships] = useState([]);
   const [formData, setFormData] = useState({
     nombre: "",
     telefono: "",
@@ -64,6 +66,19 @@ export default function NuevoCliente() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [credentials, setCredentials] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "membresias"),
+      (snapshot) => setMemberships(snapshot.docs.map((membership) => ({ id: membership.id, ...membership.data() }))),
+      (membershipError) => {
+        console.error("Error al cargar las membresías:", membershipError);
+        setError("No se pudieron cargar las membresías disponibles.");
+      },
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -268,10 +283,9 @@ export default function NuevoCliente() {
                       required
                     >
                       <option value="">Seleccione membresía</option>
-                      <option value="premium">Premium</option>
-                      <option value="mensual">Mensual</option>
-                      <option value="semanal">Semanal</option>
-                      <option value="diaria">Diaria</option>
+                      {memberships.length ? memberships.map((membership) => (
+                        <option key={membership.id} value={membership.nombre}>{membership.nombre}</option>
+                      )) : <option value="" disabled>No hay membresías registradas</option>}
                     </select>
                   </div>
 
@@ -290,7 +304,11 @@ export default function NuevoCliente() {
                       />
                     </div>
                   </div>
-                  <p className="sectionHint">La membresía y la fecha se utilizarán para iniciar el registro del cliente.</p>
+                  <p className="sectionHint">
+                    {memberships.length
+                      ? "La membresía y la fecha se utilizarán para iniciar el registro del cliente."
+                      : "Registra una membresía antes de dar de alta a un cliente."}
+                  </p>
                 </section>
 
                 <section className="formSection accountSection">

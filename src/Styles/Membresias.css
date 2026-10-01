@@ -125,3 +125,204 @@
   background-color: rgba(231, 76, 60, 0.1);
   color: #e74c3c;
 }
+
+.membershipNameCell {
+  font-weight: 600;
+}
+
+.membershipActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.membershipActionButton,
+.membershipCloseButton {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.membershipEditButton {
+  color: #2f80b8;
+}
+
+.membershipEditButton:hover {
+  background: #e3f0f8;
+  border-color: #c6e0f1;
+}
+
+.membershipDeleteButton {
+  color: #d64545;
+}
+
+.membershipDeleteButton:hover {
+  background: #fbe7e7;
+  border-color: #f4caca;
+}
+
+.membershipNotice {
+  margin: 0 0 14px;
+  padding: 11px 14px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.membershipNoticeError {
+  color: #a72f2f;
+  border-color: #f1c4c4;
+  background: #fff1f1;
+}
+
+.membershipNoticeSuccess {
+  color: #286d2b;
+  border-color: #c9e4c1;
+  background: #f1faee;
+}
+
+.membershipDialogBackdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(13, 28, 26, 0.52);
+}
+
+.membershipDialog {
+  width: min(100%, 520px);
+  border: 1px solid #e1e8dd;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(15, 35, 31, 0.2);
+}
+
+.membershipDialogHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid #e8ede5;
+}
+
+.membershipDialogEyebrow {
+  color: #4c9a3a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.membershipDialogHeader h2 {
+  margin: 5px 0 0;
+  color: #172326;
+  font-size: 21px;
+}
+
+.membershipCloseButton {
+  color: #66756f;
+}
+
+.membershipCloseButton:hover {
+  background: #f2f5f0;
+}
+
+.membershipForm {
+  display: grid;
+  gap: 18px;
+  padding: 22px 24px 24px;
+}
+
+.membershipFormRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.membershipFormGroup {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  color: #344440;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.membershipFormGroup input {
+  width: 100%;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid #cfd9d1;
+  border-radius: 6px;
+  outline: none;
+  color: #172326;
+  font: inherit;
+  font-weight: 400;
+}
+
+.membershipFormGroup input:focus {
+  border-color: #4c9a3a;
+  box-shadow: 0 0 0 3px rgba(76, 154, 58, 0.14);
+}
+
+.membershipDialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.membershipCancelButton,
+.membershipSaveButton {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.membershipCancelButton {
+  border: 1px solid #d6dfd7;
+  background: #fff;
+  color: #344440;
+}
+
+.membershipSaveButton {
+  border: 1px solid #4c9a3a;
+  background: #4c9a3a;
+  color: #fff;
+}
+
+.membershipSaveButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 520px) {
+  .membershipDialogBackdrop {
+    padding: 12px;
+  }
+
+  .membershipDialogHeader,
+  .membershipForm {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .membershipFormRow {
+    grid-template-columns: 1fr;
+  }
+}

@@ -86,9 +86,12 @@ const formatDate = (value) => {
 const formatMembership = (membership) =>
   membership ? membership.charAt(0).toUpperCase() + membership.slice(1) : "-";
 
+const normalizeMembershipName = (membership) => String(membership || "").trim().toLocaleLowerCase();
+
 export default function Clientes() {
   const navigate = useNavigate();
   const [clients, setClients] = useState([]);
+  const [membershipOptions, setMembershipOptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -110,8 +113,19 @@ export default function Clientes() {
         setError("No se pudieron cargar los clientes. Revisa la conexión con Firebase.");
       },
     );
+    const unsubscribeMemberships = onSnapshot(
+      collection(db, "membresias"),
+      (snapshot) => setMembershipOptions(snapshot.docs.map((membership) => ({ id: membership.id, ...membership.data() }))),
+      (snapshotError) => {
+        console.error("Error al cargar las membresías:", snapshotError);
+        setError("No se pudieron cargar las membresías disponibles.");
+      },
+    );
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      unsubscribeMemberships();
+    };
   }, []);
 
   const filteredClients = clients.filter((client) =>
@@ -386,10 +400,14 @@ export default function Clientes() {
                   <label className="formLabel" htmlFor="edit-client-membership">Tipo de membresía</label>
                   <select id="edit-client-membership" name="membresia" className="formSelect" value={editData.membresia} onChange={handleEditChange} required>
                     <option value="">Seleccione membresía</option>
-                    <option value="premium">Premium</option>
-                    <option value="mensual">Mensual</option>
-                    <option value="semanal">Semanal</option>
-                    <option value="diaria">Diaria</option>
+                    {editData.membresia && (
+                      <option value={editData.membresia}>
+                        {membershipOptions.find((membership) => normalizeMembershipName(membership.nombre) === normalizeMembershipName(editData.membresia))?.nombre || `${editData.membresia} (sin catálogo)`}
+                      </option>
+                    )}
+                    {membershipOptions
+                      .filter((membership) => normalizeMembershipName(membership.nombre) !== normalizeMembershipName(editData.membresia))
+                      .map((membership) => <option key={membership.id} value={membership.nombre}>{membership.nombre}</option>)}
                   </select>
                 </div>
                 <div className="formGroup">
