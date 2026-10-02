@@ -10,7 +10,7 @@
 }
 
 /* NEW BUTTON */
-.newButton {
+.newExpenseButton {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -26,11 +26,11 @@
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.newButton:hover {
+.newExpenseButton:hover {
   background-color: #d92d55;
 }
 
-.newButton:active {
+.newExpenseButton:active {
   transform: scale(0.98);
 }
 

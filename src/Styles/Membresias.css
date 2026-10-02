@@ -10,7 +10,7 @@
 }
 
 /* NEW BUTTON */
-.newButton {
+.newMembershipButton {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -26,11 +26,11 @@
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.newButton:hover {
+.newMembershipButton:hover {
   background-color: #3d8a30;
 }
 
-.newButton:active {
+.newMembershipButton:active {
   transform: scale(0.98);
 }
 

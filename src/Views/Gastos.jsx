@@ -186,7 +186,7 @@ export default function Gastos() {
         <Encabezado title="Gastos" description="Gestiona los gastos del negocio" />
         <section className="content expensesContent">
           <div className="gastosHeader">
-            <button className="newButton" onClick={() => navigate("/registrar-gasto")}>
+            <button className="newExpenseButton" onClick={() => navigate("/registrar-gasto")}>
               <Plus size={18} />
               <span>Registrar gasto</span>
             </button>

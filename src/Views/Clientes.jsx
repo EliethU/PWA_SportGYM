@@ -306,7 +306,7 @@ export default function Clientes() {
                 onChange={(event) => setSearchTerm(event.target.value)}
               />
             </div>
-            <button className="newButton" onClick={() => navigate("/nuevo-cliente")}>
+            <button className="newClientButton" onClick={() => navigate("/nuevo-cliente")}>
               <Plus size={18} />
               <span>Nuevo</span>
             </button>

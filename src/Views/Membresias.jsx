@@ -221,7 +221,7 @@ export default function Membresias() {
         ========================== */}
         <section className="content">
           <div className="membresiasHeader">
-            <button className="newButton" onClick={() => openMembershipForm()}>
+            <button className="newMembershipButton" onClick={() => openMembershipForm()}>
               <Plus size={18} />
               <span>Nueva membresía</span>
             </button>
