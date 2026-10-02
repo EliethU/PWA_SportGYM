@@ -16,6 +16,7 @@ import Ventas from './Views/Ventas';
 import Gastos from './Views/Gastos';
 import RegistrarGasto from './Views/RegistrarGasto';
 import Reportes from './Views/Reportes';
+import Analisis from './Views/Analisis';
 import Configuracion from './Views/Configuracion';
 import Terminos from './Views/Terminos';
 import './App.css';
@@ -56,6 +57,7 @@ function App() {
               <Route path="/gastos" element={<Gastos />} />
               <Route path="/registrar-gasto" element={<RegistrarGasto />} />
               <Route path="/reportes" element={<Reportes />} />
+              <Route path="/analisis" element={<Analisis />} />
               <Route path="/configuracion" element={<Configuracion />} />
             </Route>
           </Routes>

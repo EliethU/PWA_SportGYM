@@ -26,6 +26,7 @@ const menuItems = [
   { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
   { name: "Inventario", icon: Package, path: "/inventario" },
   { name: "Gastos", icon: Receipt, path: "/gastos" },
+  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
   { name: "Configuración", icon: Settings, path: "/configuracion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
