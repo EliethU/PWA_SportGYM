@@ -209,6 +209,10 @@
 }
 
 /* USUARIO */
+.userMenuWrapper {
+  position: relative;
+}
+
 .userButton {
   border: none;
   background: transparent;
@@ -253,6 +257,126 @@
 
 .userInfo span {
   color: var(--tinta-suave);
+}
+
+.adminMenuPanel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(320px, 78vw);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(20, 32, 31, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(16, 24, 40, 0.14);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+  backdrop-filter: blur(12px);
+}
+
+.adminMenuHeader {
+  padding: 6px 8px 0;
+}
+
+.adminMenuEyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--verde);
+}
+
+.adminMenuHeader h3 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  color: var(--tinta);
+}
+
+.adminMenuItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adminMenuItem {
+  width: 100%;
+  border: 1px solid rgba(20, 32, 31, 0.08);
+  background: rgba(76, 154, 58, 0.03);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.adminMenuItem:hover {
+  background: rgba(76, 154, 58, 0.08);
+  border-color: rgba(76, 154, 58, 0.15);
+}
+
+.adminMenuIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(76, 154, 58, 0.12);
+  color: var(--verde);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.adminMenuText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.adminMenuText strong {
+  color: var(--tinta);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.adminMenuText small {
+  color: var(--tinta-suave);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.adminMenuAction,
+.adminMenuLogout {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.adminMenuAction {
+  background: var(--verde);
+  color: #fff;
+}
+
+.adminMenuLogout {
+  background: rgba(214, 69, 69, 0.08);
+  color: var(--rojo);
+}
+
+.adminMenuAction:hover,
+.adminMenuLogout:hover {
+  transform: translateY(-1px);
 }
 
 /* CONTENIDO */
