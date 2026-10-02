@@ -33,7 +33,8 @@
   border-radius: 10px;
   padding: 30px;
   box-shadow: 0 2px 7px rgba(0, 0, 0, 0.03);
-  max-width: 600px;
+  width: min(100%, 900px);
+  box-sizing: border-box;
 }
 
 .formTitle {
@@ -45,8 +46,8 @@
 
 /* EXPENSE FORM */
 .expenseForm {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -60,6 +61,16 @@
   font-size: 14px;
   font-weight: 500;
   color: #697778;
+}
+
+.expenseRequiredMark {
+  color: #d92d55;
+  font-weight: 750;
+}
+
+.expenseOptionalLabel {
+  color: #929c9d;
+  font-weight: 400;
 }
 
 .formInput,
@@ -81,6 +92,22 @@
   box-shadow: 0 0 0 3px rgba(76, 154, 58, 0.1);
 }
 
+.formInput.expenseFieldInvalid,
+.formSelect.expenseFieldInvalid {
+  border-color: #d92d55;
+}
+
+.formInput.expenseFieldInvalid:focus,
+.formSelect.expenseFieldInvalid:focus {
+  box-shadow: 0 0 0 3px rgba(217, 45, 85, 0.12);
+}
+
+.expenseFieldError {
+  color: #c12449;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .formInput::placeholder {
   color: #929c9d;
 }
@@ -89,11 +116,198 @@
   cursor: pointer;
 }
 
+.expenseOptionButton {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: #347d2e;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.expenseOptionButton:hover {
+  color: #245d20;
+  text-decoration: underline;
+}
+
+.expenseReceiptField,
+.expenseObservationsField {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.expenseReceiptUpload {
+  display: flex;
+  min-height: 88px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px dashed #a9b8ac;
+  border-radius: 8px;
+  background: #f8faf7;
+  color: #536160;
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.expenseReceiptUpload:hover,
+.expenseReceiptUpload:focus-within {
+  border-color: #4c9a3a;
+  background: #f2f8f0;
+}
+
+.expenseReceiptUpload:has(input[aria-invalid="true"]) {
+  border-color: #d92d55;
+  background: #fff8f9;
+}
+
+.expenseReceiptUpload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+}
+
+.expenseReceiptPreview {
+  display: block;
+  width: min(100%, 260px);
+  max-height: 220px;
+  align-self: flex-start;
+  border: 1px solid #e0e5e5;
+  border-radius: 7px;
+  object-fit: contain;
+}
+
+.expenseObservationsField .formLabel span {
+  color: #929c9d;
+  font-weight: 400;
+}
+
+.expenseObservationsInput {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.expenseOptionOverlay {
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(16, 25, 20, 0.58);
+}
+
+.expenseOptionDialog {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid #e0e5e5;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+.expenseOptionHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.expenseOptionHeading span {
+  color: #718078;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.8px;
+}
+
+.expenseOptionHeading h2 {
+  margin: 4px 0 0;
+  color: #172326;
+  font-size: 19px;
+}
+
+.expenseOptionClose {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid #e0e5e5;
+  border-radius: 7px;
+  background: #fff;
+  color: #697778;
+  cursor: pointer;
+}
+
+.expenseOptionActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.expenseOptionActions .cancelButton,
+.expenseOptionActions .saveButton {
+  min-height: 40px;
+  padding: 9px 14px;
+}
+
+.expenseOptionActions .saveButton {
+  background: #4c9a3a;
+}
+
+.expenseOptionActions .saveButton:hover:not(:disabled) {
+  background: #3d8a30;
+}
+
 /* FORM ACTIONS */
 .formActions {
   display: flex;
   gap: 12px;
   margin-top: 10px;
+  grid-column: 1 / -1;
+}
+
+.expenseFormError {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid #f1c4c4;
+  border-radius: 7px;
+  background: #fff1f1;
+  color: #a72f2f;
+  font-size: 13px;
+}
+
+.saveButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 600px) {
+  .expenseForm {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions,
+  .expenseFormError {
+    grid-column: auto;
+  }
 }
 
 .cancelButton,

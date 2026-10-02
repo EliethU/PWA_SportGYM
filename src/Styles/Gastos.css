@@ -15,7 +15,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background-color: #4c9a3a;
+  background-color: #d92d55;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -27,7 +27,7 @@
 }
 
 .newButton:hover {
-  background-color: #3d8a30;
+  background-color: #d92d55;
 }
 
 .newButton:active {
@@ -99,4 +99,360 @@
   color: #929c9d;
   font-style: italic;
   font-size: 14px;
+}
+
+.expensesContent {
+  padding-top: 20px;
+}
+
+.expensesContent .gastosHeader {
+  margin-bottom: 16px;
+}
+
+.expenseStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.expenseStat {
+  display: flex;
+  min-height: 106px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 11px;
+  text-align: center;
+}
+
+.expenseStatCount {
+  background: #a8cfa2;
+  color: #286637;
+}
+
+.expenseStatTotal {
+  background: #ed9aae;
+  color: #a82343;
+}
+
+.expenseStatIcon {
+  display: grid;
+  height: 23px;
+  place-items: center;
+}
+
+.expenseStat strong {
+  color: #151a17;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.expenseStat > span:last-child {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.expensesFilters {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(118px, 1fr)) minmax(175px, 1.35fr);
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.expenseFilterField,
+.expenseSearchField {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  color: #697778;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.expenseFilterField input,
+.expenseFilterField select,
+.expenseSearchField input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #b9c4bd;
+  border-radius: 8px;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 2px 4px #182b1b1c;
+  color: #202722;
+  font: inherit;
+  font-size: 13px;
+}
+
+.expenseFilterField input:focus,
+.expenseFilterField select:focus,
+.expenseSearchField input:focus {
+  border-color: #83bd6e;
+  outline: 2px solid #83bd6e;
+  outline-offset: 1px;
+}
+
+.expenseSearchField {
+  justify-content: flex-end;
+}
+
+.expenseSearchField svg {
+  position: absolute;
+  bottom: 11px;
+  left: 11px;
+  color: #697778;
+  pointer-events: none;
+}
+
+.expenseSearchField input {
+  padding-left: 36px;
+}
+
+.expenseSearchField input::placeholder {
+  color: #929c9d;
+}
+
+.expensesNotice,
+.expenseFormError {
+  margin: 0 0 14px;
+  padding: 11px 14px;
+  border: 1px solid;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.expensesNoticeError,
+.expenseFormError {
+  border-color: #f1c4c4;
+  background: #fff1f1;
+  color: #a72f2f;
+}
+
+.expensesNoticeSuccess {
+  border-color: #b8d9b1;
+  background: #f1faee;
+  color: #286637;
+}
+
+.expensesNoticeWarning {
+  border-color: #f0d59a;
+  background: #fff8e8;
+  color: #8a5a08;
+}
+
+.expensesTableHeading {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -20px -20px 12px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e8ede5;
+  color: #7b8788;
+  font-size: 12px;
+}
+
+.expensesTableHeading .tableTitle {
+  margin: 0;
+}
+
+.expensesTable {
+  min-width: 850px;
+}
+
+.expensesTable th,
+.expensesTable td {
+  vertical-align: middle;
+}
+
+.expenseConceptCell {
+  min-width: 150px;
+  font-weight: 600;
+}
+
+.expenseAmountCell {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.expenseStatusBadge {
+  display: inline-flex;
+  min-width: 70px;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.expenseStatusPaid {
+  background: #e5f4e2;
+  color: #286637;
+}
+
+.expenseStatusPending {
+  background: #fff1d7;
+  color: #9a6510;
+}
+
+.expenseActions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.expenseViewButton {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border: 1px solid #c6e0f1;
+  border-radius: 6px;
+  background: #e3f0f8;
+  color: #2f80b8;
+  cursor: pointer;
+}
+
+.expensePayButton {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d92d55;
+  border-radius: 6px;
+  background: #d92d55;
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.expensePayButton:hover:not(:disabled) {
+  border-color: #bb2145;
+  background: #bb2145;
+}
+
+.expensePayButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.expenseInvoiceOverlay {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(16, 25, 20, 0.58);
+}
+
+.expenseInvoiceDialog {
+  position: relative;
+  width: min(100%, 520px);
+  max-height: min(90vh, 850px);
+  overflow-y: auto;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+.expenseInvoiceClose {
+  position: absolute;
+  z-index: 1;
+  top: -43px;
+  right: 0;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid #e0e5e5;
+  border-radius: 7px;
+  background: #fff;
+  color: #697778;
+  cursor: pointer;
+}
+
+.expenseInvoiceConcept,
+.expenseInvoiceReceipt {
+  display: grid;
+  gap: 7px;
+  padding: 14px 20px;
+}
+
+.expenseInvoiceConcept {
+  border-top: 1px solid #e8ede5;
+  border-bottom: 1px solid #e8ede5;
+}
+
+.expenseInvoiceConcept > span,
+.expenseInvoiceReceipt > span {
+  color: #7b8788;
+  font-size: 10px;
+}
+
+.expenseInvoiceConcept > strong {
+  color: #172326;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.expenseInvoiceReceipt a {
+  display: block;
+  overflow: hidden;
+  border: 1px solid #e1e8dd;
+  border-radius: 7px;
+  background: #f7f9f6;
+}
+
+.expenseInvoiceReceipt img {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+}
+
+@media (max-width: 1100px) {
+  .expensesFilters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .expenseStats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .expensesFilters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .expensesFilters {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
