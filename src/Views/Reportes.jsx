@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -15,6 +15,7 @@ import {
   Download,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
+import { downloadReportPdf } from "../services/reportsPdf";
 import "../Styles/Home.css";
 import "../Styles/Reportes.css";
 
@@ -34,6 +35,22 @@ const menuItems = [
 
 export default function Reportes() {
   const navigate = useNavigate();
+  const [generatingReport, setGeneratingReport] = useState("");
+  const [error, setError] = useState("");
+
+  const handleGenerateReport = async (reportId) => {
+    if (generatingReport) return;
+    setGeneratingReport(reportId);
+    setError("");
+    try {
+      await downloadReportPdf(reportId);
+    } catch (reportError) {
+      console.error("Error al generar el reporte PDF:", reportError);
+      setError("No se pudo generar el reporte. Verifica la conexión y los permisos de Firebase e inténtalo de nuevo.");
+    } finally {
+      setGeneratingReport("");
+    }
+  };
 
   return (
     <div className="app">
@@ -54,7 +71,7 @@ export default function Reportes() {
 
         {/* MENÚ */}
         <nav className="menu">
-          {menuItems.map((item, index) => {
+          {menuItems.map((item) => {
             const Icon = item.icon;
 
             return (
@@ -83,6 +100,7 @@ export default function Reportes() {
             CONTENIDO REPORTES
         ========================== */}
         <section className="content">
+          {error && <p className="reportError" role="alert">{error}</p>}
 
           {/* TARJETAS DE REPORTES */}
           <div className="reportsGrid">
@@ -93,9 +111,9 @@ export default function Reportes() {
               </div>
               <h4 className="reportTitle">Reporte de ingresos</h4>
               <p className="reportDescription">Análisis de ingresos mensuales</p>
-              <button className="reportButton">
+              <button type="button" className="reportButton" onClick={() => handleGenerateReport("ingresos")} disabled={Boolean(generatingReport)}>
                 <Download size={16} />
-                <span>Generar</span>
+                <span>{generatingReport === "ingresos" ? "Generando..." : "Generar"}</span>
               </button>
             </div>
 
@@ -105,9 +123,9 @@ export default function Reportes() {
               </div>
               <h4 className="reportTitle">Reporte de clientes</h4>
               <p className="reportDescription">Estadísticas de clientes</p>
-              <button className="reportButton">
+              <button type="button" className="reportButton" onClick={() => handleGenerateReport("clientes")} disabled={Boolean(generatingReport)}>
                 <Download size={16} />
-                <span>Generar</span>
+                <span>{generatingReport === "clientes" ? "Generando..." : "Generar"}</span>
               </button>
             </div>
 
@@ -117,9 +135,9 @@ export default function Reportes() {
               </div>
               <h4 className="reportTitle">Reporte de gastos</h4>
               <p className="reportDescription">Desglose de gastos operativos</p>
-              <button className="reportButton">
+              <button type="button" className="reportButton" onClick={() => handleGenerateReport("gastos")} disabled={Boolean(generatingReport)}>
                 <Download size={16} />
-                <span>Generar</span>
+                <span>{generatingReport === "gastos" ? "Generando..." : "Generar"}</span>
               </button>
             </div>
 
@@ -129,9 +147,9 @@ export default function Reportes() {
               </div>
               <h4 className="reportTitle">Reporte de asistencia</h4>
               <p className="reportDescription">Registro de asistencias</p>
-              <button className="reportButton">
+              <button type="button" className="reportButton" onClick={() => handleGenerateReport("asistencia")} disabled={Boolean(generatingReport)}>
                 <Download size={16} />
-                <span>Generar</span>
+                <span>{generatingReport === "asistencia" ? "Generando..." : "Generar"}</span>
               </button>
             </div>
 
@@ -141,9 +159,9 @@ export default function Reportes() {
               </div>
               <h4 className="reportTitle">Reporte de ventas</h4>
               <p className="reportDescription">Análisis de ventas</p>
-              <button className="reportButton">
+              <button type="button" className="reportButton" onClick={() => handleGenerateReport("ventas")} disabled={Boolean(generatingReport)}>
                 <Download size={16} />
-                <span>Generar</span>
+                <span>{generatingReport === "ventas" ? "Generando..." : "Generar"}</span>
               </button>
             </div>
 
@@ -153,9 +171,9 @@ export default function Reportes() {
               </div>
               <h4 className="reportTitle">Reporte de inventario</h4>
               <p className="reportDescription">Estado del inventario</p>
-              <button className="reportButton">
+              <button type="button" className="reportButton" onClick={() => handleGenerateReport("inventario")} disabled={Boolean(generatingReport)}>
                 <Download size={16} />
-                <span>Generar</span>
+                <span>{generatingReport === "inventario" ? "Generando..." : "Generar"}</span>
               </button>
             </div>
 
