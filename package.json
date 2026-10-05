@@ -2,12 +2,15 @@
   "name": "sportgym",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "scan": "node scanner.js",
+    "test": "jest",
+    "test:cobertura": "jest --coverage",
+    "escaneo": "jest --coverage --verbose"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
@@ -23,10 +26,32 @@
     "sonner": "^2.0.8"
   },
   "devDependencies": {
+    "@babel/core": "^8.0.6",
+    "@babel/preset-env": "^8.0.6",
+    "@babel/preset-react": "^8.0.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "babel-jest": "^30.5.2",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
     "oxlint": "^1.75.0",
     "vite": "^8.2.0"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.",
+  "main": "scanner.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EliethU/PWA_SportGYM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/EliethU/PWA_SportGYM/issues"
+  },
+  "homepage": "https://github.com/EliethU/PWA_SportGYM#readme"
 }
