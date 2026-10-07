@@ -97,8 +97,8 @@ function createUsernameBase(name) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ".")
-    .replace(/^\.|\.$/g, "");
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 async function getAvailableUsername(usernameBase) {
@@ -108,7 +108,7 @@ async function getAvailableUsername(usernameBase) {
   while (true) {
     const snapshot = await db.collection("clientes").where("usuario", "==", username).limit(1).get();
     if (snapshot.empty) return username;
-    username = `${usernameBase}${suffix}`;
+    username = `${usernameBase} ${suffix}`;
     suffix += 1;
   }
 }

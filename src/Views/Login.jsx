@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../assets/database/firebaseconfig.jsx";
+import { auth, db } from "../assets/database/firebaseconfig";
 import inicioImage from "../Imagen/inicio.jpg";
 import "../Styles/Login.css";
 import "bootstrap-icons/font/bootstrap-icons.css";

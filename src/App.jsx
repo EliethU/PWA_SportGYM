@@ -6,19 +6,19 @@ import Home from './Views/Home';
 import Clientes from './Views/Clientes';
 import PortalCliente from './Views/PortalCliente';
 import NuevoCliente from './Views/NuevoCliente';
-import Membresias from './Views/Membresias';
-import Pagos from './Views/Pagos';
 import NuevoPago from './Views/NuevoPago';
-import Inventario from './Views/Inventario';
 import NuevoProducto from './Views/NuevoProducto';
 import NuevaCategoria from './Views/NuevaCategoria';
+import Membresias from './Views/Membresias';
+import Pagos from './Views/Pagos';
+import Inventario from './Views/Inventario';
 import Ventas from './Views/Ventas';
 import Gastos from './Views/Gastos';
 import RegistrarGasto from './Views/RegistrarGasto';
 import Reportes from './Views/Reportes';
-import Analisis from './Views/Analisis';
 import Configuracion from './Views/Configuracion';
 import Terminos from './Views/Terminos';
+import Analisis from './Views/Analisis';
 import './App.css';
 
 function ProtectedRoute({ requiredRole }) {
