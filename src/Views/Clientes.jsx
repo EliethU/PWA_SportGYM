@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import {
@@ -28,6 +29,7 @@ import "../Styles/Clientes.css";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },

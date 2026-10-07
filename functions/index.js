@@ -92,6 +92,77 @@ exports.registrarCliente = onCall(async (request) => {
   }
 });
 
+function getManaguaDateKey(date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Managua",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function getManaguaTime(date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Managua",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.hour}:${values.minute}`;
+}
+
+exports.registrarAsistencia = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Inicia sesión para registrar tu asistencia.");
+  }
+
+  try {
+    const uid = request.auth.uid;
+    const profileSnapshot = await db.collection("usuarios").doc(uid).get();
+    const profile = profileSnapshot.data();
+    if (!profileSnapshot.exists || profile?.rol !== "cliente" || typeof profile.clienteId !== "string") {
+      throw new HttpsError("permission-denied", "Solo una cuenta de cliente puede registrar asistencia.");
+    }
+
+    const clientSnapshot = await db.collection("clientes").doc(profile.clienteId).get();
+    const client = clientSnapshot.data();
+    if (!clientSnapshot.exists || client?.uid !== uid) {
+      throw new HttpsError("failed-precondition", "No se encontró un perfil de cliente válido.");
+    }
+
+    const now = new Date();
+    const dateKey = getManaguaDateKey(now);
+    const hora = getManaguaTime(now);
+    const attendanceRef = db.collection("asistencias").doc(`${dateKey}_${uid}`);
+    return await db.runTransaction(async (transaction) => {
+      const existingAttendance = await transaction.get(attendanceRef);
+      if (existingAttendance.exists) {
+        return { alreadyRegistered: true, hora: existingAttendance.data().hora, dateKey };
+      }
+
+      transaction.create(attendanceRef, {
+        uid,
+        clienteId: profile.clienteId,
+        nombre: String(client.nombre || "").trim(),
+        usuario: String(client.usuario || client.username || "").trim(),
+        membresia: String(client.membresia || client.tipoMembresia || "").trim(),
+        estadoMembresia: String(client.estadoPago || client.estado || "Activa").trim(),
+        fechaClave: dateKey,
+        hora,
+        creadoEn: FieldValue.serverTimestamp(),
+      });
+      return { alreadyRegistered: false, hora, dateKey };
+    });
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    console.error("Error registrando asistencia:", error);
+    throw new HttpsError("internal", "No fue posible registrar la asistencia.");
+  }
+});
+
 function createUsernameBase(name) {
   return name
     .normalize("NFD")

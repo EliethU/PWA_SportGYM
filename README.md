@@ -1,5 +1,11 @@
 # React + Vite
 
+## Control de asistencia
+
+La vista administrativa **Asistencia** genera un QR permanente que enlaza con el portal del cliente. El cliente debe iniciar sesión; una Cloud Function obtiene su perfil autenticado y guarda como máximo una asistencia diaria en `asistencias`. El panel administrativo escucha esos registros en tiempo real.
+
+Configura `VITE_APP_URL` con la URL definitiva del sitio antes de compilar y publicar para que el QR impreso siga apuntando al mismo dominio. Si se omite, se utiliza el origen actual de la aplicación. Publica la función con `npm --prefix functions run deploy` desde la raíz del proyecto.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

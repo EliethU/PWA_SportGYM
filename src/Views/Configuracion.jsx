@@ -1,4 +1,5 @@
 import React from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -23,6 +24,7 @@ import "../Styles/Configuracion.css";
 
 const menuItems = [
   { name: "Inicio", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
