@@ -276,19 +276,13 @@
 
 .productImage {
   display: grid;
-  height: 61px;
-  flex: 0 0 61px;
+  height: 90px;
+  flex: 0 0 90px;
   place-items: center;
   margin-bottom: 4px;
   border-radius: 3px;
   background: #ecefed;
   overflow: hidden;
-}
-
-.productImage span {
-  font-size: 38px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 1px #0002);
 }
 
 .productImage img {
@@ -308,7 +302,7 @@
 .productCard h2 {
   display: -webkit-box;
   min-height: 28px;
-  margin: 0 0 3px;
+  margin: 0;
   overflow: hidden;
   color: #101512;
   font-size: 10px;
@@ -397,23 +391,31 @@
 .listView .productCard {
   min-height: 72px;
   display: grid;
-  grid-template-columns: 58px minmax(100px, 1fr) minmax(80px, 0.7fr) auto auto 52px;
+  grid-template-columns: 88px minmax(100px, 1fr) minmax(80px, 0.7fr) auto auto 52px;
   align-items: center;
   gap: 10px;
 }
 
 .listView .productImage {
-  width: 54px;
-  height: 54px;
-  min-height: 54px;
+  width: 84px;
+  height: 84px;
+  min-height: 84px;
   margin: 0;
 }
 
-.listView .productImage span { font-size: 30px; }
-.listView .productCard h2 { min-height: 0; margin: 0; text-align: left; }
-.listView .productCategory,
-.listView .productPrice { margin: 0; }
-.listView .productCardActions { margin: 0; padding: 0; }
+@media (max-width: 760px) {
+  .productGrid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
+}
+
+@media (min-width: 900px) {
+  .productGrid { grid-template-columns: repeat(auto-fill, minmax(112px, 126px)); }
+}
+
+@media (max-width: 390px) {
+  .listView .productCard { grid-template-columns: 48px minmax(70px, 1fr) auto 45px; gap: 6px; }
+  .listView .productCategory { display: none; }
+  .listView .productImage { width: 46px; height: 46px; min-height: 46px; }
+}
 
 .inventoryEmpty {
   display: flex;
@@ -484,9 +486,9 @@
 
 .productDetailImage {
   display: flex;
-  min-height: 190px;
+  min-width: 0;
+  min-height: 225px;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   gap: 9px;
   padding: 10px;
@@ -495,22 +497,38 @@
   color: #879189;
 }
 
-.productDetailImage img { width: 100%; height: 145px; object-fit: contain; }
+.productDetailImage img { width: 100%; height: 130px; object-fit: contain; }
 .productDetailImage label {
-  display: inline-flex;
-  min-height: 32px;
+  color: #344138;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.productDetailImageUrl {
+  width: 100%;
+  min-height: 35px;
+  padding: 7px;
+  border: 1px solid #cbd3cd;
+  border-radius: 6px;
+  background: #fff;
+  color: #25302a;
+  font: inherit;
+  font-size: 11px;
+}
+
+.productDetailImageUrl:focus { outline: 2px solid #83bd6e; outline-offset: 1px; }
+.productDetailImageHelp { color: #65736a; font-size: 9px; line-height: 1.4; }
+.productDetailImagePlaceholder {
+  display: flex;
+  height: 130px;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 9px;
-  border-radius: 5px;
-  background: #e6f2e1;
-  color: #286d36;
-  font-size: 11px;
-  font-weight: 650;
-  cursor: pointer;
+  color: #879189;
+  font-size: 10px;
+  text-align: center;
 }
-.productDetailImage input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 
 .productDetailFields {
   display: grid;
@@ -634,10 +652,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (min-width: 900px) {
-  .productGrid { grid-template-columns: repeat(auto-fill, minmax(112px, 126px)); }
-}
-
 @media (max-width: 650px) {
   .inventoryContent { padding: 12px; }
   .inventoryTitleRow { align-items: flex-start; flex-direction: column; gap: 12px; }
@@ -650,20 +664,15 @@
   .searchContainer { flex-basis: calc(100% - 122px); }
   .inventorySelect { flex: 1; }
   .viewToggle { margin-left: auto; }
-  .productGrid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
-}
-
-@media (max-width: 390px) {
-  .listView .productCard { grid-template-columns: 48px minmax(70px, 1fr) auto 45px; gap: 6px; }
-  .listView .productCategory { display: none; }
-  .listView .productImage { width: 46px; height: 46px; min-height: 46px; }
+  .productGrid:not(.listView) { gap: 12px; }
 }
 
 @media (max-width: 560px) {
   .productDetailModal { padding: 15px; }
   .productDetailLayout { grid-template-columns: minmax(0, 1fr); }
-  .productDetailImage { min-height: 145px; }
-  .productDetailImage img { height: 100px; }
+  .productDetailImage { min-height: 190px; }
+  .productDetailImage img,
+  .productDetailImagePlaceholder { height: 100px; }
   .productDetailActions { flex-wrap: wrap; gap: 7px; }
   .productDetailActions button { flex: 1; padding: 0 8px; }
 }

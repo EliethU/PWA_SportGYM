@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,7 +19,12 @@ import {
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import { getInventoryCategories } from "../services/inventoryStorage";
-import { createProduct, validateProductImage } from "../services/productosService";
+import {
+  createProduct,
+  normalizeProductImageUrl,
+  productImageFileToDataUrl,
+  validateProductImageUrl,
+} from "../services/productosService";
 import "../Styles/Home.css";
 import "../Styles/NuevoProducto.css";
 
@@ -50,13 +55,13 @@ const initialForm = (categories) => ({
   status: "Disponible",
   expirationDate: "",
   size: "",
+  imageUrl: "",
 });
 
 const errorForProductSave = (error) => {
-  if (error.code === "storage/unauthorized" || error.code === "permission-denied") {
-    return "Firebase no autorizó guardar este producto o subir su imagen. Verifica las reglas de Firestore y Storage.";
+  if (error.code === "permission-denied" || error.code === "unauthenticated") {
+    return "Firebase no autorizó guardar el producto. Verifica que hayas iniciado sesión con una cuenta administradora.";
   }
-  if (error.code?.startsWith("storage/")) return "No se pudo subir la imagen. Revisa CORS, las reglas de Storage y el bucket de Firebase.";
   return "No se pudo guardar el producto. Comprueba tu conexión e inténtalo de nuevo.";
 };
 
@@ -64,43 +69,56 @@ export default function NuevoProducto() {
   const navigate = useNavigate();
   const [categories] = useState(() => getInventoryCategories(defaultCategories));
   const [formData, setFormData] = useState(() => initialForm(categories));
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
-  const imagePreviewRef = useRef("");
-  const imageInputRef = useRef(null);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const [imageFileName, setImageFileName] = useState("");
+  const [isReadingImage, setIsReadingImage] = useState(false);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const profit = Number(formData.salePrice || 0) - Number(formData.purchasePrice || 0);
 
-  useEffect(() => {
-    return () => {
-      if (imagePreviewRef.current) URL.revokeObjectURL(imagePreviewRef.current);
-    };
-  }, []);
-
-  const setImageFileWithPreview = (file) => {
-    if (imagePreviewRef.current) URL.revokeObjectURL(imagePreviewRef.current);
-    imagePreviewRef.current = file ? URL.createObjectURL(file) : "";
-    setImagePreview(imagePreviewRef.current);
-    setImageFile(file);
-  };
-
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
+    if (name === "imageUrl") {
+      setImageLoadError(false);
+      setError("");
+    }
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files?.[0] || null;
-    const imageError = validateProductImage(file);
-    setError(imageError);
-    setImageFileWithPreview(imageError ? null : file);
-    if (imageError) event.target.value = "";
+  const handleImageChange = async (event) => {
+    const imageFile = event.target.files?.[0];
+    event.target.value = "";
+    if (!imageFile) return;
+
+    setError("");
+    setImageLoadError(false);
+    setIsReadingImage(true);
+    try {
+      const imageUrl = await productImageFileToDataUrl(imageFile);
+      setFormData((current) => ({ ...current, imageUrl }));
+      setImageFileName(imageFile.name);
+    } catch (imageError) {
+      setError(imageError.message);
+    } finally {
+      setIsReadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((current) => ({ ...current, imageUrl: "" }));
+    setImageFileName("");
+    setImageLoadError(false);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    if (isReadingImage) return;
+    const imageUrlError = validateProductImageUrl(formData.imageUrl);
+    if (imageUrlError) {
+      setError(imageUrlError);
+      return;
+    }
     setIsSaving(true);
     try {
       await createProduct({
@@ -113,7 +131,8 @@ export default function NuevoProducto() {
         stock: Number(formData.stock),
         minimumStock: Number(formData.minimumStock),
         size: formData.size.trim(),
-      }, imageFile);
+        imageUrl: formData.imageUrl.trim(),
+      });
       navigate("/inventario");
     } catch (saveError) {
       console.error("Error al guardar el producto:", saveError);
@@ -150,12 +169,17 @@ export default function NuevoProducto() {
 
             <section className="productEditorPanel productImagePanel">
               <div className="productUploadFrame">
-                {imagePreview ? <img className="productUploadPreview" src={imagePreview} alt="Vista previa del producto" /> : <div className="productUploadPlaceholder"><ImagePlus size={36} strokeWidth={1.5} /><span>Vista previa de la imagen</span></div>}
-                <label className="productImageButton" htmlFor="product-image"><ImagePlus size={19} />{imageFile ? "Cambiar imagen" : "Cargar imagen"}</label>
-                <input ref={imageInputRef} className="productImageInput" id="product-image" type="file" accept="image/jpeg,image/png" onChange={handleImageChange} />
-                <small>JPG o PNG · Máximo 5 MB</small>
+                {formData.imageUrl && !imageLoadError ? (
+                  <img className="productUploadPreview" src={normalizeProductImageUrl(formData.imageUrl)} alt="Vista previa del producto" onError={() => setImageLoadError(true)} />
+                ) : (
+                  <div className="productUploadPlaceholder"><ImagePlus size={36} strokeWidth={1.5} /><span>{imageLoadError ? "No se pudo cargar esta URL" : "Vista previa de la imagen"}</span></div>
+                )}
               </div>
-                {imageFile && <button className="removeProductImage" type="button" onClick={() => { setImageFileWithPreview(null); if (imageInputRef.current) imageInputRef.current.value = ""; }}><X size={14} /> Quitar imagen</button>}
+              <label className="productField productImageFileField">Imagen del producto (opcional)
+                <input type="file" accept="image/jpeg,image/png" onChange={handleImageChange} disabled={isReadingImage} />
+                <small>{isReadingImage ? "Preparando imagen..." : imageFileName ? `${imageFileName} · Se guardará como URL base64 en productos.imageUrl.` : "JPG o PNG, máximo 700 KB. Se guarda en Firestore, no en Storage."}</small>
+              </label>
+              {formData.imageUrl && <button className="removeProductImage" type="button" onClick={handleRemoveImage}><X size={14} /> Quitar imagen</button>}
             </section>
 
             <section className="productEditorPanel productPricingPanel">
@@ -185,7 +209,7 @@ export default function NuevoProducto() {
             </section>
 
             {error && <p className="productSaveError" role="alert">{error}</p>}
-            <div className="newProductFormActions productEditorActions"><button type="button" className="productCancelButton" onClick={() => navigate("/inventario")}><X size={17} /> Cancelar</button><button className="productSaveButton" type="submit" disabled={isSaving}><Save size={17} /> {isSaving ? "Guardando..." : "Guardar"}</button></div>
+            <div className="newProductFormActions productEditorActions"><button type="button" className="productCancelButton" onClick={() => navigate("/inventario")}><X size={17} /> Cancelar</button><button className="productSaveButton" type="submit" disabled={isSaving || isReadingImage}><Save size={17} /> {isSaving ? "Guardando..." : isReadingImage ? "Preparando imagen..." : "Guardar"}</button></div>
           </form>
         </section>
       </main>

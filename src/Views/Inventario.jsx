@@ -75,15 +75,21 @@ export default function Inventario() {
   const isLowStock = (product) => !isOutOfStock(product) && (product.status === "Stock bajo" || Number(product.stock) <= Number(product.minimumStock ?? 5));
   const getProductStatus = (product) => isOutOfStock(product) ? "agotado" : isLowStock(product) ? "bajo" : "disponible";
 
-  const handleSaveProduct = async (changes, imageFile) => {
+  const handleSaveProduct = async (changes) => {
     setIsSavingProduct(true);
     setProductError("");
     try {
-      await updateProduct(editingProduct.id, changes, imageFile, editingProduct.imagePath);
+      await updateProduct(editingProduct.id, changes);
       setEditingProduct(null);
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
-      setProductError("No se pudo guardar el producto. Verifica los permisos de Firestore y Storage.");
+      if (error.code === "permission-denied" || error.code === "unauthenticated") {
+        setProductError("No tienes permisos para guardar cambios. Inicia sesión con una cuenta administradora.");
+      } else if (error.code === "not-found") {
+        setProductError("Este producto ya no existe. Actualiza el inventario e inténtalo de nuevo.");
+      } else {
+        setProductError("No se pudieron guardar los cambios en Firestore. Revisa tu conexión e inténtalo de nuevo.");
+      }
     } finally {
       setIsSavingProduct(false);
     }
@@ -93,7 +99,7 @@ export default function Inventario() {
     setIsSavingProduct(true);
     setProductError("");
     try {
-      await deleteProduct(editingProduct.id, editingProduct.imagePath);
+      await deleteProduct(editingProduct.id);
       setEditingProduct(null);
     } catch (error) {
       console.error("Error al eliminar el producto:", error);
@@ -199,7 +205,6 @@ export default function Inventario() {
                           alt={product.name || "Producto"}
                           loading="lazy"
                           referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
                           onError={(event) => {
                             event.currentTarget.style.display = "none";
                             const fallback = event.currentTarget.nextElementSibling;
