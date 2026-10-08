@@ -92,6 +92,87 @@
   font-size: 12px;
 }
 
+.attendanceLatestPanel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #d9eee1;
+  border-radius: 10px;
+  background: linear-gradient(100deg, #f0faf4, #fff);
+}
+
+.attendanceLatestIcon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #ddf3e5;
+  color: #087b46;
+}
+
+.attendanceLatestDetails {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.attendanceLatestLabel {
+  color: #718078;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.attendanceLatestDetails strong {
+  overflow: hidden;
+  color: #172522;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attendanceLatestDetails strong span {
+  color: #52625b;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.attendanceLiveStatus {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 6px 9px;
+  border: 1px solid #e3e8e5;
+  border-radius: 20px;
+  background: #f7f8f7;
+  color: #68756f;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.attendanceLiveStatus i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9aa49f;
+}
+
+.attendanceLiveStatus.isConnected {
+  border-color: #cce8d5;
+  background: #e5f8ed;
+  color: #087b46;
+}
+
+.attendanceLiveStatus.isConnected i {
+  background: #0b9c50;
+  box-shadow: 0 0 0 3px rgba(11, 156, 80, 0.12);
+}
+
 .attendanceTopGrid {
   display: grid;
   grid-template-columns: minmax(270px, 0.85fr) minmax(0, 1.55fr);
@@ -557,7 +638,7 @@
 
 .attendanceRecentItem {
   display: grid;
-  grid-template-columns: 26px minmax(65px, 1fr) minmax(54px, auto) auto auto;
+  grid-template-columns: 26px minmax(65px, 1fr) minmax(70px, 0.8fr) auto auto;
   align-items: center;
   gap: 7px;
   min-width: 0;
@@ -575,8 +656,10 @@
 
 .attendanceRecentId,
 .attendanceRecentItem time {
+  overflow: hidden;
   color: #75827c;
   font-size: 9px;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -631,6 +714,19 @@
     flex-direction: column;
   }
 
+  .attendanceLatestPanel {
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .attendanceLatestDetails strong {
+    font-size: 12px;
+  }
+
+  .attendanceLiveStatus {
+    padding: 5px 7px;
+  }
+
   .attendanceTopGrid {
     grid-template-columns: 1fr;
   }
@@ -675,11 +771,7 @@
   }
 
   .attendanceRecentItem {
-    grid-template-columns: 26px minmax(65px, 1fr) auto auto;
-  }
-
-  .attendanceRecentId {
-    display: none;
+    grid-template-columns: 26px minmax(65px, 1fr) minmax(0, 0.8fr) auto auto;
   }
 
   .attendanceChart {

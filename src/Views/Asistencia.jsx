@@ -53,6 +53,43 @@ const getDateKey = (date = new Date()) => {
   return `${values.year}-${values.month}-${values.day}`;
 };
 
+const getText = (value) => {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  if (value && typeof value === "object") {
+    return getText(value.nombre || value.name || value.label || value.valor);
+  }
+  return "";
+};
+
+const getAttendanceDateKey = (attendance) => {
+  const dateValue = attendance.fechaClave
+    || attendance.fecha
+    || attendance.fechaAsistencia
+    || attendance.creadoEn
+    || attendance.createdAt
+    || attendance.timestamp;
+
+  if (typeof dateValue === "string") {
+    const isoDate = dateValue.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+    if (isoDate) return isoDate;
+    const localizedDate = dateValue.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+    if (localizedDate) {
+      const [, day, month, year] = localizedDate;
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+  }
+
+  let date = null;
+  if (typeof dateValue?.toDate === "function") date = dateValue.toDate();
+  else if (dateValue instanceof Date) date = dateValue;
+  else if (typeof dateValue === "number") date = new Date(dateValue);
+  else if (typeof dateValue === "string") date = new Date(dateValue);
+  if (date && !Number.isNaN(date.getTime())) return getDateKey(date);
+
+  return getText(attendance.id).match(/^\d{4}-\d{2}-\d{2}/)?.[0] || "";
+};
+
 const getPreviousDateKey = (dateKey) => {
   const [year, month, day] = dateKey.split("-").map(Number);
   return getDateKey(new Date(Date.UTC(year, month - 1, day - 1, 18)));
@@ -66,20 +103,38 @@ const formatDate = (dateKey) => new Intl.DateTimeFormat("es-NI", {
   timeZone: TZ,
 }).format(new Date(`${dateKey}T12:00:00-06:00`));
 
-const formatTime = (attendance) => {
-  const date = attendance.creadoEn?.toDate?.();
-  if (date) {
-    return new Intl.DateTimeFormat("es-NI", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
+const formatAttendanceDate = (attendance) => {
+  const dateKey = getAttendanceDateKey(attendance);
+  return dateKey
+    ? new Intl.DateTimeFormat("es-NI", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
       timeZone: TZ,
-    }).format(date);
-  }
-  return attendance.hora || "—";
+    }).format(new Date(`${dateKey}T12:00:00-06:00`))
+    : "—";
 };
 
-const getInitials = (name = "") => name
+const formatTime = (attendance) => {
+  const timestamp = attendance.creadoEn || attendance.createdAt || attendance.timestamp;
+  let date = null;
+  if (typeof timestamp?.toDate === "function") date = timestamp.toDate();
+  else if (timestamp instanceof Date) date = timestamp;
+  else if (typeof timestamp === "string" || typeof timestamp === "number") date = new Date(timestamp);
+  if (date) {
+    if (!Number.isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat("es-NI", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: TZ,
+      }).format(date);
+    }
+  }
+  return getText(attendance.hora || attendance.horaAsistencia || attendance.time) || "—";
+};
+
+const getInitials = (value = "") => getText(value)
   .trim()
   .split(/\s+/)
   .slice(0, 2)
@@ -98,7 +153,6 @@ export default function Asistencia() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(getDateKey);
   const [attendances, setAttendances] = useState([]);
-  const [previousCount, setPreviousCount] = useState(0);
   const [clients, setClients] = useState([]);
   const [isClientsLoading, setIsClientsLoading] = useState(true);
   const [qrData, setQrData] = useState("");
@@ -108,33 +162,28 @@ export default function Asistencia() {
   }, []);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isAttendanceLive, setIsAttendanceLive] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    const unsubscribeToday = subscribeToAttendances(
-      selectedDate,
+    const unsubscribeAttendances = subscribeToAttendances(
       (records) => {
         setAttendances(records);
+        setIsAttendanceLive(true);
         setIsLoading(false);
       },
       (loadError) => {
         console.error("No se pudieron cargar las asistencias:", loadError);
         setError("No se pudieron cargar las asistencias. Revisa tus permisos y conexión.");
+        setIsAttendanceLive(false);
         setIsLoading(false);
-      },
-    );
-    const unsubscribeYesterday = subscribeToAttendances(
-      getPreviousDateKey(selectedDate),
-      (records) => setPreviousCount(records.length),
-      (loadError) => {
-        console.error("No se pudieron cargar las asistencias del día anterior:", loadError);
       },
     );
     const unsubscribeClients = onSnapshot(
       collection(db, "clientes"),
       (snapshot) => {
-        setClients(snapshot.docs.map((client) => ({ id: client.id, ...client.data() })));
+        setClients(snapshot.docs.map((client) => ({ ...client.data(), id: client.id })));
         setIsClientsLoading(false);
       },
       (loadError) => {
@@ -143,13 +192,11 @@ export default function Asistencia() {
         setIsClientsLoading(false);
       },
     );
-
     return () => {
-      unsubscribeToday();
-      unsubscribeYesterday();
+      unsubscribeAttendances();
       unsubscribeClients();
     };
-  }, [selectedDate]);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -169,9 +216,31 @@ export default function Asistencia() {
     };
   }, [qrUrl]);
 
+  const datedAttendances = useMemo(
+    () => attendances.filter((attendance) => getAttendanceDateKey(attendance) === selectedDate),
+    [attendances, selectedDate],
+  );
   const sortedAttendances = useMemo(
-    () => [...attendances].sort((first, second) => String(first.hora || "").localeCompare(String(second.hora || ""))),
-    [attendances],
+    () => datedAttendances
+      .map((attendance) => {
+        const name = getText(attendance.nombre)
+          || getText(attendance.nombreCliente)
+          || getText(attendance.clienteNombre)
+          || [getText(attendance.nombre), getText(attendance.apellido)].filter(Boolean).join(" ");
+        return {
+          ...attendance,
+          nombre: name || getText(attendance.usuario || attendance.username) || "Cliente",
+          usuario: getText(attendance.usuario || attendance.username),
+          clienteId: getText(attendance.clienteId),
+          uid: getText(attendance.uid),
+          membresia: getText(attendance.membresia || attendance.tipoMembresia),
+          estadoMembresia: getText(attendance.estadoMembresia || attendance.estadoPago || attendance.estado || attendance.tipo),
+        };
+      })
+      .sort((first, second) =>
+        getText(first.hora || first.horaAsistencia).localeCompare(getText(second.hora || second.horaAsistencia)),
+      ),
+    [datedAttendances],
   );
   const filteredAttendances = useMemo(() => {
     const value = search.trim().toLocaleLowerCase();
@@ -187,14 +256,19 @@ export default function Asistencia() {
   ).length;
   const firstAttendance = sortedAttendances[0];
   const lastAttendance = sortedAttendances.at(-1);
+  const previousCount = attendances.filter((attendance) =>
+    getAttendanceDateKey(attendance) === getPreviousDateKey(selectedDate),
+  ).length;
   const hourlyCounts = hourSlots.map((hour) => ({
     hour,
-    count: sortedAttendances.filter((attendance) => Number(String(attendance.hora || "").slice(0, 2)) === hour).length,
+    count: sortedAttendances.filter((attendance) =>
+      Number(String(attendance.hora || attendance.horaAsistencia || "").slice(0, 2)) === hour,
+    ).length,
   }));
   const maxHourlyCount = Math.max(1, ...hourlyCounts.map(({ count }) => count));
   const comparison = previousCount
-    ? `${Math.round(((attendances.length - previousCount) / previousCount) * 100)}%`
-    : attendances.length ? "Nuevo" : "0%";
+    ? `${Math.round(((datedAttendances.length - previousCount) / previousCount) * 100)}%`
+    : datedAttendances.length ? "Nuevo" : "0%";
 
   const handleCopyLink = async () => {
     try {
@@ -226,14 +300,16 @@ export default function Asistencia() {
 
   const handleExport = () => {
     const lines = [
-      ["Hora", "Cliente", "ID cliente", "Usuario", "Membresía", "UID"],
+      ["Fecha", "Hora", "Cliente", "Usuario", "ID cliente", "UID", "Membresía", "Estado de membresía"],
       ...sortedAttendances.map((attendance) => [
-        attendance.hora,
+        getAttendanceDateKey(attendance),
+        attendance.hora || attendance.horaAsistencia || formatTime(attendance),
         attendance.nombre,
-        attendance.clienteId,
         attendance.usuario,
-        attendance.membresia,
+        attendance.clienteId,
         attendance.uid,
+        attendance.membresia,
+        attendance.estadoMembresia,
       ]),
     ];
     const csv = `\uFEFF${lines.map((line) => line.map(csvValue).join(",")).join("\r\n")}`;
@@ -288,7 +364,6 @@ export default function Asistencia() {
                 value={selectedDate}
                 onChange={(event) => {
                   if (!event.target.value) return;
-                  setIsLoading(true);
                   setError("");
                   setSelectedDate(event.target.value);
                 }}
@@ -298,6 +373,24 @@ export default function Asistencia() {
 
           {error && <div className="attendanceAlert" role="alert">{error}</div>}
           {notice && <div className="attendanceNotice" role="status">{notice}</div>}
+
+          <section className="attendanceLatestPanel" aria-live="polite" aria-atomic="true">
+            <span className="attendanceLatestIcon"><Check size={19} /></span>
+            <div className="attendanceLatestDetails">
+              <span className="attendanceLatestLabel">Última asistencia recibida</span>
+              {lastAttendance ? (
+                <strong>
+                  {lastAttendance.nombre || "Cliente"}
+                  <span>{lastAttendance.usuario ? ` · Usuario: ${lastAttendance.usuario}` : ""} · {formatTime(lastAttendance)}</span>
+                </strong>
+              ) : (
+                <strong>{isLoading ? "Cargando registros..." : "Aún no hay asistencias para esta fecha"}</strong>
+              )}
+            </div>
+            <span className={`attendanceLiveStatus ${isAttendanceLive ? "isConnected" : ""}`}>
+              <i /> {isAttendanceLive ? "En vivo" : isLoading ? "Conectando..." : "Sin conexión"}
+            </span>
+          </section>
 
           <div className="attendanceTopGrid">
             <section className="attendancePanel attendanceQrPanel">
@@ -341,7 +434,7 @@ export default function Asistencia() {
               <section className="attendanceStatsGrid">
                 <article className="attendanceStatCard attendanceStatGreen">
                   <span className="attendanceStatIcon"><Users size={19} /></span>
-                  <div><p>Asistencias del día</p><strong>{isLoading ? "—" : attendances.length}</strong><small>{comparison} vs. día anterior</small></div>
+                  <div><p>Asistencias del día</p><strong>{isLoading ? "—" : datedAttendances.length}</strong><small>{comparison} vs. día anterior</small></div>
                 </article>
                 <article className="attendanceStatCard attendanceStatBlue">
                   <span className="attendanceStatIcon"><Users size={19} /></span>
@@ -384,7 +477,19 @@ export default function Asistencia() {
                 </div>
                 <div className="attendanceTableScroll">
                   <table className="attendanceTable">
-                    <thead><tr><th>#</th><th>Hora</th><th>Cliente</th><th>ID</th><th>Membresía</th><th>Estado</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cliente</th>
+                        <th>Usuario</th>
+                        <th>ID cliente</th>
+                        <th>UID</th>
+                        <th>Membresía</th>
+                        <th>Estado de membresía</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {filteredAttendances.map((attendance, index) => {
                         const membershipStatus = String(attendance.estadoMembresia || "").toLocaleLowerCase();
@@ -394,16 +499,23 @@ export default function Asistencia() {
                         return (
                           <tr key={attendance.id}>
                             <td>{index + 1}</td>
+                            <td>{formatAttendanceDate(attendance)}</td>
                             <td>{formatTime(attendance)}</td>
                             <td><span className="attendanceClientCell"><span className="attendanceAvatar">{getInitials(attendance.nombre)}</span><strong>{attendance.nombre || "Cliente"}</strong></span></td>
+                            <td>{attendance.usuario || "—"}</td>
                             <td>{attendance.clienteId || "—"}</td>
+                            <td>{attendance.uid || "—"}</td>
                             <td><span className={`attendanceMembership ${membershipClass}`}>{attendance.membresia || "Sin membresía"}</span></td>
-                            <td><span className="attendanceRegistered"><i /> Registrada</span></td>
+                            <td>
+                              {attendance.estadoMembresia
+                                ? <span className={`attendanceMembership ${membershipClass}`}>{attendance.estadoMembresia}</span>
+                                : <span className="attendanceRegistered"><i /> Registrada</span>}
+                            </td>
                           </tr>
                         );
                       })}
                       {!isLoading && filteredAttendances.length === 0 && (
-                        <tr><td colSpan="6" className="attendanceEmpty">{search ? "No hay resultados para esta búsqueda." : "Todavía no hay asistencias para esta fecha."}</td></tr>
+                        <tr><td colSpan="9" className="attendanceEmpty">{search ? "No hay resultados para esta búsqueda." : "Todavía no hay asistencias para esta fecha."}</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -448,7 +560,7 @@ export default function Asistencia() {
                   <div className="attendanceRecentItem" key={attendance.id}>
                     <span className="attendanceAvatar">{getInitials(attendance.nombre)}</span>
                     <strong>{attendance.nombre || "Cliente"}</strong>
-                    <span className="attendanceRecentId">ID: {attendance.clienteId || "—"}</span>
+                    <span className="attendanceRecentId">Usuario: {attendance.usuario || "—"}</span>
                     <time>{formatTime(attendance)}</time>
                     <span className="attendanceRegistered"><i /> Registrada</span>
                   </div>
