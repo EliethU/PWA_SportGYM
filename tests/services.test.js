@@ -10,12 +10,19 @@ jest.mock("firebase/firestore", () => ({
 
 jest.mock("../src/assets/database/firebaseconfig", () => ({ db: {} }));
 
+import { addDoc, collection } from "firebase/firestore";
 import {
   MAX_PRODUCT_IMAGE_SIZE,
   normalizeProductImageUrl,
   validateProductImageFile,
   validateProductImageUrl,
 } from "../src/services/productosService";
+import {
+  MAX_RECIPE_IMAGE_SIZE,
+  createRecipe,
+  validateRecipeImage,
+  validateRecipeImageUrl,
+} from "../src/services/recetasService";
 
 describe('🛒 Servicios de Productos - Utilidades', () => {
   describe('normalizeProductImageUrl', () => {
@@ -74,6 +81,51 @@ describe('🛒 Servicios de Productos - Utilidades', () => {
     test('rechaza imágenes superiores a 700 KB', () => {
       expect(validateProductImageFile({ type: 'image/jpeg', size: MAX_PRODUCT_IMAGE_SIZE + 1 })).toBe('La imagen no puede superar los 700 KB para guardarse en Firestore.');
     });
+  });
+});
+
+describe("🍽️ Servicios de Recetas", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("guarda la receta y su imageUrl dentro de la colección recetas", async () => {
+    collection.mockReturnValue("recetas-ref");
+    addDoc.mockResolvedValue({ id: "recipe-id" });
+    const recipe = {
+      nombre: "Avena",
+      calorias: 320,
+      imageUrl: "data:image/png;base64,YWJj",
+    };
+
+    await expect(createRecipe(recipe)).resolves.toBe("recipe-id");
+
+    expect(collection).toHaveBeenCalledWith({}, "recetas");
+    expect(addDoc).toHaveBeenCalledWith("recetas-ref", expect.objectContaining({
+      ...recipe,
+      creadoEn: undefined,
+      actualizadoEn: undefined,
+      activa: true,
+    }));
+  });
+
+  test("rechaza una URL de imagen inválida sin intentar guardar", async () => {
+    await expect(createRecipe({ nombre: "Avena", imageUrl: "javascript:alert(1)" }))
+      .rejects.toThrow("La URL de la imagen debe comenzar con http:// o https://.");
+    expect(addDoc).not.toHaveBeenCalled();
+  });
+
+  test("valida el tipo y el tamaño de imagen permitidos para Firestore", () => {
+    expect(validateRecipeImage({ type: "image/jpeg", size: MAX_RECIPE_IMAGE_SIZE })).toBe("");
+    expect(validateRecipeImage({ type: "image/gif", size: 100 })).toBe("La imagen debe estar en formato JPG o PNG.");
+    expect(validateRecipeImage({ type: "image/png", size: MAX_RECIPE_IMAGE_SIZE + 1 }))
+      .toBe("La imagen no puede superar los 700 KB para guardarse en Firestore.");
+  });
+
+  test("valida URL base64 de imagen y limita su tamaño", () => {
+    expect(validateRecipeImageUrl("data:image/png;base64,YWJj")).toBe("");
+    const oversizedDataUrl = `data:image/jpeg;base64,${"A".repeat(Math.ceil(MAX_RECIPE_IMAGE_SIZE / 3) * 4 + 1)}`;
+    expect(validateRecipeImageUrl(oversizedDataUrl)).toBe("La imagen incrustada no es válida o supera los 700 KB.");
   });
 });
 

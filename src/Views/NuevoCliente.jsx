@@ -32,7 +32,7 @@ import "../Styles/Home.css";
 import "../Styles/NuevoCliente.css";
 
 const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/home" },
+  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
   { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
@@ -41,6 +41,7 @@ const menuItems = [
   { name: "Inventario", icon: Package, path: "/inventario" },
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
   { name: "Configuración", icon: Settings, path: "/configuracion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
@@ -204,7 +205,7 @@ export default function NuevoCliente() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Clientes" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/clientes" && ["/clientes", "/nuevo-cliente"].includes(window.location.pathname) ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

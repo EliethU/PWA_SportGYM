@@ -20,6 +20,8 @@ import Configuracion from './Views/Configuracion';
 import Terminos from './Views/Terminos';
 import Analisis from './Views/Analisis';
 import Asistencia from './Views/Asistencia';
+import Nutricion from './Views/Nutricion';
+import NuevaReceta from './Views/NuevaReceta';
 import './App.css';
 
 function ProtectedRoute({ requiredRole }) {
@@ -48,6 +50,9 @@ function App() {
               <Route path="/terminos" element={<Terminos />} />
               <Route path="/home" element={<Home />} />
               <Route path="/asistencia" element={<Asistencia />} />
+              <Route path="/nutricion" element={<Nutricion />} />
+              <Route path="/nueva-receta" element={<NuevaReceta />} />
+              <Route path="/editar-receta/:recipeId" element={<NuevaReceta />} />
               <Route path="/clientes" element={<Clientes />} />
               <Route path="/nuevo-cliente" element={<NuevoCliente />} />
               <Route path="/membresias" element={<Membresias />} />
