@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { addDoc, arrayUnion, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import {
@@ -25,6 +26,7 @@ import "../Styles/Membresias.css";
 
 const menuItems = [
   { name: "Inicio", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
@@ -33,6 +35,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
@@ -197,7 +200,7 @@ export default function Membresias() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Membresías" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/membresias" && window.location.pathname === "/membresias" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

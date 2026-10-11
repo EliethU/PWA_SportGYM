@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { CalendarDays, CreditCard, LogOut, UserRound } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { CalendarDays, CheckCircle2, CreditCard, LogOut, UserRound } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../assets/database/authcontext";
-import { db } from "../assets/database/firebaseconfig.jsx";
+import { db } from "../assets/database/firebaseconfig";
+import { registerClientAttendance } from "../services/asistenciasService";
 import "../Styles/PortalCliente.css";
 
 const formatDate = (value) => {
@@ -16,9 +17,31 @@ const formatDate = (value) => {
 export default function PortalCliente() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [client, setClient] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [attendanceMessage, setAttendanceMessage] = useState("");
+  const [attendanceError, setAttendanceError] = useState("");
+  const [isRegisteringAttendance, setIsRegisteringAttendance] = useState(false);
+  const automaticAttendanceAttempted = useRef(false);
+
+  const recordAttendance = useCallback(async () => {
+    setAttendanceError("");
+    setAttendanceMessage("");
+    setIsRegisteringAttendance(true);
+    try {
+      const result = await registerClientAttendance();
+      setAttendanceMessage(result.alreadyRegistered
+        ? `Tu asistencia de hoy ya estaba registrada (${result.hora}).`
+        : `Asistencia registrada correctamente a las ${result.hora}.`);
+    } catch (attendanceRequestError) {
+      console.error("No se pudo registrar la asistencia del cliente:", attendanceRequestError);
+      setAttendanceError(attendanceRequestError.message || "No se pudo registrar tu asistencia. Inténtalo de nuevo.");
+    } finally {
+      setIsRegisteringAttendance(false);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -46,6 +69,12 @@ export default function PortalCliente() {
     };
   }, [user.uid]);
 
+  useEffect(() => {
+    if (!client || searchParams.get("registrarAsistencia") !== "1" || automaticAttendanceAttempted.current) return;
+    automaticAttendanceAttempted.current = true;
+    recordAttendance().finally(() => navigate("/cliente", { replace: true }));
+  }, [client, navigate, recordAttendance, searchParams]);
+
   const handleLogout = async () => {
     await logout();
     navigate("/", { replace: true });
@@ -68,8 +97,11 @@ export default function PortalCliente() {
 
         {isLoading && <p className="clientPortalMessage">Cargando tu información...</p>}
         {error && <p className="clientPortalError" role="alert">{error}</p>}
+        {attendanceMessage && <p className="clientPortalAttendanceSuccess" role="status">{attendanceMessage}</p>}
+        {attendanceError && <p className="clientPortalError" role="alert">{attendanceError}</p>}
 
         {client && (
+          <>
           <section className="clientMembershipPanel" aria-label="Información de membresía">
             <div className="clientMembershipHeader">
               <div className="clientMembershipIcon"><CreditCard size={20} /></div>
@@ -95,6 +127,22 @@ export default function PortalCliente() {
               </div>
             </div>
           </section>
+          <section className="clientAttendancePanel" aria-label="Registrar asistencia">
+            <div>
+              <h2>Asistencia al gimnasio</h2>
+              <p>Registra tu visita con tu cuenta. Solo se permite una asistencia por día.</p>
+            </div>
+            <button
+              type="button"
+              className="clientAttendanceButton"
+              onClick={() => void recordAttendance()}
+              disabled={isRegisteringAttendance}
+            >
+              <CheckCircle2 size={18} />
+              {isRegisteringAttendance ? "Registrando..." : "Registrar asistencia"}
+            </button>
+          </section>
+          </>
         )}
       </section>
     </main>

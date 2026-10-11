@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../assets/database/firebaseconfig.jsx";
+import { auth, db } from "../assets/database/firebaseconfig";
 import inicioImage from "../Imagen/inicio.jpg";
 import "../Styles/Login.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -14,6 +14,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +45,11 @@ const Login = () => {
       if (role === "admin") {
         navigate("/terminos");
       } else if (role === "cliente") {
-        navigate("/cliente");
+        const requestedPath = location.state?.from;
+        const destination = requestedPath?.pathname === "/cliente"
+          ? `${requestedPath.pathname}${requestedPath.search || ""}`
+          : "/cliente";
+        navigate(destination, { replace: true });
       } else {
         await signOut(auth);
         setError("La cuenta no tiene un perfil de acceso válido. Contacta al administrador.");

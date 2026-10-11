@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { QrCode } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -25,6 +26,7 @@ import "../Styles/Gastos.css";
 
 const menuItems = [
   { name: "Inicio", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
@@ -33,6 +35,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
@@ -171,7 +174,7 @@ export default function Gastos() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Gastos" ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/gastos" && ["/gastos", "/registrar-gasto"].includes(window.location.pathname) ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

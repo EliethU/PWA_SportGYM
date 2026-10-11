@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -21,6 +22,7 @@ import "../Styles/Reportes.css";
 
 const menuItems = [
   { name: "Inicio", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
@@ -29,6 +31,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
@@ -76,7 +79,7 @@ export default function Reportes() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Reportes" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/reportes" && window.location.pathname === "/reportes" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

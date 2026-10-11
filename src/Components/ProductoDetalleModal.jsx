@@ -1,6 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { ImagePlus, Save, Trash2, X } from "lucide-react";
-import { normalizeProductImageUrl, validateProductImage } from "../services/productosService";
+import {
+  normalizeProductImageUrl,
+  productImageFileToDataUrl,
+  validateProductImageUrl,
+} from "../services/productosService";
 
 export default function ProductoDetalleModal({ product, categories, onClose, onSave, onDelete, isSaving, error }) {
   const [draft, setDraft] = useState({
@@ -12,38 +16,55 @@ export default function ProductoDetalleModal({ product, categories, onClose, onS
     salePrice: String(product.salePrice ?? product.price ?? ""),
     stock: String(product.stock ?? "0"),
     minimumStock: String(product.minimumStock ?? "0"),
+    imageUrl: normalizeProductImageUrl(product.imageUrl || ""),
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(normalizeProductImageUrl(product.imageUrl || ""));
+  const [imageLoadError, setImageLoadError] = useState(false);
   const [imageError, setImageError] = useState("");
-  const imagePreviewRef = useRef("");
-
-  useEffect(() => {
-    return () => {
-      if (imagePreviewRef.current) URL.revokeObjectURL(imagePreviewRef.current);
-    };
-  }, []);
+  const [isReadingImage, setIsReadingImage] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setDraft((current) => ({ ...current, [name]: value }));
+    if (name === "imageUrl") {
+      setImageLoadError(false);
+      setImageError("");
+    }
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files?.[0] || null;
-    const validationError = validateProductImage(file);
-    setImageError(validationError);
-    const acceptedFile = validationError ? null : file;
-    if (imagePreviewRef.current) URL.revokeObjectURL(imagePreviewRef.current);
-    imagePreviewRef.current = acceptedFile ? URL.createObjectURL(acceptedFile) : "";
-    setImagePreview(normalizeProductImageUrl(imagePreviewRef.current || product.imageUrl || ""));
-    setImageFile(acceptedFile);
-    if (validationError) event.target.value = "";
+  const handleImageChange = async (event) => {
+    const imageFile = event.target.files?.[0];
+    event.target.value = "";
+    if (!imageFile) return;
+
+    setImageError("");
+    setImageLoadError(false);
+    setIsReadingImage(true);
+    try {
+      const imageUrl = await productImageFileToDataUrl(imageFile);
+      setDraft((current) => ({ ...current, imageUrl }));
+    } catch (loadError) {
+      setImageError(loadError.message);
+    } finally {
+      setIsReadingImage(false);
+    }
   };
 
-  const handleSubmit = (event) => {
+  const handleRemoveImage = () => {
+    setDraft((current) => ({ ...current, imageUrl: "" }));
+    setImageLoadError(false);
+    setImageError("");
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onSave({
+    if (isReadingImage) return;
+    const urlError = validateProductImageUrl(draft.imageUrl);
+    if (urlError) {
+      setImageError(urlError);
+      return;
+    }
+    setImageError("");
+    await onSave({
       name: draft.name.trim(),
       category: draft.category,
       description: draft.description.trim(),
@@ -52,7 +73,8 @@ export default function ProductoDetalleModal({ product, categories, onClose, onS
       salePrice: Number(draft.salePrice),
       stock: Number(draft.stock),
       minimumStock: Number(draft.minimumStock),
-    }, imageFile);
+      imageUrl: draft.imageUrl.trim(),
+    });
   };
 
   const categoryOptions = [...new Set([product.category, ...categories].filter(Boolean))];
@@ -64,33 +86,39 @@ export default function ProductoDetalleModal({ product, categories, onClose, onS
           <h2 id="productDetailTitle">Detalle del producto</h2>
           <div className="productDetailLayout">
             <div className="productDetailImage">
-              {imagePreview ? (
+              {draft.imageUrl && !imageLoadError ? (
                 <img
-                  src={imagePreview}
+                  src={normalizeProductImageUrl(draft.imageUrl)}
                   alt={`Imagen de ${product.name}`}
                   referrerPolicy="no-referrer"
                   crossOrigin="anonymous"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                    const fallback = event.currentTarget.nextElementSibling;
-                    if (fallback) fallback.style.display = "flex";
-                  }}
+                  onError={() => setImageLoadError(true)}
                   onLoad={(event) => {
                     event.currentTarget.style.display = "block";
                     const fallback = event.currentTarget.nextElementSibling;
                     if (fallback) fallback.style.display = "none";
                   }}
                 />
-              ) : null}
-              <div style={{ display: imagePreview ? "none" : "flex" }}><ImagePlus size={36} strokeWidth={1.5} /></div>
-              <label htmlFor="edit-product-image"><ImagePlus size={16} /> Cambiar imagen</label>
-              <input id="edit-product-image" type="file" accept="image/jpeg,image/png" onChange={handleImageChange} />
+              ) : (
+                <div className="productDetailImagePlaceholder"><ImagePlus size={36} strokeWidth={1.5} /><span>{imageLoadError ? "No se pudo cargar esta URL" : "Vista previa"}</span></div>
+              )}
+              <label htmlFor="edit-product-image-file">Imagen del producto</label>
+              <input
+                id="edit-product-image-file"
+                className="productDetailImageUrl"
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={handleImageChange}
+                disabled={isReadingImage}
+              />
+              <small className="productDetailImageHelp">{isReadingImage ? "Preparando imagen..." : "JPG o PNG · Máximo 700 KB · Se guarda como URL base64 en productos.imageUrl."}</small>
+              {draft.imageUrl && <button className="removeProductImage" type="button" onClick={handleRemoveImage}><X size={14} /> Quitar imagen</button>}
             </div>
             <div className="productDetailFields">
               <label>Nombre del producto<input required maxLength="100" name="name" value={draft.name} onChange={handleChange} /></label>
               <label>Categoría<select required name="category" value={draft.category} onChange={handleChange}>{categoryOptions.map((category) => <option key={category}>{category}</option>)}</select></label>
               <label className="detailFieldWide">Descripción<textarea maxLength="500" name="description" rows="2" value={draft.description} onChange={handleChange} /></label>
-              <label>Marca<input required maxLength="80" name="brand" value={draft.brand} onChange={handleChange} /></label>
+              <label>Marca<input maxLength="80" name="brand" value={draft.brand} onChange={handleChange} /></label>
               <label>Estado<select name="status" value={draft.status} onChange={handleChange}><option>Disponible</option><option>Stock bajo</option><option>Agotado</option></select></label>
               <label>Precio<input required min="0" step="0.01" type="number" name="salePrice" value={draft.salePrice} onChange={handleChange} /></label>
               <label>Stock actual<input required min="0" step="1" type="number" name="stock" value={draft.stock} onChange={handleChange} /></label>
@@ -101,7 +129,7 @@ export default function ProductoDetalleModal({ product, categories, onClose, onS
           <div className="productDetailActions">
             <button type="button" className="detailCancelButton" onClick={onClose}><X size={17} /> Cancelar</button>
             <button type="button" className="detailDeleteButton" disabled={isSaving} onClick={() => { if (window.confirm(`¿Eliminar ${product.name}?`)) onDelete(); }}><Trash2 size={17} /> Eliminar</button>
-            <button type="submit" className="detailSaveButton" disabled={isSaving}><Save size={17} /> {isSaving ? "Guardando..." : "Guardar"}</button>
+            <button type="submit" className="detailSaveButton" disabled={isSaving || isReadingImage}><Save size={17} /> {isSaving ? "Guardando..." : isReadingImage ? "Preparando imagen..." : "Guardar cambios"}</button>
           </div>
         </form>
       </section>

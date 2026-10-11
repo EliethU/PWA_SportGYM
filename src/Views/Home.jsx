@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { collection, onSnapshot } from "firebase/firestore";
 import {
@@ -56,6 +57,7 @@ const DESIGN_TOKENS = {
 
 const menuItems = [
   { name: "Inicio", icon: HomeIcon, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
@@ -64,6 +66,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
@@ -345,7 +348,7 @@ export default function Home() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${index === 0 ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/home" && window.location.pathname === "/home" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

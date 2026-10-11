@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -29,6 +30,7 @@ import "../Styles/Inventario.css";
 
 const menuItems = [
   { name: "Inicio", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
@@ -37,6 +39,7 @@ const menuItems = [
   { name: "Gastos", icon: Receipt, path: "/gastos" },
   { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
@@ -73,15 +76,21 @@ export default function Inventario() {
   const isLowStock = (product) => !isOutOfStock(product) && (product.status === "Stock bajo" || Number(product.stock) <= Number(product.minimumStock ?? 5));
   const getProductStatus = (product) => isOutOfStock(product) ? "agotado" : isLowStock(product) ? "bajo" : "disponible";
 
-  const handleSaveProduct = async (changes, imageFile) => {
+  const handleSaveProduct = async (changes) => {
     setIsSavingProduct(true);
     setProductError("");
     try {
-      await updateProduct(editingProduct.id, changes, imageFile, editingProduct.imagePath);
+      await updateProduct(editingProduct.id, changes);
       setEditingProduct(null);
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
-      setProductError("No se pudo guardar el producto. Verifica los permisos de Firestore y Storage.");
+      if (error.code === "permission-denied" || error.code === "unauthenticated") {
+        setProductError("No tienes permisos para guardar cambios. Inicia sesión con una cuenta administradora.");
+      } else if (error.code === "not-found") {
+        setProductError("Este producto ya no existe. Actualiza el inventario e inténtalo de nuevo.");
+      } else {
+        setProductError("No se pudieron guardar los cambios en Firestore. Revisa tu conexión e inténtalo de nuevo.");
+      }
     } finally {
       setIsSavingProduct(false);
     }
@@ -91,7 +100,7 @@ export default function Inventario() {
     setIsSavingProduct(true);
     setProductError("");
     try {
-      await deleteProduct(editingProduct.id, editingProduct.imagePath);
+      await deleteProduct(editingProduct.id);
       setEditingProduct(null);
     } catch (error) {
       console.error("Error al eliminar el producto:", error);
@@ -133,7 +142,7 @@ export default function Inventario() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Inventario" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/inventario" && ["/inventario", "/nuevo-producto", "/nueva-categoria"].includes(window.location.pathname) ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />

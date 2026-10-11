@@ -1,73 +1,131 @@
+jest.mock("firebase/firestore", () => ({
+  addDoc: jest.fn(),
+  collection: jest.fn(),
+  deleteDoc: jest.fn(),
+  doc: jest.fn(),
+  onSnapshot: jest.fn(),
+  serverTimestamp: jest.fn(),
+  updateDoc: jest.fn(),
+}));
+
+jest.mock("../src/assets/database/firebaseconfig", () => ({ db: {} }));
+
+import { addDoc, collection } from "firebase/firestore";
+import {
+  MAX_PRODUCT_IMAGE_SIZE,
+  normalizeProductImageUrl,
+  validateProductImageFile,
+  validateProductImageUrl,
+} from "../src/services/productosService";
+import {
+  MAX_RECIPE_IMAGE_SIZE,
+  createRecipe,
+  validateRecipeImage,
+  validateRecipeImageUrl,
+} from "../src/services/recetasService";
+
 describe('🛒 Servicios de Productos - Utilidades', () => {
   describe('normalizeProductImageUrl', () => {
-    const normalizeProductImageUrl = (url) => {
-      if (!url) return "";
-      if (url.startsWith("gs://")) {
-        const bucket = "sportgym-2b2f8.firebasestorage.app";
-        const objectPath = encodeURIComponent(url.replace(/^gs:\/\/[^/]+\//, ""));
-        return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${objectPath}?alt=media`;
-      }
-      return url;
-    };
-
     test('retorna string vacío si la URL es null o undefined', () => {
       expect(normalizeProductImageUrl(null)).toBe('');
       expect(normalizeProductImageUrl(undefined)).toBe('');
       expect(normalizeProductImageUrl('')).toBe('');
     });
 
-    test('convierte URLs de Firebase Storage a formato HTTPS', () => {
-      const gsUrl = 'gs://sportgym-2b2f8.firebasestorage.app/productos/image123.jpg';
-      const expected = 'https://firebasestorage.googleapis.com/v0/b/sportgym-2b2f8.firebasestorage.app/o/productos%2Fimage123.jpg?alt=media';
-      expect(normalizeProductImageUrl(gsUrl)).toBe(expected);
-    });
-
-    test('retorna la URL tal cual si no es de Firebase Storage', () => {
+    test('conserva y limpia el enlace HTTP/HTTPS proporcionado', () => {
       const httpUrl = 'https://example.com/image.jpg';
-      expect(normalizeProductImageUrl(httpUrl)).toBe(httpUrl);
+      expect(normalizeProductImageUrl(` ${httpUrl} `)).toBe(httpUrl);
+      expect(normalizeProductImageUrl('gs://bucket/image.jpg')).toBe('gs://bucket/image.jpg');
     });
   });
 
-  describe('validateProductImage', () => {
-    const IMAGE_LIMIT = 5 * 1024 * 1024;
-    const IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
+  describe('validateProductImageUrl', () => {
+    test('permite dejar vacía la imagen', () => {
+      expect(validateProductImageUrl('')).toBe('');
+    });
 
-    const validateProductImage = (file) => {
-      if (!file) return "";
-      if (!IMAGE_TYPES.has(file.type)) return "La imagen debe estar en formato JPG o PNG.";
-      if (file.size > IMAGE_LIMIT) return "La imagen no puede superar los 5 MB.";
-      return "";
+    test.each([
+      'https://example.com/image.jpg',
+      'http://images.example.com/products/item.png',
+    ])('acepta un enlace HTTP/HTTPS: %s', (url) => {
+      expect(validateProductImageUrl(url)).toBe('');
+    });
+
+    test('acepta una imagen codificada para guardarse en Firestore', () => {
+      expect(validateProductImageUrl('data:image/png;base64,YWJj')).toBe('');
+    });
+
+    test('rechaza una imagen codificada que supera el límite', () => {
+      const oversizedDataUrl = `data:image/jpeg;base64,${'A'.repeat(Math.ceil(MAX_PRODUCT_IMAGE_SIZE / 3) * 4 + 1)}`;
+      expect(validateProductImageUrl(oversizedDataUrl)).toBe('La imagen incrustada no es válida o supera los 700 KB.');
+    });
+
+    test('rechaza una URL mal formada', () => {
+      expect(validateProductImageUrl('no-es-una-url')).toBe('Ingresa una URL válida para la imagen.');
+    });
+
+    test('rechaza protocolos que no sean HTTP/HTTPS', () => {
+      expect(validateProductImageUrl('ftp://example.com/image.jpg')).toBe('La URL de la imagen debe comenzar con http:// o https://.');
+    });
+  });
+
+  describe('validateProductImageFile', () => {
+    test.each(['image/jpeg', 'image/png'])('acepta archivos %s dentro del límite', (type) => {
+      expect(validateProductImageFile({ type, size: MAX_PRODUCT_IMAGE_SIZE })).toBe('');
+    });
+
+    test('rechaza formatos que no son JPG o PNG', () => {
+      expect(validateProductImageFile({ type: 'image/gif', size: 100 })).toBe('La imagen debe estar en formato JPG o PNG.');
+    });
+
+    test('rechaza imágenes superiores a 700 KB', () => {
+      expect(validateProductImageFile({ type: 'image/jpeg', size: MAX_PRODUCT_IMAGE_SIZE + 1 })).toBe('La imagen no puede superar los 700 KB para guardarse en Firestore.');
+    });
+  });
+});
+
+describe("🍽️ Servicios de Recetas", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("guarda la receta y su imageUrl dentro de la colección recetas", async () => {
+    collection.mockReturnValue("recetas-ref");
+    addDoc.mockResolvedValue({ id: "recipe-id" });
+    const recipe = {
+      nombre: "Avena",
+      calorias: 320,
+      imageUrl: "data:image/png;base64,YWJj",
     };
 
-    test('retorna string vacío si no hay archivo', () => {
-      expect(validateProductImage(null)).toBe('');
-      expect(validateProductImage(undefined)).toBe('');
-    });
+    await expect(createRecipe(recipe)).resolves.toBe("recipe-id");
 
-    test('valida formato de imagen aceptado (JPG)', () => {
-      const validFile = { type: 'image/jpeg', size: 1000 };
-      expect(validateProductImage(validFile)).toBe('');
-    });
+    expect(collection).toHaveBeenCalledWith({}, "recetas");
+    expect(addDoc).toHaveBeenCalledWith("recetas-ref", expect.objectContaining({
+      ...recipe,
+      creadoEn: undefined,
+      actualizadoEn: undefined,
+      activa: true,
+    }));
+  });
 
-    test('valida formato de imagen aceptado (PNG)', () => {
-      const validFile = { type: 'image/png', size: 1000 };
-      expect(validateProductImage(validFile)).toBe('');
-    });
+  test("rechaza una URL de imagen inválida sin intentar guardar", async () => {
+    await expect(createRecipe({ nombre: "Avena", imageUrl: "javascript:alert(1)" }))
+      .rejects.toThrow("La URL de la imagen debe comenzar con http:// o https://.");
+    expect(addDoc).not.toHaveBeenCalled();
+  });
 
-    test('rechaza formatos no permitidos', () => {
-      const invalidFile = { type: 'image/gif', size: 1000 };
-      expect(validateProductImage(invalidFile)).toBe('La imagen debe estar en formato JPG o PNG.');
-    });
+  test("valida el tipo y el tamaño de imagen permitidos para Firestore", () => {
+    expect(validateRecipeImage({ type: "image/jpeg", size: MAX_RECIPE_IMAGE_SIZE })).toBe("");
+    expect(validateRecipeImage({ type: "image/gif", size: 100 })).toBe("La imagen debe estar en formato JPG o PNG.");
+    expect(validateRecipeImage({ type: "image/png", size: MAX_RECIPE_IMAGE_SIZE + 1 }))
+      .toBe("La imagen no puede superar los 700 KB para guardarse en Firestore.");
+  });
 
-    test('rechaza imágenes mayores a 5MB', () => {
-      const largeFile = { type: 'image/jpeg', size: 6 * 1024 * 1024 };
-      expect(validateProductImage(largeFile)).toBe('La imagen no puede superar los 5 MB.');
-    });
-
-    test('acepta imágenes de exactamente 5MB', () => {
-      const maxSizeFile = { type: 'image/jpeg', size: 5 * 1024 * 1024 };
-      expect(validateProductImage(maxSizeFile)).toBe('');
-    });
+  test("valida URL base64 de imagen y limita su tamaño", () => {
+    expect(validateRecipeImageUrl("data:image/png;base64,YWJj")).toBe("");
+    const oversizedDataUrl = `data:image/jpeg;base64,${"A".repeat(Math.ceil(MAX_RECIPE_IMAGE_SIZE / 3) * 4 + 1)}`;
+    expect(validateRecipeImageUrl(oversizedDataUrl)).toBe("La imagen incrustada no es válida o supera los 700 KB.");
   });
 });
 

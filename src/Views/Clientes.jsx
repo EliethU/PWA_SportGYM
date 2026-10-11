@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import {
@@ -20,24 +21,24 @@ import {
   Save,
   Eye,
   EyeOff,
-  AlertTriangle,
-  History,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
-import { db } from "../assets/database/firebaseconfig.jsx";
+import { db } from "../assets/database/firebaseconfig";
 import "../Styles/Home.css";
 import "../Styles/Clientes.css";
 
 const menuItems = [
   { name: "Inicio", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
   { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
   { name: "Inventario", icon: Package, path: "/inventario" },
   { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
+  { name: "Configuración", icon: Settings, path: "/configuracion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
@@ -87,28 +88,9 @@ const formatDate = (value) => {
 const formatMembership = (membership) =>
   membership ? membership.charAt(0).toUpperCase() + membership.slice(1) : "-";
 
-const normalizeMembershipName = (membership) => String(membership || "").trim().toLocaleLowerCase();
-const normalizePaymentName = (name) => String(name || "").trim().toLocaleLowerCase();
-const getPaymentClientName = (payment) => payment.nombreCliente || payment.clienteNombre || payment.cliente || "";
-const getClientFullName = (client) => [client.nombre, client.apellido].filter(Boolean).join(" ");
-const getPaymentDate = (payment) => payment.fechaPago || payment.fecha || payment.creadoEn;
-
-const getPaymentDateValue = (value) => {
-  if (!value) return null;
-  if (value?.toDate) return value.toDate();
-  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [year, month, day] = value.split("-").map(Number);
-    return new Date(year, month - 1, day);
-  }
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
-
 export default function Clientes() {
   const navigate = useNavigate();
   const [clients, setClients] = useState([]);
-  const [membershipOptions, setMembershipOptions] = useState([]);
-  const [payments, setPayments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -117,7 +99,6 @@ export default function Clientes() {
   const [isSaving, setIsSaving] = useState(false);
   const [deletingClientId, setDeletingClientId] = useState("");
   const [visiblePasswords, setVisiblePasswords] = useState(() => new Set());
-  const [paymentHistoryError, setPaymentHistoryError] = useState("");
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -131,52 +112,14 @@ export default function Clientes() {
         setError("No se pudieron cargar los clientes. Revisa la conexión con Firebase.");
       },
     );
-    const unsubscribeMemberships = onSnapshot(
-      collection(db, "membresias"),
-      (snapshot) => setMembershipOptions(snapshot.docs.map((membership) => ({ id: membership.id, ...membership.data() }))),
-      (snapshotError) => {
-        console.error("Error al cargar las membresías:", snapshotError);
-        setError("No se pudieron cargar las membresías disponibles.");
-      },
-    );
-    const unsubscribePayments = onSnapshot(
-      collection(db, "pagos"),
-      (snapshot) => {
-        setPayments(snapshot.docs.map((payment) => ({ id: payment.id, ...payment.data() })));
-        setPaymentHistoryError("");
-      },
-      (snapshotError) => {
-        console.error("Error al cargar el historial de pagos:", snapshotError);
-        setPaymentHistoryError("No se pudo cargar el historial de pagos.");
-      },
-    );
 
-    return () => {
-      unsubscribe();
-      unsubscribeMemberships();
-      unsubscribePayments();
-    };
+    return () => unsubscribe();
   }, []);
 
   const filteredClients = clients.filter((client) =>
     [client.nombre, client.telefono, client.correo]
       .some((value) => String(value || "").toLowerCase().includes(searchTerm.toLowerCase())),
   );
-
-  const clientPaymentHistory = editingClient
-    ? payments
-      .filter((payment) => {
-        if (payment.clienteId) return payment.clienteId === editingClient.id;
-        const paymentName = normalizePaymentName(getPaymentClientName(payment));
-        return [editingClient.nombre, getClientFullName(editingClient)]
-          .some((clientName) => normalizePaymentName(clientName) === paymentName);
-      })
-      .sort((firstPayment, secondPayment) => {
-        const firstDate = getPaymentDateValue(getPaymentDate(firstPayment))?.getTime() || 0;
-        const secondDate = getPaymentDateValue(getPaymentDate(secondPayment))?.getTime() || 0;
-        return secondDate - firstDate;
-      })
-    : [];
 
   const openEditDialog = (client) => {
     setEditingClient(client);
@@ -207,6 +150,16 @@ export default function Clientes() {
       }
       return nextVisiblePasswords;
     });
+  };
+
+  const handlePasswordVisibility = (client) => {
+    if (client.contrasena) {
+      togglePasswordVisibility(client.id);
+      setFeedback("");
+      return;
+    }
+
+    setFeedback("Firebase Authentication no permite consultar la contraseña original. Para cambiarla, usa la opción de restablecer contraseña.");
   };
 
   const handleUpdateClient = async (event) => {
@@ -270,7 +223,7 @@ export default function Clientes() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Clientes" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/clientes" && ["/clientes", "/nuevo-cliente"].includes(window.location.pathname) ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />
@@ -306,7 +259,7 @@ export default function Clientes() {
                 onChange={(event) => setSearchTerm(event.target.value)}
               />
             </div>
-            <button className="newClientButton" onClick={() => navigate("/nuevo-cliente")}>
+            <button className="newButton" onClick={() => navigate("/nuevo-cliente")}>
               <Plus size={18} />
               <span>Nuevo</span>
             </button>
@@ -342,17 +295,17 @@ export default function Clientes() {
                         <td>{client.correo || "-"}</td>
                         <td>{client.usuario || "-"}</td>
                         <td>
-                          {client.contrasena ? (
+                          {client.contrasena || client.uid || client.correo ? (
                             <div className="clientPasswordCell">
-                              <span>{visiblePasswords.has(client.id) ? client.contrasena : "••••••••"}</span>
+                              <span>{visiblePasswords.has(client.id) && client.contrasena ? client.contrasena : "••••••••"}</span>
                               <button
                                 type="button"
                                 className="passwordVisibilityButton"
-                                onClick={() => togglePasswordVisibility(client.id)}
-                                aria-label={visiblePasswords.has(client.id) ? "Ocultar contraseña" : "Mostrar contraseña"}
-                                title={visiblePasswords.has(client.id) ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                onClick={() => handlePasswordVisibility(client)}
+                                aria-label={visiblePasswords.has(client.id) && client.contrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                title={client.contrasena ? (visiblePasswords.has(client.id) ? "Ocultar contraseña" : "Mostrar contraseña") : "La contraseña de Auth no se puede recuperar"}
                               >
-                                {visiblePasswords.has(client.id) ? <EyeOff size={15} /> : <Eye size={15} />}
+                                {visiblePasswords.has(client.id) && client.contrasena ? <EyeOff size={15} /> : <Eye size={15} />}
                               </button>
                             </div>
                           ) : "-"}
@@ -426,48 +379,6 @@ export default function Clientes() {
             </div>
 
             <form className="clientEditForm" onSubmit={handleUpdateClient}>
-              <section className="clientPaymentHistory" aria-labelledby="client-payment-history-title">
-                <div className="clientPaymentHistoryHeading">
-                  <div>
-                    <History size={17} />
-                    <h3 id="client-payment-history-title">Historial de pagos</h3>
-                  </div>
-                  <span>{clientPaymentHistory.length} {clientPaymentHistory.length === 1 ? "pago" : "pagos"}</span>
-                </div>
-                {paymentHistoryError ? (
-                  <p className="clientPaymentHistoryMessage clientPaymentHistoryError" role="alert">{paymentHistoryError}</p>
-                ) : clientPaymentHistory.length ? (
-                  <div className="clientPaymentHistoryTableWrapper">
-                    <table className="clientPaymentHistoryTable">
-                      <thead>
-                        <tr>
-                          <th>Factura</th>
-                          <th>Fecha de pago</th>
-                          <th>Membresía</th>
-                          <th>Monto</th>
-                          <th>Método</th>
-                          <th>Vencimiento</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {clientPaymentHistory.map((payment) => (
-                          <tr key={payment.id}>
-                            <td>{payment.numeroFactura || `PAY-${payment.id.slice(0, 8).toUpperCase()}`}</td>
-                            <td>{formatDate(getPaymentDate(payment))}</td>
-                            <td>{payment.nombreMembresia || payment.membresia || payment.concepto || "-"}</td>
-                            <td className="clientPaymentAmount">{new Intl.NumberFormat("es-NI", { style: "currency", currency: "NIO" }).format(Number(payment.monto) || 0)}</td>
-                            <td>{payment.metodoPago || "-"}</td>
-                            <td>{formatDate(payment.fechaVencimiento || payment.vencimiento)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className="clientPaymentHistoryMessage">Este cliente todavía no tiene pagos registrados.</p>
-                )}
-              </section>
-
               <div className="formGroup">
                 <label className="formLabel" htmlFor="edit-client-name">Nombre completo</label>
                 <input id="edit-client-name" name="nombre" className="formInput" value={editData.nombre} onChange={handleEditChange} required />
@@ -487,14 +398,10 @@ export default function Clientes() {
                   <label className="formLabel" htmlFor="edit-client-membership">Tipo de membresía</label>
                   <select id="edit-client-membership" name="membresia" className="formSelect" value={editData.membresia} onChange={handleEditChange} required>
                     <option value="">Seleccione membresía</option>
-                    {editData.membresia && (
-                      <option value={editData.membresia}>
-                        {membershipOptions.find((membership) => normalizeMembershipName(membership.nombre) === normalizeMembershipName(editData.membresia))?.nombre || `${editData.membresia} (sin catálogo)`}
-                      </option>
-                    )}
-                    {membershipOptions
-                      .filter((membership) => normalizeMembershipName(membership.nombre) !== normalizeMembershipName(editData.membresia))
-                      .map((membership) => <option key={membership.id} value={membership.nombre}>{membership.nombre}</option>)}
+                    <option value="premium">Premium</option>
+                    <option value="mensual">Mensual</option>
+                    <option value="semanal">Semanal</option>
+                    <option value="diaria">Diaria</option>
                   </select>
                 </div>
                 <div className="formGroup">

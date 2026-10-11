@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { collection, onSnapshot } from "firebase/firestore";
+import { createUserWithEmailAndPassword, deleteUser, getAuth, signOut } from "firebase/auth";
+import { collection, doc, getDocs, query, serverTimestamp, setDoc, where, writeBatch } from "firebase/firestore";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import {
   LayoutDashboard,
   Users,
@@ -25,36 +27,62 @@ import {
   ReceiptText,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
-import { appfirebase, db } from "../assets/database/firebaseconfig.jsx";
+import { appfirebase, auth, db } from "../assets/database/firebaseconfig";
 import "../Styles/Home.css";
 import "../Styles/NuevoCliente.css";
 
 const menuItems = [
   { name: "Inicio", icon: LayoutDashboard, path: "/home" },
+  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
   { name: "Clientes", icon: Users, path: "/clientes" },
   { name: "Membresías", icon: CreditCard, path: "/membresias" },
   { name: "Pagos", icon: Wallet, path: "/pagos" },
   { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
   { name: "Inventario", icon: Package, path: "/inventario" },
   { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
   { name: "Reportes", icon: FileText, path: "/reportes" },
+  { name: "Nutrición", icon: FileText, path: "/nutricion" },
+  { name: "Configuración", icon: Settings, path: "/configuracion" },
   { name: "Cerrar sesión", icon: LogOut, path: "/" },
 ];
 
-const registrarCliente = httpsCallable(getFunctions(appfirebase, "us-central1"), "registrarCliente");
+const registrationAppName = "client-account-provisioning";
+const registrationApp = getApps().some((firebaseApp) => firebaseApp.name === registrationAppName)
+  ? getApp(registrationAppName)
+  : initializeApp(appfirebase.options, registrationAppName);
+const registrationAuth = getAuth(registrationApp);
 
 const createUsernameBase = (name) =>
   name
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ".")
-    .replace(/^\.|\.$/g, "");
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const createTemporaryPassword = () => {
+  const letters = "abcdefghjkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const values = new Uint32Array(8);
+  crypto.getRandomValues(values);
+  const passwordCharacters = [
+    ...Array.from(values.slice(0, 5), (value) => letters[value % letters.length]),
+    ...Array.from(values.slice(5), (value) => digits[value % digits.length]),
+  ];
+
+  for (let index = passwordCharacters.length - 1; index > 0; index -= 1) {
+    const swapIndex = values[index] % (index + 1);
+    [passwordCharacters[index], passwordCharacters[swapIndex]] = [
+      passwordCharacters[swapIndex],
+      passwordCharacters[index],
+    ];
+  }
+
+  return passwordCharacters.join("");
+};
 
 export default function NuevoCliente() {
   const navigate = useNavigate();
-  const [memberships, setMemberships] = useState([]);
   const [formData, setFormData] = useState({
     nombre: "",
     telefono: "",
@@ -67,19 +95,6 @@ export default function NuevoCliente() {
   const [error, setError] = useState("");
   const [credentials, setCredentials] = useState(null);
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "membresias"),
-      (snapshot) => setMemberships(snapshot.docs.map((membership) => ({ id: membership.id, ...membership.data() }))),
-      (membershipError) => {
-        console.error("Error al cargar las membresías:", membershipError);
-        setError("No se pudieron cargar las membresías disponibles.");
-      },
-    );
-
-    return () => unsubscribe();
-  }, []);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((currentData) => ({ ...currentData, [name]: value }));
@@ -90,20 +105,76 @@ export default function NuevoCliente() {
     setError("");
     setIsSaving(true);
 
+    let newAuthUser = null;
+    let profileSaved = false;
     try {
-      const result = await registrarCliente(formData);
+      const usernameBase = createUsernameBase(formData.nombre);
+      const existingUsers = await getDocs(
+        query(collection(db, "clientes"), where("usuario", ">=", usernameBase), where("usuario", "<", `${usernameBase}\uf8ff`)),
+      );
+      const existingUsernames = new Set(existingUsers.docs.map((client) => client.data().usuario));
+      let username = usernameBase;
+      let suffix = 2;
+      while (existingUsernames.has(username)) {
+        username = `${usernameBase} ${suffix}`;
+        suffix += 1;
+      }
+
+      const password = createTemporaryPassword();
+      const userCredential = await createUserWithEmailAndPassword(
+        registrationAuth,
+        formData.correo.trim().toLowerCase(),
+        password,
+      );
+      newAuthUser = userCredential.user;
+
+      const clientRef = doc(collection(db, "clientes"));
+      const batch = writeBatch(db);
+      batch.set(clientRef, {
+        uid: newAuthUser.uid,
+        ...formData,
+        correo: formData.correo.trim().toLowerCase(),
+        usuario: username,
+        estado: "Activo",
+        estadoPago: "pendiente",
+        creadoEn: serverTimestamp(),
+      });
+      batch.set(doc(db, "usuarios", newAuthUser.uid), {
+        uid: newAuthUser.uid,
+        email: formData.correo.trim().toLowerCase(),
+        rol: "cliente",
+        clienteId: clientRef.id,
+        creadoEn: serverTimestamp(),
+      });
+      await batch.commit();
+      profileSaved = true;
+      await signOut(registrationAuth).catch((signOutError) => {
+        console.error("No se pudo cerrar la sesión de registro secundaria:", signOutError);
+      });
+
       setCredentials({
-        username: result.data.usuario,
-        email: result.data.correo,
-        password: result.data.contrasenaTemporal,
+        username,
+        email: formData.correo.trim().toLowerCase(),
+        password,
       });
     } catch (saveError) {
       console.error("Error al registrar el cliente:", saveError);
-      setError(
-        saveError.code === "functions/already-exists"
-          ? "Ya existe una cuenta con ese correo."
-          : "No se pudo registrar el cliente. Verifica que la sesión de administrador esté activa y que la función esté desplegada.",
-      );
+      if (newAuthUser && !profileSaved) {
+        await deleteUser(newAuthUser).catch((cleanupError) => {
+          console.error("No se pudo limpiar la cuenta incompleta:", cleanupError);
+        });
+      }
+      await signOut(registrationAuth).catch(() => {});
+
+      const messages = {
+        "auth/email-already-in-use": "Ya existe una cuenta con ese correo.",
+        "auth/invalid-email": "El correo no es válido.",
+        "auth/operation-not-allowed": "Habilita el proveedor Correo/contraseña en Firebase Authentication.",
+        "auth/weak-password": "No se pudo generar una contraseña válida. Inténtalo otra vez.",
+        "permission-denied": "Firebase Authentication creó la cuenta, pero Firestore rechazó el perfil. Publica las reglas y verifica que la sesión tenga rol administrador.",
+        "unavailable": "No hay conexión con Firebase. Revisa tu conexión e inténtalo de nuevo.",
+      };
+      setError(messages[saveError.code] || "No se pudo completar el registro. Revisa la consola del navegador para ver el error de Firebase.");
     } finally {
       setIsSaving(false);
     }
@@ -134,7 +205,7 @@ export default function NuevoCliente() {
             return (
               <button
                 key={item.name}
-                className={`menuItem ${item.name === "Clientes" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                className={`menuItem ${item.path === "/clientes" && ["/clientes", "/nuevo-cliente"].includes(window.location.pathname) ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
                 onClick={() => navigate(item.path)}
               >
                 <Icon size={18} strokeWidth={2} />
@@ -283,9 +354,10 @@ export default function NuevoCliente() {
                       required
                     >
                       <option value="">Seleccione membresía</option>
-                      {memberships.length ? memberships.map((membership) => (
-                        <option key={membership.id} value={membership.nombre}>{membership.nombre}</option>
-                      )) : <option value="" disabled>No hay membresías registradas</option>}
+                      <option value="premium">Premium</option>
+                      <option value="mensual">Mensual</option>
+                      <option value="semanal">Semanal</option>
+                      <option value="diaria">Diaria</option>
                     </select>
                   </div>
 
@@ -304,11 +376,7 @@ export default function NuevoCliente() {
                       />
                     </div>
                   </div>
-                  <p className="sectionHint">
-                    {memberships.length
-                      ? "La membresía y la fecha se utilizarán para iniciar el registro del cliente."
-                      : "Registra una membresía antes de dar de alta a un cliente."}
-                  </p>
+                  <p className="sectionHint">La membresía y la fecha se utilizarán para iniciar el registro del cliente.</p>
                 </section>
 
                 <section className="formSection accountSection">
