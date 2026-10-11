@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, deleteUser, getAuth, signOut } from "firebase/auth";
-import { collection, doc, getDocs, query, serverTimestamp, setDoc, where, writeBatch } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, query, serverTimestamp, setDoc, where, writeBatch } from "firebase/firestore";
 import { getApp, getApps, initializeApp } from "firebase/app";
 import {
   LayoutDashboard,
@@ -83,6 +83,9 @@ const createTemporaryPassword = () => {
 
 export default function NuevoCliente() {
   const navigate = useNavigate();
+  const [memberships, setMemberships] = useState([]);
+  const [isLoadingMemberships, setIsLoadingMemberships] = useState(true);
+  const [membershipError, setMembershipError] = useState("");
   const [formData, setFormData] = useState({
     nombre: "",
     telefono: "",
@@ -94,6 +97,26 @@ export default function NuevoCliente() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [credentials, setCredentials] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "membresias"),
+      (snapshot) => {
+        setMemberships(snapshot.docs
+          .map((membership) => ({ id: membership.id, ...membership.data() }))
+          .filter((membership) => typeof membership.nombre === "string" && membership.nombre.trim()));
+        setIsLoadingMemberships(false);
+        setMembershipError("");
+      },
+      (snapshotError) => {
+        console.error("Error al cargar las membresías:", snapshotError);
+        setMembershipError("No se pudieron cargar las membresías disponibles.");
+        setIsLoadingMemberships(false);
+      },
+    );
+
+    return unsubscribe;
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -353,12 +376,19 @@ export default function NuevoCliente() {
                       onChange={handleChange}
                       required
                     >
-                      <option value="">Seleccione membresía</option>
-                      <option value="premium">Premium</option>
-                      <option value="mensual">Mensual</option>
-                      <option value="semanal">Semanal</option>
-                      <option value="diaria">Diaria</option>
+                      <option value="">
+                        {isLoadingMemberships ? "Cargando membresías..." : "Seleccione membresía"}
+                      </option>
+                      {memberships.map((membership) => (
+                        <option key={membership.id} value={membership.nombre}>
+                          {membership.nombre}
+                        </option>
+                      ))}
                     </select>
+                    {membershipError && <p className="formError" role="alert">{membershipError}</p>}
+                    {!isLoadingMemberships && !membershipError && memberships.length === 0 && (
+                      <p className="sectionHint">No hay membresías registradas. Crea una antes de registrar clientes.</p>
+                    )}
                   </div>
 
                   <div className="formGroup">
