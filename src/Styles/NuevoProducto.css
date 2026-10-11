@@ -109,7 +109,7 @@
 .productCancelButton { background: #fff; color: #47534a; }
 .productSaveButton { border-color: #4c9a3a; background: #4c9a3a; color: #fff; }
 
-@media (max-width: 620px) {
+@media (max-width: 720px) {
   .newProductContent { padding: 12px; }
   .newProductForm { padding: 17px; }
   .newProductFormHeading { align-items: flex-start; flex-direction: column; gap: 7px; }
@@ -321,6 +321,20 @@
     grid-template-areas: "basic" "image" "pricing" "stock" "additional" "error" "actions";
   }
   .productImagePanel { min-height: 270px; }
+}
+
+@media (max-width: 480px) {
+  .productEditorForm { gap: 10px; }
+  .productEditorPanel { padding: 11px; }
+  .productEditorPanel h2 { font-size: 14px; }
+  .productField { font-size: 11px; }
+  .productField input,
+  .productField select,
+  .productField textarea { min-height: 36px; padding: 7px 10px; font-size: 12px; }
+  .productImagePanel { min-height: 250px; padding: 11px 15px; }
+  .productUploadFrame { padding: 8px; }
+  .productUploadPreview { inset: 6px 6px 60px; height: calc(100% - 66px); }
+  .productImageButton { min-height: 38px; font-size: 13px; }
 }
 
 @media (max-width: 430px) {

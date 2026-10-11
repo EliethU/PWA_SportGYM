@@ -476,9 +476,34 @@
   padding-top: 5px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .clientsHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .searchContainer {
+    max-width: 100%;
+  }
+
+  .newClientButton {
+    width: 100%;
+    justify-content: center;
+  }
+
   .clientsTableContainer {
     padding: 16px;
+  }
+
+  .clientsTable {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 600px) {
+  .clientsTableContainer {
+    padding: 12px;
   }
 
   .clientDialogBackdrop {
@@ -499,5 +524,44 @@
 
   .clientDialogActions > button {
     flex: 1;
+  }
+
+  .clientsTable {
+    min-width: 700px;
+    font-size: 11px;
+  }
+
+  .clientsTable th,
+  .clientsTable td {
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .clientsTableContainer {
+    padding: 10px;
+  }
+
+  .clientsTable {
+    min-width: 600px;
+    font-size: 10px;
+  }
+
+  .clientsTable th,
+  .clientsTable td {
+    padding: 6px 8px;
+  }
+
+  .clientNameCell {
+    min-width: 120px;
+  }
+
+  .clientActions {
+    gap: 4px;
+  }
+
+  .clientActionButton {
+    width: 30px;
+    height: 30px;
   }
 }

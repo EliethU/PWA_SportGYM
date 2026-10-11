@@ -191,24 +191,25 @@ export default function Inventario() {
                 <article className="productCard" key={product.id}>
                   <div className="productImage">
                     {productImageUrl ? (
-                      <>
-                        <img
-                          src={productImageUrl}
-                          alt={product.name || "Producto"}
-                          loading="lazy"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          onError={(event) => {
-                            event.currentTarget.style.display = "none";
-                            const fallback = event.currentTarget.nextElementSibling;
-                            if (fallback) fallback.style.display = "flex";
-                          }}
-                        />
-                        <Package size={30} aria-hidden="true" style={{ display: "none" }} />
-                      </>
-                    ) : (
-                      <Package size={30} aria-hidden="true" />
-                    )}
+                      <img
+                        src={productImageUrl}
+                        alt={product.name || "Producto"}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                          const fallback = event.currentTarget.nextElementSibling;
+                          if (fallback) fallback.style.display = "flex";
+                        }}
+                        onLoad={(event) => {
+                          event.currentTarget.style.display = "block";
+                          const fallback = event.currentTarget.nextElementSibling;
+                          if (fallback) fallback.style.display = "none";
+                        }}
+                      />
+                    ) : null}
+                    <Package size={30} aria-hidden="true" style={{ display: productImageUrl ? "none" : "flex" }} />
                   </div>
                   <h2>{product.name || "Producto"}</h2>
                   <span className="productCategory">{product.category || "Sin categoría"}</span>

@@ -65,23 +65,24 @@ export default function ProductoDetalleModal({ product, categories, onClose, onS
           <div className="productDetailLayout">
             <div className="productDetailImage">
               {imagePreview ? (
-                <>
-                  <img
-                    src={imagePreview}
-                    alt={`Imagen de ${product.name}`}
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    onError={(event) => {
-                      event.currentTarget.style.display = "none";
-                      const fallback = event.currentTarget.nextElementSibling;
-                      if (fallback) fallback.style.display = "flex";
-                    }}
-                  />
-                  <div style={{ display: "none" }}><ImagePlus size={36} strokeWidth={1.5} /></div>
-                </>
-              ) : (
-                <ImagePlus size={36} strokeWidth={1.5} />
-              )}
+                <img
+                  src={imagePreview}
+                  alt={`Imagen de ${product.name}`}
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                    const fallback = event.currentTarget.nextElementSibling;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
+                  onLoad={(event) => {
+                    event.currentTarget.style.display = "block";
+                    const fallback = event.currentTarget.nextElementSibling;
+                    if (fallback) fallback.style.display = "none";
+                  }}
+                />
+              ) : null}
+              <div style={{ display: imagePreview ? "none" : "flex" }}><ImagePlus size={36} strokeWidth={1.5} /></div>
               <label htmlFor="edit-product-image"><ImagePlus size={16} /> Cambiar imagen</label>
               <input id="edit-product-image" type="file" accept="image/jpeg,image/png" onChange={handleImageChange} />
             </div>

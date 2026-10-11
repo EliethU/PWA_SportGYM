@@ -822,8 +822,12 @@
     width: 70px;
   }
 
+  .logoContainer {
+    padding: 20px 10px;
+  }
+
   .logoImage {
-    max-width: 50px;
+    max-width: 45px;
   }
 
   .menuItem span {
@@ -862,6 +866,58 @@
   }
 
   .content {
-    padding: 20px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 60px;
+  }
+
+  .logoContainer {
+    padding: 15px 8px;
+  }
+
+  .logoImage {
+    max-width: 40px;
+  }
+
+  .menuItem {
+    padding: 10px;
+  }
+
+  .main {
+    margin-left: 60px;
+    width: calc(100% - 60px);
+  }
+
+  .content {
+    padding: 12px;
+  }
+
+  .hero-section {
+    padding: 12px;
+  }
+
+  .hero-value {
+    font-size: 28px;
+  }
+
+  .kpi-card {
+    padding: 8px;
+  }
+
+  .kpi-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .kpi-title {
+    font-size: 10px;
+  }
+
+  .kpi-value {
+    font-size: 14px;
   }
 }

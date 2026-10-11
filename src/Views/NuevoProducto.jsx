@@ -148,7 +148,24 @@ export default function NuevoProducto() {
 
             <section className="productEditorPanel productImagePanel">
               <div className="productUploadFrame">
-                {imagePreview ? <img className="productUploadPreview" src={imagePreview} alt="Vista previa del producto" /> : <div className="productUploadPlaceholder"><ImagePlus size={36} strokeWidth={1.5} /><span>Vista previa de la imagen</span></div>}
+                {imagePreview ? (
+                  <img
+                    className="productUploadPreview"
+                    src={imagePreview}
+                    alt="Vista previa del producto"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                      const fallback = event.currentTarget.nextElementSibling;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                    onLoad={(event) => {
+                      event.currentTarget.style.display = "block";
+                      const fallback = event.currentTarget.nextElementSibling;
+                      if (fallback) fallback.style.display = "none";
+                    }}
+                  />
+                ) : null}
+                <div className="productUploadPlaceholder" style={{ display: imagePreview ? "none" : "flex" }}><ImagePlus size={36} strokeWidth={1.5} /><span>Vista previa de la imagen</span></div>
                 <label className="productImageButton" htmlFor="product-image"><ImagePlus size={19} />{imageFile ? "Cambiar imagen" : "Cargar imagen"}</label>
                 <input ref={imageInputRef} className="productImageInput" id="product-image" type="file" accept="image/jpeg,image/png" onChange={handleImageChange} />
                 <small>JPG o PNG · Máximo 5 MB</small>
