@@ -22,23 +22,9 @@ import {
 import { collection, doc, onSnapshot, runTransaction, serverTimestamp } from "firebase/firestore";
 import Encabezado from "../Components/Encabezado";
 import { db } from "../assets/database/firebaseconfig.jsx";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/NuevoPago.css";
-
-const menuItems = [
-  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 
 const getLocalDateValue = (date = new Date()) => {
   const year = date.getFullYear();
@@ -237,26 +223,7 @@ export default function NuevoPago() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <div className="logoContainer">
-          <img src="/logo-port-gym.png" alt="Port Gym" className="logoImage" />
-        </div>
-        <nav className="menu">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                className={`menuItem ${item.path === "/pagos" && ["/pagos", "/nuevo-pago"].includes(window.location.pathname) ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       <main className="main">
         <Encabezado title="Nuevo pago" description="Registra el pago de una membresía" />

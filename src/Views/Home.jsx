@@ -21,6 +21,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import Encabezado from "../Components/Encabezado";
 import { db } from "../assets/database/firebaseconfig";
@@ -54,21 +55,6 @@ const DESIGN_TOKENS = {
     grande: 22,
   }
 };
-
-const menuItems = [
-  { name: "Inicio", icon: HomeIcon, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 
 const DASHBOARD_SOURCES = ["clientes", "pagos", "ventas", "gastos", "productos"];
 const MONTH_NAMES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -167,7 +153,6 @@ function KpiCard({ titulo, valor, icono: Icon, color, fondo, acento }) {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [payments, setPayments] = useState([]);
   const [sales, setSales] = useState([]);
@@ -329,35 +314,7 @@ export default function Home() {
       {/* =========================
           BARRA LATERAL
       ========================== */}
-      <aside className="sidebar">
-
-        {/* LOGO */}
-        <div className="logoContainer">
-          <img
-            src="/logo-port-gym.png"
-            alt="Port Gym"
-            className="logoImage"
-          />
-        </div>
-
-        {/* MENÚ */}
-        <nav className="menu">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
-
-            return (
-              <button
-                key={item.name}
-                className={`menuItem ${item.path === "/home" && window.location.pathname === "/home" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       {/* =========================
           ÁREA PRINCIPAL

@@ -25,23 +25,9 @@ import Encabezado from "../Components/Encabezado";
 import ProductoDetalleModal from "../Components/ProductoDetalleModal";
 import { getInventoryCategories } from "../services/inventoryStorage";
 import { deleteProduct, normalizeProductImageUrl, subscribeToProducts, updateProduct } from "../services/productosService";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Inventario.css";
-
-const menuItems = [
-  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 
 const defaultCategories = ["Suplementos", "Bebidas", "Snacks", "Accesorios", "Ropa", "Otros"];
 
@@ -123,35 +109,7 @@ export default function Inventario() {
       {/* =========================
           BARRA LATERAL
       ========================== */}
-      <aside className="sidebar">
-
-        {/* LOGO */}
-        <div className="logoContainer">
-          <img
-            src="/logo-port-gym.png"
-            alt="Port Gym"
-            className="logoImage"
-          />
-        </div>
-
-        {/* MENÚ */}
-        <nav className="menu">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <button
-                key={item.name}
-                className={`menuItem ${item.path === "/inventario" && ["/inventario", "/nuevo-producto", "/nueva-categoria"].includes(window.location.pathname) ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       {/* =========================
           ÁREA PRINCIPAL

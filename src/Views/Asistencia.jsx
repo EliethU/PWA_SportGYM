@@ -24,25 +24,11 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../assets/database/firebaseconfig";
 import { subscribeToAttendances } from "../services/asistenciasService";
 import Encabezado from "../Components/Encabezado";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Asistencia.css";
 
 const TZ = "America/Managua";
-const menuItems = [
-  { name: "Inicio", icon: HomeIcon, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
-
 const getDateKey = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: TZ,
@@ -151,7 +137,6 @@ const csvValue = (value) => {
 const hourSlots = Array.from({ length: 15 }, (_, index) => index + 6);
 
 export default function Asistencia() {
-  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(getDateKey);
   const [attendances, setAttendances] = useState([]);
   const [clients, setClients] = useState([]);
@@ -324,27 +309,7 @@ export default function Asistencia() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <div className="logoContainer">
-          <img src="/logo-port-gym.png" alt="Port Gym" className="logoImage" />
-        </div>
-        <nav className="menu">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                type="button"
-                className={`menuItem ${item.path === "/asistencia" && window.location.pathname === "/asistencia" ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       <main className="main attendanceMain">
         <Encabezado title="Control de asistencia" description="Registra y consulta las visitas de tus clientes." />

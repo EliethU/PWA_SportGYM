@@ -21,23 +21,9 @@ import {
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import { db } from "../assets/database/firebaseconfig.jsx";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Membresias.css";
-
-const menuItems = [
-  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 
 const normalizeMembershipName = (name) => String(name || "").trim().toLocaleLowerCase();
 
@@ -58,7 +44,6 @@ const formatPrice = (price) =>
   new Intl.NumberFormat("es-NI", { style: "currency", currency: "NIO" }).format(Number(price) || 0);
 
 export default function Membresias() {
-  const navigate = useNavigate();
   const [memberships, setMemberships] = useState([]);
   const [clients, setClients] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -181,35 +166,7 @@ export default function Membresias() {
       {/* =========================
           BARRA LATERAL
       ========================== */}
-      <aside className="sidebar">
-
-        {/* LOGO */}
-        <div className="logoContainer">
-          <img
-            src="/logo-port-gym.png"
-            alt="Port Gym"
-            className="logoImage"
-          />
-        </div>
-
-        {/* MENÚ */}
-        <nav className="menu">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
-
-            return (
-              <button
-                key={item.name}
-                className={`menuItem ${item.path === "/membresias" && window.location.pathname === "/membresias" ? 'activeMenu' : ''} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       {/* =========================
           ÁREA PRINCIPAL

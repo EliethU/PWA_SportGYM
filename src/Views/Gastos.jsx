@@ -21,23 +21,9 @@ import {
 import Encabezado from "../Components/Encabezado";
 import FacturaGasto from "../Components/FacturaGasto";
 import { markExpenseAsPaid, subscribeToExpenses } from "../services/gastosService";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Gastos.css";
-
-const menuItems = [
-  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 
 const getLocalDateValue = (date) => (
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
@@ -164,26 +150,7 @@ export default function Gastos() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <div className="logoContainer">
-          <img src="/logo-port-gym.png" alt="Port Gym" className="logoImage" />
-        </div>
-        <nav className="menu">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                className={`menuItem ${item.path === "/gastos" && ["/gastos", "/registrar-gasto"].includes(window.location.pathname) ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       <main className="main">
         <Encabezado title="Gastos" description="Gestiona los gastos del negocio" />

@@ -39,23 +39,9 @@ import Encabezado from "../Components/Encabezado";
 import { db } from "../assets/database/firebaseconfig";
 import { subscribeToExpenses } from "../services/gastosService";
 import { subscribeToSales } from "../services/ventasService";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Analisis.css";
-
-const menuItems = [
-  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: ChartNoAxesCombined, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 
 const CHART_COLORS = ["#4C9A3A", "#2F80B8", "#E0902B", "#8A63D2", "#D64545", "#25A18E"];
 const PERIOD_OPTIONS = [
@@ -167,7 +153,6 @@ function EmptyChart({ message }) {
 }
 
 export default function Analisis() {
-  const navigate = useNavigate();
   const todayValue = getLocalDateValue(new Date());
   const [startDate, setStartDate] = useState(() => {
     const start = new Date();
@@ -436,26 +421,7 @@ export default function Analisis() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <div className="logoContainer">
-          <img src="/logo-port-gym.png" alt="Port Gym" className="logoImage" />
-        </div>
-        <nav className="menu">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                className={`menuItem ${item.path === "/analisis" && window.location.pathname === "/analisis" ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
       <main className="main">
         <Encabezado title="Análisis y estadísticas" description="Consulta el rendimiento financiero y comercial" />
         <section className="content analyticsContent">

@@ -35,23 +35,9 @@ import FacturaVenta from "../Components/FacturaVenta";
 import { db } from "../assets/database/firebaseconfig.jsx";
 import { createSale, subscribeToSales } from "../services/ventasService.js";
 import { downloadSaleInvoice } from "../services/salesInvoice.js";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Ventas.css";
-
-const menuItems = [
-  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
-  { name: "Asistencia", icon: QrCode, path: "/asistencia" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Nutrición", icon: FileText, path: "/nutricion" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 
 const getLocalDateValue = (date) => {
   const year = date.getFullYear();
@@ -102,7 +88,6 @@ const getSaleProductNames = (sale) => getSaleItems(sale).map(getItemName).join("
 const getClientName = (client) => [client.nombre, client.apellido].filter(Boolean).join(" ") || client.usuario || "Cliente sin nombre";
 
 export default function Ventas() {
-  const navigate = useNavigate();
   const today = new Date();
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
   const [sales, setSales] = useState([]);
@@ -271,26 +256,7 @@ export default function Ventas() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <div className="logoContainer">
-          <img src="/logo-port-gym.png" alt="Port Gym" className="logoImage" />
-        </div>
-        <nav className="menu">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.name}
-                className={`menuItem ${item.path === "/ventas" && window.location.pathname === "/ventas" ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-                onClick={() => navigate(item.path)}
-              >
-                <Icon size={18} strokeWidth={2} />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      <AdminSidebar />
 
       <main className="main">
         <Encabezado title="Ventas" description="Consulta y administra las ventas del gimnasio" />
