@@ -32,6 +32,7 @@ import {
 import { collection, onSnapshot } from "firebase/firestore";
 import Encabezado from "../Components/Encabezado";
 import FacturaVenta from "../Components/FacturaVenta";
+import Pagination, { PAGE_SIZE } from "../Components/Pagination";
 import { db } from "../assets/database/firebaseconfig.jsx";
 import { createSale, subscribeToSales } from "../services/ventasService.js";
 import { downloadSaleInvoice } from "../services/salesInvoice.js";
@@ -97,6 +98,7 @@ export default function Ventas() {
   const [endDate, setEndDate] = useState(getLocalDateValue(today));
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFilter, setSearchFilter] = useState("todos");
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -159,6 +161,16 @@ export default function Ventas() {
       return normalize(`${getSaleClient(sale)} ${getSaleProductNames(sale)}`).includes(query);
     }).sort((first, second) => (parseDate(getSaleDate(second))?.getTime() || 0) - (parseDate(getSaleDate(first))?.getTime() || 0));
   }, [periodSales, searchTerm, searchFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [startDate, endDate, searchTerm, searchFilter]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(filteredSales.length / PAGE_SIZE))));
+  }, [filteredSales.length]);
+
+  const paginatedSales = filteredSales.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const periodTotal = periodSales.reduce((total, sale) => total + getSaleTotal(sale), 0);
   const averageSale = periodSales.length ? periodTotal / periodSales.length : 0;
@@ -318,7 +330,7 @@ export default function Ventas() {
               <table className="salesTable">
                 <thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Acciones</th></tr></thead>
                 <tbody>
-                  {filteredSales.length ? filteredSales.map((sale) => (
+                  {filteredSales.length ? paginatedSales.map((sale) => (
                     <tr key={sale.id}>
                       <td>{formatDate(getSaleDate(sale))}</td>
                       <td className="salesClientCell">{getSaleClient(sale)}</td>
@@ -337,6 +349,7 @@ export default function Ventas() {
                 </tbody>
               </table>
             </div>
+            <Pagination currentPage={currentPage} onPageChange={setCurrentPage} totalItems={filteredSales.length} />
           </div>
         </section>
       </main>

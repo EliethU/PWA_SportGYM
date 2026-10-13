@@ -26,6 +26,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
+import Pagination, { PAGE_SIZE } from "../Components/Pagination";
 import { downloadRecipePdf } from "../services/recetaPdf";
 import {
   subscribeToRecipeCategories,
@@ -65,6 +66,7 @@ export default function Nutricion() {
   const navigate = useNavigate();
   const location = useLocation();
   const [recipes, setRecipes] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState([]);
   const [mealTypes, setMealTypes] = useState([]);
   const [goals, setGoals] = useState([]);
@@ -132,7 +134,7 @@ export default function Nutricion() {
     const matchesGoal = !goalFilter || recipe.objetivo === goalFilter;
     const matchesStatus = !statusFilter || (statusFilter === "active" ? recipe.activa !== false : recipe.activa === false);
     return matchesSearch && matchesCategory && matchesMeal && matchesGoal && matchesStatus;
-  }).sort((first, second) => String(first.nombre).localeCompare(String(second.nombre), "es")), [
+  }).sort((first, second) => String(first.nombre).localeCompare(String(second.nombre), "es", { sensitivity: "base" })), [
     recipes,
     search,
     categoryFilter,
@@ -140,6 +142,16 @@ export default function Nutricion() {
     goalFilter,
     statusFilter,
   ]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryFilter, mealFilter, goalFilter, statusFilter]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(visibleRecipes.length / PAGE_SIZE))));
+  }, [visibleRecipes.length]);
+
+  const paginatedRecipes = visibleRecipes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const activeRecipes = recipes.filter((recipe) => recipe.activa !== false);
   const recentRecipes = [...recipes]
@@ -217,9 +229,9 @@ export default function Nutricion() {
                 <thead><tr><th>#</th><th>Imagen</th><th>Nombre de la receta</th><th>Categoría</th><th>Tipo de comida</th><th>Objetivo</th><th>Tiempo</th><th>Calorías</th><th>Estado</th><th>Acciones</th></tr></thead>
                 <tbody>
                   {isLoading && <tr><td colSpan="10" className="nutritionEmpty">Cargando recetas...</td></tr>}
-                  {!isLoading && visibleRecipes.map((recipe, index) => (
+                  {!isLoading && paginatedRecipes.map((recipe, index) => (
                     <tr key={recipe.id}>
-                      <td className="nutritionNumber">{String(index + 1).padStart(3, "0")}</td>
+                      <td className="nutritionNumber">{String((currentPage - 1) * PAGE_SIZE + index + 1).padStart(3, "0")}</td>
                       <td><div className="nutritionTableImage">{recipe.imageUrl ? <img src={recipe.imageUrl} alt="" /> : <Apple size={19} />}</div></td>
                       <td className="nutritionRecipeName">{recipe.nombre}</td>
                       <td><span className="nutritionTag nutritionTagCategory">{recipe.categoria}</span></td>
@@ -239,6 +251,7 @@ export default function Nutricion() {
                 </tbody>
               </table>
             </div>
+            {!isLoading && <Pagination currentPage={currentPage} onPageChange={setCurrentPage} totalItems={visibleRecipes.length} />}
           </section>
 
           <section className="nutritionRecent">

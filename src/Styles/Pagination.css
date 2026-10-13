@@ -1,0 +1,67 @@
+.listPagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0 2px;
+  color: #718078;
+  font-size: 12px;
+}
+
+.listPaginationControls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.listPaginationButton {
+  display: inline-flex;
+  min-width: 34px;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border: 1px solid #dce4dd;
+  border-radius: 6px;
+  background: #fff;
+  color: #344440;
+  font: inherit;
+  cursor: pointer;
+}
+
+.listPaginationButton:hover:not(:disabled),
+.listPaginationButtonActive {
+  border-color: #4c9a3a;
+  background: #f1faee;
+  color: #286d2b;
+}
+
+.listPaginationButtonActive {
+  font-weight: 700;
+}
+
+.listPaginationButton:disabled {
+  color: #aab3ad;
+  cursor: not-allowed;
+}
+
+.listPaginationButton:focus-visible {
+  outline: 2px solid #83bd6e;
+  outline-offset: 2px;
+}
+
+.listPaginationEllipsis {
+  padding: 0 2px;
+}
+
+@media (max-width: 560px) {
+  .listPagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .listPaginationControls {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+}

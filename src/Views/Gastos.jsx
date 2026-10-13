@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import FacturaGasto from "../Components/FacturaGasto";
+import Pagination, { PAGE_SIZE } from "../Components/Pagination";
 import { markExpenseAsPaid, subscribeToExpenses } from "../services/gastosService";
 import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
@@ -75,6 +76,7 @@ export default function Gastos() {
   const [statusFilter, setStatusFilter] = useState("");
   const [methodFilter, setMethodFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -130,9 +132,25 @@ export default function Gastos() {
       formatMoney(getExpenseAmount(expense)),
     ].join(" ")).includes(query);
     return matchesDate && matchesCategory && matchesStatus && matchesMethod && matchesSearch;
-  }).sort((first, second) => (
-    (parseDate(getExpenseDate(second))?.getTime() || 0) - (parseDate(getExpenseDate(first))?.getTime() || 0)
-  )), [expenses, startDate, endDate, categoryFilter, statusFilter, methodFilter, searchTerm]);
+  }).sort((first, second) => getExpenseConcept(first).localeCompare(getExpenseConcept(second), "es", { sensitivity: "base" })), [
+    expenses,
+    startDate,
+    endDate,
+    categoryFilter,
+    statusFilter,
+    methodFilter,
+    searchTerm,
+  ]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [startDate, endDate, categoryFilter, statusFilter, methodFilter, searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE))));
+  }, [filteredExpenses.length]);
+
+  const paginatedExpenses = filteredExpenses.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const handleRegisterPayment = async (expense) => {
     setUpdatingExpenseId(expense.id);
@@ -238,7 +256,7 @@ export default function Gastos() {
                 <tbody>
                   {isLoading ? (
                     <tr><td colSpan="7" className="emptyCell">Cargando gastos...</td></tr>
-                  ) : filteredExpenses.length ? filteredExpenses.map((expense) => {
+                  ) : filteredExpenses.length ? paginatedExpenses.map((expense) => {
                     const status = getExpenseStatus(expense);
                     return (
                       <tr key={expense.id}>
@@ -270,6 +288,7 @@ export default function Gastos() {
                 </tbody>
               </table>
             </div>
+            <Pagination currentPage={currentPage} onPageChange={setCurrentPage} totalItems={filteredExpenses.length} />
           </div>
         </section>
       </main>

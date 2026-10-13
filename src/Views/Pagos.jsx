@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { QrCode } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -21,6 +21,7 @@ import {
 import { collection, onSnapshot } from "firebase/firestore";
 import Encabezado from "../Components/Encabezado";
 import FacturaPago from "../Components/FacturaPago";
+import Pagination, { PAGE_SIZE } from "../Components/Pagination";
 import { db } from "../assets/database/firebaseconfig.jsx";
 import { downloadPaymentInvoice } from "../services/paymentInvoice.js";
 import AdminSidebar from "../Components/AdminSidebar";
@@ -62,6 +63,7 @@ export default function Pagos() {
   const location = useLocation();
   const [payments, setPayments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [error, setError] = useState("");
   const [feedback] = useState(location.state?.feedback || "");
@@ -88,7 +90,7 @@ export default function Pagos() {
     return () => unsubscribe();
   }, []);
 
-  const filteredPayments = payments.filter((payment) => {
+  const filteredPayments = useMemo(() => payments.filter((payment) => {
     const query = normalizeSearchValue(searchTerm.trim());
     return !query || [
       getPaymentClientName(payment),
@@ -96,7 +98,19 @@ export default function Pagos() {
       payment.monto,
       formatMoney(payment.monto),
     ].some((value) => normalizeSearchValue(value).includes(query));
-  });
+  }).sort((first, second) => (
+    (parseDate(getPaymentDate(second))?.getTime() || 0) - (parseDate(getPaymentDate(first))?.getTime() || 0)
+  )), [payments, searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(filteredPayments.length / PAGE_SIZE))));
+  }, [filteredPayments.length]);
+
+  const paginatedPayments = filteredPayments.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const handleDownloadInvoice = async (payment) => {
     try {
@@ -165,7 +179,7 @@ export default function Pagos() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredPayments.length ? filteredPayments.map((payment) => (
+                  {filteredPayments.length ? paginatedPayments.map((payment) => (
                     <tr key={payment.id}>
                       <td className="paymentClientCell">{getPaymentClientName(payment)}</td>
                       <td>{getPaymentMembership(payment)}</td>
@@ -192,6 +206,9 @@ export default function Pagos() {
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className="paymentsPagination">
+              <Pagination currentPage={currentPage} onPageChange={setCurrentPage} totalItems={filteredPayments.length} />
             </div>
           </div>
         </section>

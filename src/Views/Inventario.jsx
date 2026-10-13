@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import ProductoDetalleModal from "../Components/ProductoDetalleModal";
+import Pagination, { PAGE_SIZE } from "../Components/Pagination";
 import { getInventoryCategories } from "../services/inventoryStorage";
 import { deleteProduct, normalizeProductImageUrl, subscribeToProducts, updateProduct } from "../services/productosService";
 import AdminSidebar from "../Components/AdminSidebar";
@@ -38,6 +39,7 @@ export default function Inventario() {
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [search, setSearch] = useState("");
   const [stockFilter, setStockFilter] = useState("todos");
+  const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState("grid");
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -101,7 +103,17 @@ export default function Inventario() {
     const matchesSearch = `${product.name || ""} ${product.category || ""} ${product.brand || ""}`.toLowerCase().includes(search.toLowerCase());
     const matchesStock = stockFilter === "todos" || getProductStatus(product) === stockFilter;
     return matchesCategory && matchesSearch && matchesStock;
-  }), [products, activeCategory, search, stockFilter]);
+  }).sort((first, second) => String(first.name || "").localeCompare(String(second.name || ""), "es", { sensitivity: "base" })), [products, activeCategory, search, stockFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, search, stockFilter]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE))));
+  }, [filteredProducts.length]);
+
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="app">
@@ -152,7 +164,7 @@ export default function Inventario() {
           {loadError && <p className="inventoryLoadError" role="alert">{loadError}</p>}
 
           <div className={`productGrid ${view === "list" ? "listView" : ""}`}>
-            {filteredProducts.map((product) => {
+            {paginatedProducts.map((product) => {
               const productImageUrl = normalizeProductImageUrl(product.imageUrl);
               return (
                 <article className="productCard" key={product.id}>
@@ -190,6 +202,7 @@ export default function Inventario() {
             })}
             {filteredProducts.length === 0 && <div className="inventoryEmpty"><Package size={28} /><strong>{isLoading ? "Cargando productos..." : products.length === 0 ? "Aún no hay productos" : "No encontramos productos"}</strong><span>{isLoading ? "" : products.length === 0 ? "Agrega un producto para que aparezca aquí." : "Prueba otra búsqueda o categoría."}</span></div>}
           </div>
+          <Pagination currentPage={currentPage} onPageChange={setCurrentPage} totalItems={filteredProducts.length} />
         </section>
 
         {editingProduct && <ProductoDetalleModal

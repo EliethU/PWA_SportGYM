@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { collection, deleteDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import { db } from "../assets/database/firebaseconfig";
+import Pagination, { PAGE_SIZE } from "../Components/Pagination";
 import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Clientes.css";
@@ -78,6 +79,7 @@ export default function Clientes() {
   const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
   const [editingClient, setEditingClient] = useState(null);
@@ -102,10 +104,24 @@ export default function Clientes() {
     return () => unsubscribe();
   }, []);
 
-  const filteredClients = clients.filter((client) =>
+  const filteredClients = useMemo(() => clients.filter((client) =>
     [client.nombre, client.telefono, client.correo]
       .some((value) => String(value || "").toLowerCase().includes(searchTerm.toLowerCase())),
-  );
+  ).sort((first, second) => String(first.nombre || first.usuario || "").localeCompare(
+    String(second.nombre || second.usuario || ""),
+    "es",
+    { sensitivity: "base" },
+  )), [clients, searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(filteredClients.length / PAGE_SIZE))));
+  }, [filteredClients.length]);
+
+  const paginatedClients = filteredClients.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const openEditDialog = (client) => {
     setEditingClient(client);
@@ -246,7 +262,7 @@ export default function Clientes() {
                 </thead>
                 <tbody>
                   {filteredClients.length > 0 ? (
-                    filteredClients.map((client) => (
+                    paginatedClients.map((client) => (
                       <tr key={client.id}>
                         <td className="clientNameCell">{client.nombre || "-"}</td>
                         <td>{client.telefono || "-"}</td>
@@ -310,6 +326,7 @@ export default function Clientes() {
                 </tbody>
               </table>
             </div>
+            <Pagination currentPage={currentPage} onPageChange={setCurrentPage} totalItems={filteredClients.length} />
             {error && <p className="clientsError">{error}</p>}
             {feedback && <p className="clientsFeedback" role="status">{feedback}</p>}
           </div>
