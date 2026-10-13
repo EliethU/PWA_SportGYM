@@ -146,6 +146,7 @@ export default function NuevoCliente() {
         usuario: username,
         estado: "Activo",
         estadoPago: "pendiente",
+        contrasena: password,
         creadoEn: serverTimestamp(),
       });
       batch.set(doc(db, "usuarios", newAuthUser.uid), {
@@ -400,7 +401,7 @@ export default function NuevoCliente() {
                       </div>
                     </div>
                   </div>
-                  <p className="sectionHint">El usuario se crea con este correo. La contraseña temporal se genera en Firebase Authentication y no se guarda en Firestore.</p>
+                  <p className="sectionHint">El usuario se crea con este correo y su contraseña temporal queda guardada en el registro del cliente.</p>
                 </section>
               </div>
 

@@ -161,7 +161,7 @@ export default function Clientes() {
       return;
     }
 
-    setFeedback("Firebase Authentication no permite consultar la contraseña original. Para cambiarla, usa la opción de restablecer contraseña.");
+    setFeedback("Este cliente no tiene una contraseña guardada en su registro de clientes.");
   };
 
   const handleUpdateClient = async (event) => {
@@ -277,7 +277,7 @@ export default function Clientes() {
                                 className="passwordVisibilityButton"
                                 onClick={() => handlePasswordVisibility(client)}
                                 aria-label={visiblePasswords.has(client.id) && client.contrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
-                                title={client.contrasena ? (visiblePasswords.has(client.id) ? "Ocultar contraseña" : "Mostrar contraseña") : "La contraseña de Auth no se puede recuperar"}
+                                title={client.contrasena ? (visiblePasswords.has(client.id) ? "Ocultar contraseña" : "Mostrar contraseña") : "Este registro no tiene una contraseña guardada"}
                               >
                                 {visiblePasswords.has(client.id) && client.contrasena ? <EyeOff size={15} /> : <Eye size={15} />}
                               </button>

@@ -3,8 +3,8 @@ rules_version = '2';
 // Prototype data model:
 // usuarios/{uid}: uid, email, rol (admin|cliente), clienteId, creadoEn.
 // clientes/{id}: uid, nombre, telefono, correo, usuario, membresia,
-// fechaInicio, notas, estado, estadoPago, creadoEn. Legacy records may also
-// contain fields such as apellido, username, fechaRegistro or contrasena.
+// fechaInicio, notas, estado, estadoPago, contrasena, creadoEn. Client records
+// are readable as a collection only by administrators.
 // Administrative collections (planes, pagos, ventas, gastos, inventario, etc.)
 // are accessed only by an administrator.
 service cloud.firestore {
