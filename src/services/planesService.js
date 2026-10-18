@@ -5,7 +5,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-import { db } from "../firebase/config";
+import { db } from "../assets/database/firebaseconfig";
 
 const planesRef = collection(db, "planes");
 

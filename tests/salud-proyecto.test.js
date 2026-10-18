@@ -112,7 +112,12 @@ describe('📂 Archivos de servicios', () => {
     'src/services/ventasService.js',
     'src/services/gastosService.js',
     'src/services/planesService.js',
-    'src/services/reportsPdf.js'
+    'src/services/reportsPdf.js',
+    'src/services/asistenciasService.js',
+    'src/services/inventoryStorage.js',
+    'src/services/paymentInvoice.js',
+    'src/services/salesInvoice.js',
+    'src/services/recetaPdf.js'
   ])('existe servicio %s', (ruta) => {
     expect(existe(ruta)).toBe(true);
   });
@@ -140,7 +145,11 @@ describe('📂 Archivos de componentes', () => {
     'src/Components/Modal.jsx',
     'src/Components/FacturaVenta.jsx',
     'src/Components/FacturaPago.jsx',
-    'src/Components/FacturaGasto.jsx'
+    'src/Components/FacturaGasto.jsx',
+    'src/Components/Pagination.jsx',
+    'src/Components/AdminSidebar.jsx',
+    'src/Components/ProductoDetalleModal.jsx',
+    'src/Components/ClientesView.jsx'
   ])('existe componente %s', (ruta) => {
     expect(existe(ruta)).toBe(true);
   });

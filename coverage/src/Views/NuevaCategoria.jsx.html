@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/26</span>
+                <span class='fraction'>0/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>0/19</span>
             </div>
         
             
@@ -132,26 +132,7 @@
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -162,17 +143,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,14 +180,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -240,6 +202,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from "react";
+import { QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -257,21 +220,9 @@ import {
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import { getInventoryCategoryRecords, saveInventoryCategoryRecords } from "../services/inventoryStorage";
+import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/NuevaCategoria.css";
-&nbsp;
-const menuItems = <span class="cstat-no" title="statement not covered" >[</span>
-  { name: "Inicio", icon: LayoutDashboard, path: "/home" },
-  { name: "Clientes", icon: Users, path: "/clientes" },
-  { name: "Membresías", icon: CreditCard, path: "/membresias" },
-  { name: "Pagos", icon: Wallet, path: "/pagos" },
-  { name: "Ventas", icon: ShoppingCart, path: "/ventas" },
-  { name: "Inventario", icon: Package, path: "/inventario" },
-  { name: "Gastos", icon: Receipt, path: "/gastos" },
-  { name: "Análisis y estadísticas", icon: FileText, path: "/analisis" },
-  { name: "Reportes", icon: FileText, path: "/reportes" },
-  { name: "Cerrar sesión", icon: LogOut, path: "/" },
-];
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >NuevaCategoria(</span>) {
   const navigate = <span class="cstat-no" title="statement not covered" >useNavigate();</span>
@@ -299,15 +250,7 @@ export default function <span class="fstat-no" title="function not covered" >Nue
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;div className="app"&gt;
-      &lt;aside className="sidebar"&gt;
-        &lt;div className="logoContainer"&gt;&lt;img src="/logo-port-gym.png" alt="Port Gym" className="logoImage" /&gt;&lt;/div&gt;
-        &lt;nav className="menu"&gt;
-          {menuItems.map(<span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; {
-            const Icon = <span class="cstat-no" title="statement not covered" >item.icon;</span>
-<span class="cstat-no" title="statement not covered" >            return &lt;button key={item.name} className={`menuItem ${item.name === "Inventario" ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`} onClick={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >navigate(item.path)}</span>&gt;&lt;Icon size={18} strokeWidth={2} /&gt;&lt;span&gt;{item.name}&lt;/span&gt;&lt;/button&gt;;</span>
-          })}
-        &lt;/nav&gt;
-      &lt;/aside&gt;
+      &lt;AdminSidebar /&gt;
 &nbsp;
       &lt;main className="main"&gt;
         &lt;Encabezado title="Nueva categoría" description="Organiza los productos del inventario" /&gt;
@@ -334,7 +277,7 @@ export default function <span class="fstat-no" title="function not covered" >Nue
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-05T01:56:54.852Z
+                at 2026-10-18T01:58:03.121Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

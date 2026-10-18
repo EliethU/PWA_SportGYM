@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
@@ -132,7 +132,18 @@
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,17 +168,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -202,33 +218,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './assets/database/authcontext';
 import Login from './Views/Login';
 import Home from './Views/Home';
 import Clientes from './Views/Clientes';
 import PortalCliente from './Views/PortalCliente';
 import NuevoCliente from './Views/NuevoCliente';
-import Membresias from './Views/Membresias';
-import Pagos from './Views/Pagos';
 import NuevoPago from './Views/NuevoPago';
-import Inventario from './Views/Inventario';
 import NuevoProducto from './Views/NuevoProducto';
 import NuevaCategoria from './Views/NuevaCategoria';
+import Membresias from './Views/Membresias';
+import Pagos from './Views/Pagos';
+import Inventario from './Views/Inventario';
 import Ventas from './Views/Ventas';
 import Gastos from './Views/Gastos';
 import RegistrarGasto from './Views/RegistrarGasto';
 import Reportes from './Views/Reportes';
-import Analisis from './Views/Analisis';
 import Configuracion from './Views/Configuracion';
 import Terminos from './Views/Terminos';
+import Analisis from './Views/Analisis';
+import Asistencia from './Views/Asistencia';
+import Nutricion from './Views/Nutricion';
+import NuevaReceta from './Views/NuevaReceta';
 import './App.css';
 &nbsp;
 function <span class="fstat-no" title="function not covered" >ProtectedRoute(</span>{ requiredRole }) {
   const { user, role, isLoading } = <span class="cstat-no" title="statement not covered" >useAuth();</span>
+  const location = <span class="cstat-no" title="statement not covered" >useLocation();</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  if (isLoading) <span class="cstat-no" title="statement not covered" >return &lt;div className="authLoading"&gt;Cargando...&lt;/div&gt;;</span></span>
-<span class="cstat-no" title="statement not covered" >  if (!user) <span class="cstat-no" title="statement not covered" >return &lt;Navigate to="/" replace /&gt;;</span></span>
+<span class="cstat-no" title="statement not covered" >  if (!user) <span class="cstat-no" title="statement not covered" >return &lt;Navigate to="/" replace state={{ from: location }} /&gt;;</span></span>
 <span class="cstat-no" title="statement not covered" >  if (role !== requiredRole) {</span>
 <span class="cstat-no" title="statement not covered" >    return &lt;Navigate to={role === 'cliente' ? '/cliente' : role === 'admin' ? '/home' : '/'} replace /&gt;;</span>
   }
@@ -248,6 +268,10 @@ function <span class="fstat-no" title="function not covered" >App(</span>) {
             &lt;Route element={&lt;ProtectedRoute requiredRole="admin" /&gt;}&gt;
               &lt;Route path="/terminos" element={&lt;Terminos /&gt;} /&gt;
               &lt;Route path="/home" element={&lt;Home /&gt;} /&gt;
+              &lt;Route path="/asistencia" element={&lt;Asistencia /&gt;} /&gt;
+              &lt;Route path="/nutricion" element={&lt;Nutricion /&gt;} /&gt;
+              &lt;Route path="/nueva-receta" element={&lt;NuevaReceta /&gt;} /&gt;
+              &lt;Route path="/editar-receta/:recipeId" element={&lt;NuevaReceta /&gt;} /&gt;
               &lt;Route path="/clientes" element={&lt;Clientes /&gt;} /&gt;
               &lt;Route path="/nuevo-cliente" element={&lt;NuevoCliente /&gt;} /&gt;
               &lt;Route path="/membresias" element={&lt;Membresias /&gt;} /&gt;
@@ -277,7 +301,7 @@ export default App;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-05T01:56:54.852Z
+                at 2026-10-18T01:58:03.121Z
             </div>
         <script src="../prettify.js"></script>
         <script>

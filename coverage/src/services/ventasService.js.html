@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">9.25% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/54</span>
+                <span class='fraction'>5/54</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">11.9% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/42</span>
+                <span class='fraction'>5/42</span>
             </div>
         
             
@@ -164,28 +164,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -256,28 +256,28 @@
 } from "firebase/firestore";
 import { db } from "../assets/database/firebaseconfig";
 &nbsp;
-const getLocalDateValue = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(d</span>ate) =&gt; {</span>
+const getLocalDateValue = <span class="fstat-no" title="function not covered" >(d</span>ate) =&gt; {
   const year = <span class="cstat-no" title="statement not covered" >date.getFullYear();</span>
   const month = <span class="cstat-no" title="statement not covered" >String(date.getMonth() + 1).padStart(2, "0");</span>
   const day = <span class="cstat-no" title="statement not covered" >String(date.getDate()).padStart(2, "0");</span>
 <span class="cstat-no" title="statement not covered" >  return `${year}-${month}-${day}`;</span>
 };
 &nbsp;
-const getLocalTimeValue = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(d</span>ate) =&gt; <span class="cstat-no" title="statement not covered" >new Intl.DateTimeFormat("es-NI", {</span></span>
+const getLocalTimeValue = <span class="fstat-no" title="function not covered" >(d</span>ate) =&gt; <span class="cstat-no" title="statement not covered" >new Intl.DateTimeFormat("es-NI", {</span>
   hour: "2-digit",
   minute: "2-digit",
   hourCycle: "h23",
 }).format(date);
 &nbsp;
-const getClientName = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(c</span>lient) =&gt; <span class="cstat-no" title="statement not covered" >[client.nombre, client.apellido].filter(Boolean).join(" ") || client.usuario || "Cliente";</span></span>
+const getClientName = <span class="fstat-no" title="function not covered" >(c</span>lient) =&gt; <span class="cstat-no" title="statement not covered" >[client.nombre, client.apellido].filter(Boolean).join(" ") || client.usuario || "Cliente";</span>
 &nbsp;
-export const subscribeToSales = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(o</span>nSales, onError) =&gt; <span class="cstat-no" title="statement not covered" >onSnapshot(</span></span>
+export const subscribeToSales = <span class="fstat-no" title="function not covered" >(o</span>nSales, onError) =&gt; <span class="cstat-no" title="statement not covered" >onSnapshot(</span>
   collection(db, "ventas"),
 <span class="fstat-no" title="function not covered" >  (s</span>napshot) =&gt; <span class="cstat-no" title="statement not covered" >onSales(snapshot.docs.map(<span class="fstat-no" title="function not covered" >(s</span>ale) =&gt; (<span class="cstat-no" title="statement not covered" >{ id: sale.id, ...sale.data() })</span>)),</span>
   onError,
 );
 &nbsp;
-export const createSale = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync ({ clienteId, items, fechaVenta, horaVenta, observaciones, metodoPago }) =&gt; {</span>
+export const createSale = <span class="fstat-no" title="function not covered" >as</span>ync ({ clienteId, items, fechaVenta, horaVenta, observaciones, metodoPago }) =&gt; {
   const saleRef = <span class="cstat-no" title="statement not covered" >doc(collection(db, "ventas"));</span>
   const counterRef = <span class="cstat-no" title="statement not covered" >doc(db, "contadores", "ventas");</span>
   const clientRef = <span class="cstat-no" title="statement not covered" >doc(db, "clientes", clienteId);</span>
@@ -346,7 +346,7 @@ export const createSale = <span class="cstat-no" title="statement not covered" >
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-05T01:56:54.852Z
+                at 2026-10-18T01:58:03.121Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

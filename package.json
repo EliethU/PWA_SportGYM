@@ -10,7 +10,10 @@
     "scan": "node scanner.js",
     "test": "jest",
     "test:cobertura": "jest --coverage",
-    "escaneo": "jest --coverage --verbose"
+    "escaneo": "jest --coverage --verbose",
+    "test:vistas": "node test-vistas-colores.js",
+    "test:diagnostic": "node scripts/diagnostic-watch.js",
+    "dev:all": "concurrently -n VITE,TEST -c cyan,green \"vite\" \"npm run test:diagnostic\""
   },
   "dependencies": {
     "bootstrap": "^5.3.8",

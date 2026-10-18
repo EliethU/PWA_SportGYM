@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">26.31% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>5/19</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">38.46% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>5/13</span>
             </div>
         
             
@@ -156,7 +156,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -167,10 +167,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -244,7 +244,7 @@ import logoPortGym from "../Imagen/logo-port-gym.png.png";
 import { formatPaymentDate, formatPaymentMoney, formatPaymentTime } from "../services/paymentInvoice.js";
 import "../Styles/FacturaPago.css";
 &nbsp;
-const getSaleItems = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>ale) =&gt; {</span>
+const getSaleItems = <span class="fstat-no" title="function not covered" >(s</span>ale) =&gt; {
 <span class="cstat-no" title="statement not covered" >  if (Array.isArray(sale.items)) <span class="cstat-no" title="statement not covered" >return sale.items;</span></span>
 <span class="cstat-no" title="statement not covered" >  if (Array.isArray(sale.productos)) <span class="cstat-no" title="statement not covered" >return sale.productos;</span></span>
 <span class="cstat-no" title="statement not covered" >  return [{</span>
@@ -255,10 +255,10 @@ const getSaleItems = <span class="cstat-no" title="statement not covered" ><span
   }];
 };
 &nbsp;
-const getItemName = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >item.nombreProducto || item.productoNombre || item.nombre || item.name || item.producto || "Producto";</span></span>
-const getItemQuantity = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >Number(item.cantidad ?? item.quantity ?? 1);</span></span>
-const getItemPrice = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >Number(item.precioUnitario ?? item.precio ?? item.price ?? 0);</span></span>
-const getItemSubtotal = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >Number(item.subtotal ?? item.subTotal ?? getItemQuantity(item) * getItemPrice(item));</span></span>
+const getItemName = <span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >item.nombreProducto || item.productoNombre || item.nombre || item.name || item.producto || "Producto";</span>
+const getItemQuantity = <span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >Number(item.cantidad ?? item.quantity ?? 1);</span>
+const getItemPrice = <span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >Number(item.precioUnitario ?? item.precio ?? item.price ?? 0);</span>
+const getItemSubtotal = <span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; <span class="cstat-no" title="statement not covered" >Number(item.subtotal ?? item.subTotal ?? getItemQuantity(item) * getItemPrice(item));</span>
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >FacturaVenta(</span>{ sale }) {
   const items = <span class="cstat-no" title="statement not covered" >getSaleItems(sale);</span>
@@ -334,7 +334,7 @@ export default function <span class="fstat-no" title="function not covered" >Fac
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-05T01:56:54.852Z
+                at 2026-10-18T01:58:03.121Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
