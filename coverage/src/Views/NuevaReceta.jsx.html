@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">3.05% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/229</span>
+                <span class='fraction'>7/229</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">3.7% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/189</span>
+                <span class='fraction'>7/189</span>
             </div>
         
             
@@ -588,13 +588,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -605,14 +603,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -621,13 +614,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1071,11 +1071,11 @@ import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/NuevaReceta.css";
 &nbsp;
-const defaultCategories = <span class="cstat-no" title="statement not covered" >["Desayuno", "Plato principal", "Ensalada", "Bebida", "Snack", "Sopa"];</span>
-const defaultMealTypes = <span class="cstat-no" title="statement not covered" >["Desayuno", "Almuerzo", "Cena", "Snack"];</span>
-const defaultGoals = <span class="cstat-no" title="statement not covered" >["Ganancia muscular", "Definición", "Pérdida de peso", "Mantenimiento"];</span>
+const defaultCategories = ["Desayuno", "Plato principal", "Ensalada", "Bebida", "Snack", "Sopa"];
+const defaultMealTypes = ["Desayuno", "Almuerzo", "Cena", "Snack"];
+const defaultGoals = ["Ganancia muscular", "Definición", "Pérdida de peso", "Mantenimiento"];
 &nbsp;
-const emptyForm = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+const emptyForm = <span class="fstat-no" title="function not covered" >()</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
   nombre: "",
   descripcion: "",
   categoria: "",
@@ -1088,7 +1088,7 @@ const emptyForm = <span class="cstat-no" title="statement not covered" ><span cl
   imagePath: "",
 });
 &nbsp;
-const asFormData = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>ecipe) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+const asFormData = <span class="fstat-no" title="function not covered" >(r</span>ecipe) =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
   ...emptyForm(),
   ...recipe,
   porciones: String(recipe.porciones || 1),
@@ -1104,13 +1104,13 @@ const asFormData = <span class="cstat-no" title="statement not covered" ><span c
     : emptyForm().pasos,
 });
 &nbsp;
-const optionDisplayNames = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(o</span>ptions, recipeItems, field, fallbacks) =&gt; <span class="cstat-no" title="statement not covered" >[...new Set([</span></span>
+const optionDisplayNames = <span class="fstat-no" title="function not covered" >(o</span>ptions, recipeItems, field, fallbacks) =&gt; <span class="cstat-no" title="statement not covered" >[...new Set([</span>
   ...fallbacks,
   ...options.map(<span class="fstat-no" title="function not covered" >(o</span>ption) =&gt; <span class="cstat-no" title="statement not covered" >option.nombre)</span>,
   ...recipeItems.map(<span class="fstat-no" title="function not covered" >(r</span>ecipe) =&gt; <span class="cstat-no" title="statement not covered" >recipe[field])</span>,
 ].filter(Boolean))].sort(<span class="fstat-no" title="function not covered" >(f</span>irst, second) =&gt; <span class="cstat-no" title="statement not covered" >first.localeCompare(second, "es"))</span>;
 &nbsp;
-const calculateIngredientCalories = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(i</span>ngredient) =&gt; {</span>
+const calculateIngredientCalories = <span class="fstat-no" title="function not covered" >(i</span>ngredient) =&gt; {
   const quantity = <span class="cstat-no" title="statement not covered" >Number(ingredient.cantidad);</span>
   const caloriesPer100 = <span class="cstat-no" title="statement not covered" >Number(ingredient.caloriasPor100);</span>
 <span class="cstat-no" title="statement not covered" >  return Number.isFinite(quantity) &amp;&amp; Number.isFinite(caloriesPer100) &amp;&amp; quantity &gt; 0 &amp;&amp; caloriesPer100 &gt;= 0</span>
@@ -1519,7 +1519,7 @@ export default function <span class="fstat-no" title="function not covered" >Nue
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-18T01:58:03.121Z
+                at 2026-10-21T19:15:32.960Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
