@@ -12,14 +12,13 @@ import {
   FileText,
   Settings,
   LogOut,
-  Save,
   Bell,
-  Shield,
   Database,
   Palette,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import AdminSidebar from "../Components/AdminSidebar";
+import CambioContrasenaForm from "../Components/CambioContrasenaForm";
 import "../Styles/Home.css";
 import "../Styles/Configuracion.css";
 
@@ -139,49 +138,11 @@ export default function Configuracion() {
               </div>
             </div>
 
-            {/* SEGURIDAD */}
-            <div className="configSection">
-              <div className="configSectionHeader">
-                <Shield size={20} className="sectionIcon" />
-                <h3 className="configSectionTitle">Seguridad</h3>
-              </div>
-              
-              <div className="configForm">
-                <div className="formGroup">
-                  <label className="formLabel">Contraseña actual</label>
-                  <input
-                    type="password"
-                    className="formInput"
-                    placeholder="••••••••"
-                  />
-                </div>
-
-                <div className="formRow">
-                  <div className="formGroup">
-                    <label className="formLabel">Nueva contraseña</label>
-                    <input
-                      type="password"
-                      className="formInput"
-                      placeholder="••••••••"
-                    />
-                  </div>
-
-                  <div className="formGroup">
-                    <label className="formLabel">Confirmar contraseña</label>
-                    <input
-                      type="password"
-                      className="formInput"
-                      placeholder="••••••••"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <CambioContrasenaForm />
 
             {/* BOTÓN GUARDAR */}
             <div className="configActions">
               <button className="saveButton">
-                <Save size={18} />
                 <span>Guardar cambios</span>
               </button>
             </div>

@@ -4,6 +4,7 @@ import { CalendarDays, CheckCircle2, CreditCard, LogOut, UserRound } from "lucid
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../assets/database/authcontext";
 import { db } from "../assets/database/firebaseconfig";
+import CambioContrasenaForm from "../Components/CambioContrasenaForm";
 import { registerClientAttendance } from "../services/asistenciasService";
 import "../Styles/PortalCliente.css";
 
@@ -142,6 +143,7 @@ export default function PortalCliente() {
               {isRegisteringAttendance ? "Registrando..." : "Registrar asistencia"}
             </button>
           </section>
+          <CambioContrasenaForm />
           </>
         )}
       </section>

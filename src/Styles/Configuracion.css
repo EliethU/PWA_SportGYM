@@ -80,6 +80,25 @@
   color: #929c9d;
 }
 
+.changePasswordDescription {
+  margin: 0;
+  color: #697778;
+  font-size: 13px;
+}
+
+.changePasswordMessage {
+  margin: 0;
+  font-size: 14px;
+}
+
+.changePasswordMessage.error {
+  color: #b42318;
+}
+
+.changePasswordMessage.success {
+  color: #287a2f;
+}
+
 /* FORM ROW */
 .formRow {
   display: grid;
@@ -191,6 +210,11 @@
 
 .saveButton:active {
   transform: scale(0.98);
+}
+
+.saveButton:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 /* RESPONSIVE */
