@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
@@ -12,6 +13,7 @@ import {
   Maximize2,
   Package,
   Printer,
+  UserPlus,
   QrCode,
   Receipt,
   Search,
@@ -22,7 +24,11 @@ import {
 import QRCode from "qrcode";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../assets/database/firebaseconfig";
-import { subscribeToAttendances } from "../services/asistenciasService";
+import {
+  isClientMembershipActive,
+  registerManualAttendance,
+  subscribeToAttendances,
+} from "../services/asistenciasService";
 import Encabezado from "../Components/Encabezado";
 import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
@@ -151,6 +157,10 @@ export default function Asistencia() {
   const [isAttendanceLive, setIsAttendanceLive] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [isManualFormOpen, setIsManualFormOpen] = useState(false);
+  const [manualClientId, setManualClientId] = useState("");
+  const [isManualSaving, setIsManualSaving] = useState(false);
+  const [manualError, setManualError] = useState("");
 
   useEffect(() => {
     const unsubscribeAttendances = subscribeToAttendances(
@@ -202,6 +212,17 @@ export default function Asistencia() {
     };
   }, [qrUrl]);
 
+  useEffect(() => {
+    if (!isManualFormOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" && !isManualSaving) setIsManualFormOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isManualFormOpen, isManualSaving]);
+
   const datedAttendances = useMemo(
     () => attendances.filter((attendance) => getAttendanceDateKey(attendance) === selectedDate),
     [attendances, selectedDate],
@@ -232,11 +253,12 @@ export default function Asistencia() {
     const value = search.trim().toLocaleLowerCase();
     if (!value) return sortedAttendances;
     return sortedAttendances.filter((attendance) =>
-      [attendance.nombre, attendance.usuario, attendance.clienteId, attendance.uid]
+      [attendance.nombre, attendance.membresia]
         .some((field) => String(field || "").toLocaleLowerCase().includes(value)),
     );
   }, [search, sortedAttendances]);
   const recentAttendances = [...sortedAttendances].reverse().slice(0, 4);
+  const clientsWithActiveMembership = clients.filter(isClientMembershipActive);
   const activeClients = clients.filter((client) =>
     String(client.estado || "").toLocaleLowerCase() === "activo",
   ).length;
@@ -286,16 +308,12 @@ export default function Asistencia() {
 
   const handleExport = () => {
     const lines = [
-      ["Fecha", "Hora", "Cliente", "Usuario", "ID cliente", "UID", "Membresía", "Estado de membresía"],
+      ["Fecha", "Hora", "Cliente", "Membresía"],
       ...sortedAttendances.map((attendance) => [
-        getAttendanceDateKey(attendance),
-        attendance.hora || attendance.horaAsistencia || formatTime(attendance),
+        formatAttendanceDate(attendance),
+        formatTime(attendance),
         attendance.nombre,
-        attendance.usuario,
-        attendance.clienteId,
-        attendance.uid,
         attendance.membresia,
-        attendance.estadoMembresia,
       ]),
     ];
     const csv = `\uFEFF${lines.map((line) => line.map(csvValue).join(",")).join("\r\n")}`;
@@ -305,6 +323,60 @@ export default function Asistencia() {
     download.download = `asistencias-${selectedDate}.csv`;
     download.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const handleOpenManualForm = () => {
+    setSelectedDate(getDateKey());
+    setManualClientId("");
+    setManualError("");
+    setNotice("");
+    setIsManualFormOpen(true);
+  };
+
+  const handleManualAttendance = async (event) => {
+    event.preventDefault();
+    if (!manualClientId || isManualSaving) return;
+
+    setManualError("");
+    setIsManualSaving(true);
+    try {
+      const client = clients.find((item) => item.id === manualClientId);
+      if (!client) {
+        setManualError("No se encontró el cliente seleccionado. Actualiza la lista e inténtalo de nuevo.");
+        return;
+      }
+
+      const result = await registerManualAttendance(client);
+      const clientName = getText(client?.nombre) || "El cliente";
+      setNotice(result.alreadyRegistered
+        ? `${clientName} ya tiene una asistencia registrada hoy a las ${result.hora}.`
+        : `Asistencia de ${clientName} registrada a las ${result.hora}.`);
+      setIsManualFormOpen(false);
+    } catch (registrationError) {
+      console.error("No se pudo registrar la asistencia manual:", registrationError);
+      const errorCode = typeof registrationError?.code === "string"
+        ? registrationError.code.split("/").pop()
+        : "";
+      const messages = {
+        "permission-denied": "No tienes permisos para registrar asistencias manualmente.",
+        unauthenticated: "Tu sesión terminó. Inicia sesión de nuevo.",
+        "not-found": "No se encontró el cliente seleccionado.",
+        "invalid-argument": "Selecciona un cliente válido.",
+        unavailable: "Firestore no está disponible. Revisa tu conexión e inténtalo de nuevo.",
+        "failed-precondition": "Firestore no pudo completar la operación. Actualiza la página y vuelve a intentarlo.",
+      };
+      const errorMessage = typeof registrationError?.message === "string"
+        ? registrationError.message.trim()
+        : "";
+      setManualError(
+        messages[errorCode]
+          || (errorMessage
+            ? `No se pudo registrar: ${errorMessage}`
+            : "No se pudo registrar la asistencia. Revisa tu conexión e inténtalo de nuevo."),
+      );
+    } finally {
+      setIsManualSaving(false);
+    }
   };
 
   return (
@@ -432,10 +504,18 @@ export default function Asistencia() {
                         type="search"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Buscar cliente o código..."
-                        aria-label="Buscar por cliente, usuario o código"
+                        placeholder="Buscar cliente o membresía..."
+                        aria-label="Buscar por cliente o membresía"
                       />
                     </label>
+                    <button
+                      type="button"
+                      className="attendanceManualButton"
+                      onClick={handleOpenManualForm}
+                      disabled={isClientsLoading || clients.length === 0}
+                    >
+                      <UserPlus size={16} /> Registrar manual
+                    </button>
                     <button type="button" className="attendanceExport" onClick={handleExport}>
                       <Download size={16} /> Exportar
                     </button>
@@ -445,43 +525,23 @@ export default function Asistencia() {
                   <table className="attendanceTable">
                     <thead>
                       <tr>
-                        <th>#</th>
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Cliente</th>
-                        <th>Usuario</th>
-                        <th>ID cliente</th>
-                        <th>UID</th>
                         <th>Membresía</th>
-                        <th>Estado de membresía</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredAttendances.map((attendance, index) => {
-                        const membershipStatus = String(attendance.estadoMembresia || "").toLocaleLowerCase();
-                        const membershipClass = membershipStatus.includes("venc") || membershipStatus.includes("pend")
-                          ? "attendanceMembershipWarning"
-                          : "attendanceMembershipActive";
-                        return (
-                          <tr key={attendance.id}>
-                            <td>{index + 1}</td>
-                            <td>{formatAttendanceDate(attendance)}</td>
-                            <td>{formatTime(attendance)}</td>
-                            <td><span className="attendanceClientCell"><span className="attendanceAvatar">{getInitials(attendance.nombre)}</span><strong>{attendance.nombre || "Cliente"}</strong></span></td>
-                            <td>{attendance.usuario || "—"}</td>
-                            <td>{attendance.clienteId || "—"}</td>
-                            <td>{attendance.uid || "—"}</td>
-                            <td><span className={`attendanceMembership ${membershipClass}`}>{attendance.membresia || "Sin membresía"}</span></td>
-                            <td>
-                              {attendance.estadoMembresia
-                                ? <span className={`attendanceMembership ${membershipClass}`}>{attendance.estadoMembresia}</span>
-                                : <span className="attendanceRegistered"><i /> Registrada</span>}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {filteredAttendances.map((attendance) => (
+                        <tr key={attendance.id}>
+                          <td>{formatAttendanceDate(attendance)}</td>
+                          <td>{formatTime(attendance)}</td>
+                          <td><span className="attendanceClientCell"><span className="attendanceAvatar">{getInitials(attendance.nombre)}</span><strong>{attendance.nombre || "Cliente"}</strong></span></td>
+                          <td><span className="attendanceMembership attendanceMembershipActive">{attendance.membresia || "Sin membresía"}</span></td>
+                        </tr>
+                      ))}
                       {!isLoading && filteredAttendances.length === 0 && (
-                        <tr><td colSpan="9" className="attendanceEmpty">{search ? "No hay resultados para esta búsqueda." : "Todavía no hay asistencias para esta fecha."}</td></tr>
+                        <tr><td colSpan="4" className="attendanceEmpty">{search ? "No hay resultados para esta búsqueda." : "Todavía no hay asistencias para esta fecha."}</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -490,6 +550,56 @@ export default function Asistencia() {
               </section>
             </div>
           </div>
+
+          {isManualFormOpen && createPortal(
+            <div
+              className="attendanceManualBackdrop"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget && !isManualSaving) setIsManualFormOpen(false);
+              }}
+            >
+              <form className="attendanceManualDialog" onSubmit={handleManualAttendance} role="dialog" aria-modal="true" aria-labelledby="attendance-manual-title">
+                <div className="attendanceManualHeader">
+                  <span className="attendanceManualIcon"><UserPlus size={20} /></span>
+                  <div>
+                    <h2 id="attendance-manual-title">Registrar asistencia</h2>
+                    <p>Selecciona al cliente que llegó al gimnasio.</p>
+                  </div>
+                </div>
+                <label className="attendanceManualField">
+                  Cliente
+                  <select
+                    autoFocus
+                    required
+                    value={manualClientId}
+                    onChange={(event) => setManualClientId(event.target.value)}
+                    disabled={isManualSaving || isClientsLoading}
+                  >
+                    <option value="">Selecciona un cliente</option>
+                    {[...clientsWithActiveMembership]
+                      .sort((first, second) => getText(first.nombre).localeCompare(getText(second.nombre), "es", { sensitivity: "base" }))
+                      .map((client) => (
+                        <option key={client.id} value={client.id}>
+                          {getText(client.nombre) || "Cliente"} · {getText(client.membresia || client.tipoMembresia) || "Sin membresía"}
+                        </option>
+                      ))}
+                    {!isClientsLoading && clientsWithActiveMembership.length === 0 && (
+                      <option value="" disabled>No hay clientes con membresía activa</option>
+                    )}
+                  </select>
+                </label>
+                <p className="attendanceManualHint">La fecha y hora se asignan automáticamente al momento del registro.</p>
+                {manualError && <p className="attendanceManualError" role="alert">{manualError}</p>}
+                <div className="attendanceManualActions">
+                  <button type="button" className="attendanceManualCancel" onClick={() => setIsManualFormOpen(false)} disabled={isManualSaving}>Cancelar</button>
+                  <button type="submit" className="attendanceManualSubmit" disabled={isManualSaving || !manualClientId}>
+                    <Check size={16} /> {isManualSaving ? "Registrando..." : "Registrar asistencia"}
+                  </button>
+                </div>
+              </form>
+            </div>,
+            document.body,
+          )}
 
           <div className="attendanceBottomGrid">
             <section className="attendancePanel attendanceChartPanel">

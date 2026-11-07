@@ -114,6 +114,46 @@ function getManaguaTime(date) {
   return `${values.hour}:${values.minute}`;
 }
 
+async function saveAttendance({ client, clientId, uid = "" }) {
+  const now = new Date();
+  const dateKey = getManaguaDateKey(now);
+  const hora = getManaguaTime(now);
+  const attendanceCollection = db.collection("asistencias");
+  const attendanceRef = attendanceCollection.doc(`${dateKey}_${clientId}`);
+  const legacyAttendanceRef = uid ? attendanceCollection.doc(`${dateKey}_${uid}`) : null;
+
+  return db.runTransaction(async (transaction) => {
+    const existingAttendance = await transaction.get(attendanceRef);
+    const legacyAttendance = legacyAttendanceRef
+      && legacyAttendanceRef.path !== attendanceRef.path
+      ? await transaction.get(legacyAttendanceRef)
+      : null;
+    const previousAttendance = existingAttendance.exists
+      ? existingAttendance
+      : legacyAttendance?.exists
+        ? legacyAttendance
+        : null;
+
+    if (previousAttendance) {
+      return { alreadyRegistered: true, hora: previousAttendance.data().hora, dateKey };
+    }
+
+    transaction.create(attendanceRef, {
+      uid,
+      clienteId: clientId,
+      nombre: String(client.nombre || "").trim(),
+      usuario: String(client.usuario || client.username || "").trim(),
+      membresia: String(client.membresia || client.tipoMembresia || "").trim(),
+      estadoMembresia: String(client.estadoPago || client.estado || "Activa").trim(),
+      fechaClave: dateKey,
+      hora,
+      ...(uid ? {} : { registroManual: true }),
+      creadoEn: FieldValue.serverTimestamp(),
+    });
+    return { alreadyRegistered: false, hora, dateKey };
+  });
+}
+
 exports.registrarAsistencia = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Inicia sesión para registrar tu asistencia.");
@@ -133,29 +173,7 @@ exports.registrarAsistencia = onCall(async (request) => {
       throw new HttpsError("failed-precondition", "No se encontró un perfil de cliente válido.");
     }
 
-    const now = new Date();
-    const dateKey = getManaguaDateKey(now);
-    const hora = getManaguaTime(now);
-    const attendanceRef = db.collection("asistencias").doc(`${dateKey}_${uid}`);
-    return await db.runTransaction(async (transaction) => {
-      const existingAttendance = await transaction.get(attendanceRef);
-      if (existingAttendance.exists) {
-        return { alreadyRegistered: true, hora: existingAttendance.data().hora, dateKey };
-      }
-
-      transaction.create(attendanceRef, {
-        uid,
-        clienteId: profile.clienteId,
-        nombre: String(client.nombre || "").trim(),
-        usuario: String(client.usuario || client.username || "").trim(),
-        membresia: String(client.membresia || client.tipoMembresia || "").trim(),
-        estadoMembresia: String(client.estadoPago || client.estado || "Activa").trim(),
-        fechaClave: dateKey,
-        hora,
-        creadoEn: FieldValue.serverTimestamp(),
-      });
-      return { alreadyRegistered: false, hora, dateKey };
-    });
+    return await saveAttendance({ client, clientId: profile.clienteId, uid });
   } catch (error) {
     if (error instanceof HttpsError) throw error;
     console.error("Error registrando asistencia:", error);
