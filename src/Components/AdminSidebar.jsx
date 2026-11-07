@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Apple,
@@ -6,13 +6,16 @@ import {
   FileText,
   House,
   LogOut,
+  Menu as MenuIcon,
   Package,
   QrCode,
   Receipt,
   ShoppingCart,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
+import logoPortGym from "../Imagen/logo-port-gym.png.png";
 import "../Styles/Home.css";
 
 const menuIcons = {
@@ -57,35 +60,76 @@ const parentRoutes = {
 export default function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const activePath = location.pathname.startsWith("/editar-receta/")
     ? "/nutricion"
     : parentRoutes[location.pathname] || location.pathname;
 
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setIsMobileMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileMenuOpen]);
+
   return (
-    <aside className="sidebar">
-      <div className="logoContainer">
-        <img src="/logo-port-gym.png" alt="Port Gym" className="logoImage" />
-      </div>
+    <>
+      <button
+        type="button"
+        className="mobileMenuToggle"
+        aria-label={isMobileMenuOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+        aria-expanded={isMobileMenuOpen}
+        aria-controls="admin-navigation"
+        onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+      >
+        {isMobileMenuOpen ? <X size={22} /> : <MenuIcon size={22} />}
+      </button>
 
-      <nav className="menu" aria-label="Navegación principal">
-        {menuItems.map((item) => {
-          const Icon = menuIcons[item.name];
-          const isActive = item.path === activePath;
+      {isMobileMenuOpen && (
+        <button
+          type="button"
+          className="mobileMenuBackdrop"
+          aria-label="Cerrar panel de navegación"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
-          return (
-            <button
-              key={item.name}
-              type="button"
-              className={`menuItem ${isActive ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
-              onClick={() => navigate(item.path)}
-              aria-current={isActive ? "page" : undefined}
-            >
-              <Icon size={18} strokeWidth={2} />
-              <span>{item.name}</span>
-            </button>
-          );
-        })}
-      </nav>
-    </aside>
+      <aside className={`sidebar ${isMobileMenuOpen ? "mobileMenuOpen" : ""}`}>
+        <div className="logoContainer">
+          <img src={logoPortGym} alt="Port Gym" className="logoImage" />
+        </div>
+
+        <nav className="menu" id="admin-navigation" aria-label="Navegación principal">
+          {menuItems.map((item) => {
+            const Icon = menuIcons[item.name];
+            const isActive = item.path === activePath;
+
+            return (
+              <button
+                key={item.name}
+                type="button"
+                className={`menuItem ${isActive ? "activeMenu" : ""} ${item.name === "Cerrar sesión" ? "logoutMenuItem" : ""}`}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  navigate(item.path);
+                }}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon size={18} strokeWidth={2} />
+                <span>{item.name}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }

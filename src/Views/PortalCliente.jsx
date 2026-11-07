@@ -5,6 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../assets/database/authcontext";
 import { db } from "../assets/database/firebaseconfig";
 import CambioContrasenaForm from "../Components/CambioContrasenaForm";
+import logoPortGym from "../Imagen/logo-port-gym.png.png";
 import { registerClientAttendance } from "../services/asistenciasService";
 import "../Styles/PortalCliente.css";
 
@@ -84,7 +85,7 @@ export default function PortalCliente() {
   return (
     <main className="clientPortal">
       <header className="clientPortalHeader">
-        <img src="/logo-port-gym.png" alt="Port Gym" />
+        <img src={logoPortGym} alt="Port Gym" />
         <button type="button" className="clientPortalLogout" onClick={handleLogout}>
           <LogOut size={17} />
           <span>Cerrar sesión</span>

@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import AdminSidebar from "../src/Components/AdminSidebar";
 
@@ -30,7 +30,8 @@ describe("AdminSidebar", () => {
   test("shows the same menu items in the reference order", () => {
     renderSidebar("/clientes");
 
-    expect(screen.getAllByRole("button").map((button) => button.textContent)).toEqual([
+    expect(within(screen.getByRole("navigation", { name: "Navegación principal" }))
+      .getAllByRole("button").map((button) => button.textContent)).toEqual([
       "Inicio",
       "Asistencia",
       "Clientes",
@@ -45,6 +46,25 @@ describe("AdminSidebar", () => {
       "Cerrar sesión",
     ]);
     expect(screen.getByRole("button", { name: "Clientes" })).toHaveClass("activeMenu");
+  });
+
+  test("opens and closes the mobile navigation", () => {
+    renderSidebar("/clientes");
+
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menú de navegación" }));
+    expect(screen.getByRole("button", { name: "Cerrar menú de navegación" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("navigation", { name: "Navegación principal" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar panel de navegación" }));
+    expect(screen.getByRole("button", { name: "Abrir menú de navegación" })).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menú de navegación" }));
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.getByRole("button", { name: "Abrir menú de navegación" })).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menú de navegación" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clientes" }));
+    expect(screen.getByRole("button", { name: "Abrir menú de navegación" })).toHaveAttribute("aria-expanded", "false");
   });
 
   test("keeps the inventory section active on its related screens", () => {

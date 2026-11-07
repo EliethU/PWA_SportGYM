@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../assets/database/firebaseconfig";
 import inicioImage from "../Imagen/inicio.jpg";
+import logoPortGym from "../Imagen/logo-port-gym.png.png";
 import "../Styles/Login.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -80,7 +81,7 @@ const Login = () => {
 
           {/* LOGO */}
           <img
-            src="/logo-port-gym.png"
+            src={logoPortGym}
             alt="Port Gym"
             className="login-logo"
           />
@@ -151,7 +152,7 @@ const Login = () => {
 
           <img
             src={inicioImage}
-            alt="Port Gym"
+            alt="Bienvenido a Sport Gym"
             className="gym-image"
           />
 
