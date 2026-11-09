@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { CalendarDays, CheckCircle2, CreditCard, LogOut, UserRound } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock3, CreditCard, LogOut, QrCode, UserRound } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../assets/database/authcontext";
 import { db } from "../assets/database/firebaseconfig";
@@ -16,6 +16,17 @@ const formatDate = (value) => {
   return new Intl.DateTimeFormat("es", { day: "2-digit", month: "long", year: "numeric" }).format(date);
 };
 
+const getManaguaDateKey = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Managua",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+};
+
 export default function PortalCliente() {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -27,6 +38,8 @@ export default function PortalCliente() {
   const [attendanceMessage, setAttendanceMessage] = useState("");
   const [attendanceError, setAttendanceError] = useState("");
   const [isRegisteringAttendance, setIsRegisteringAttendance] = useState(false);
+  const [currentAttendances, setCurrentAttendances] = useState([]);
+  const [isAttendanceLoading, setIsAttendanceLoading] = useState(true);
   const automaticAttendanceAttempted = useRef(false);
 
   const recordAttendance = useCallback(async () => {
@@ -35,6 +48,23 @@ export default function PortalCliente() {
     setIsRegisteringAttendance(true);
     try {
       const result = await registerClientAttendance(client, user.uid);
+      setCurrentAttendances((previous) => {
+        const attendanceDateKey = result.dateKey || getManaguaDateKey();
+        const attendanceId = `${attendanceDateKey}_${client.id}_qr`;
+        const currentQrAttendance = previous.find((attendance) => attendance.id === attendanceId);
+        return [
+          ...previous.filter((attendance) => attendance.id !== attendanceId),
+          {
+            ...currentQrAttendance,
+            id: attendanceId,
+            fechaClave: attendanceDateKey,
+            hora: result.hora,
+            membresia: String(client.membresia || client.tipoMembresia || "").trim(),
+            registroQr: true,
+            tipoRegistro: "QR",
+          },
+        ];
+      });
       setAttendanceMessage(result.alreadyRegistered
         ? `Tu asistencia de hoy ya estaba registrada (${result.hora}).`
         : `Asistencia registrada correctamente a las ${result.hora}.`);
@@ -72,12 +102,56 @@ export default function PortalCliente() {
 
         const clientSnapshot = await getDoc(doc(db, "clientes", clientId));
         if (!clientSnapshot.exists()) throw new Error("No se encontró el perfil del cliente.");
-        if (active) setClient({ ...clientSnapshot.data(), id: clientSnapshot.id });
+        const loadedClient = { ...clientSnapshot.data(), id: clientSnapshot.id };
+        if (active) setClient(loadedClient);
+
+        const dateKey = getManaguaDateKey();
+        const attendanceReferences = [
+          { reference: doc(db, "asistencias", `${dateKey}_${loadedClient.id}`), tipoRegistro: "Manual" },
+          { reference: doc(db, "asistencias", `${dateKey}_${loadedClient.id}_qr`), tipoRegistro: "QR" },
+          ...(loadedClient.uid && loadedClient.uid !== loadedClient.id
+            ? [{ reference: doc(db, "asistencias", `${dateKey}_${loadedClient.uid}`), tipoRegistro: "Manual" }]
+            : []),
+        ];
+        try {
+          const attendanceSnapshots = await Promise.all(
+            attendanceReferences.map(({ reference }) => getDoc(reference)),
+          );
+          if (active) {
+            const loadedAttendances = attendanceSnapshots.flatMap((snapshot, index) => {
+              if (!snapshot.exists()) return [];
+              const attendance = snapshot.data();
+              if (attendance.fechaClave !== dateKey || !attendance.hora) return [];
+              return [{
+                ...attendance,
+                id: snapshot.id,
+                membresia: attendance.membresia
+                  || loadedClient.membresia
+                  || loadedClient.tipoMembresia
+                  || "",
+                tipoRegistro: attendance.registroQr
+                  ? "QR"
+                  : attendanceReferences[index].tipoRegistro,
+              }];
+            });
+            setCurrentAttendances(loadedAttendances);
+          }
+        } catch (attendanceLoadError) {
+          console.error("No se pudo cargar la asistencia actual del cliente:", attendanceLoadError);
+          if (active) {
+            setAttendanceError("No se pudo consultar la asistencia de hoy. Revisa tu conexión e inténtalo de nuevo.");
+          }
+        } finally {
+          if (active) setIsAttendanceLoading(false);
+        }
       } catch (loadError) {
         console.error("Error al cargar el perfil del cliente:", loadError);
         if (active) setError("No se pudo cargar tu información. Contacta al administrador.");
       } finally {
-        if (active) setIsLoading(false);
+        if (active) {
+          setIsLoading(false);
+          setIsAttendanceLoading(false);
+        }
       }
     };
 
@@ -163,6 +237,40 @@ export default function PortalCliente() {
               <CheckCircle2 size={18} />
               {isRegisteringAttendance ? "Registrando..." : "Registrar asistencia"}
             </button>
+          </section>
+          <section className="clientCurrentAttendance" aria-label="Asistencia actual">
+            <div className="clientCurrentAttendanceHeading">
+              <Clock3 size={19} />
+              <div>
+                <h2>Asistencia de hoy</h2>
+                <p>{new Intl.DateTimeFormat("es-NI", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                  timeZone: "America/Managua",
+                }).format(new Date(`${getManaguaDateKey()}T12:00:00-06:00`))}</p>
+              </div>
+            </div>
+            {isAttendanceLoading ? (
+              <p className="clientCurrentAttendanceEmpty">Consultando tus registros...</p>
+            ) : currentAttendances.length ? (
+              <div className="clientCurrentAttendanceList">
+                {currentAttendances.map((attendance) => (
+                  <div className="clientCurrentAttendanceItem" key={attendance.id}>
+                    <span className="clientCurrentAttendanceType">
+                      {attendance.tipoRegistro === "QR" ? <QrCode size={16} /> : <UserRound size={16} />}
+                      {attendance.tipoRegistro}
+                    </span>
+                    <div className="clientCurrentAttendanceDetails">
+                      <strong>{attendance.hora}</strong>
+                      <span>{attendance.membresia || "Sin membresía"}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="clientCurrentAttendanceEmpty">Todavía no tienes asistencias registradas hoy.</p>
+            )}
           </section>
           <CambioContrasenaForm />
           </>

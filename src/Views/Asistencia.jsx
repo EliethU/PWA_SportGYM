@@ -109,6 +109,9 @@ const formatAttendanceDate = (attendance) => {
 };
 
 const formatTime = (attendance) => {
+  const recordedTime = getText(attendance.hora || attendance.horaAsistencia || attendance.time);
+  if (recordedTime) return recordedTime;
+
   const timestamp = attendance.creadoEn || attendance.createdAt || attendance.timestamp;
   let date = null;
   if (typeof timestamp?.toDate === "function") date = timestamp.toDate();
@@ -124,7 +127,7 @@ const formatTime = (attendance) => {
       }).format(date);
     }
   }
-  return getText(attendance.hora || attendance.horaAsistencia || attendance.time) || "—";
+  return "—";
 };
 
 const getInitials = (value = "") => getText(value)
@@ -234,13 +237,18 @@ export default function Asistencia() {
           || getText(attendance.nombreCliente)
           || getText(attendance.clienteNombre)
           || [getText(attendance.nombre), getText(attendance.apellido)].filter(Boolean).join(" ");
+        const client = clients.find((item) =>
+          (attendance.clienteId && item.id === attendance.clienteId)
+          || (attendance.uid && item.uid === attendance.uid),
+        );
         return {
           ...attendance,
           nombre: name || getText(attendance.usuario || attendance.username) || "Cliente",
           usuario: getText(attendance.usuario || attendance.username),
           clienteId: getText(attendance.clienteId),
           uid: getText(attendance.uid),
-          membresia: getText(attendance.membresia || attendance.tipoMembresia),
+          membresia: getText(attendance.membresia || attendance.tipoMembresia)
+            || getText(client?.membresia || client?.tipoMembresia),
           estadoMembresia: getText(attendance.estadoMembresia || attendance.estadoPago || attendance.estado || attendance.tipo),
         };
       })
@@ -419,7 +427,12 @@ export default function Asistencia() {
               {lastAttendance ? (
                 <strong>
                   {lastAttendance.nombre || "Cliente"}
-                  <span>{lastAttendance.usuario ? ` · Usuario: ${lastAttendance.usuario}` : ""} · {formatTime(lastAttendance)}</span>
+                  <span>
+                    {lastAttendance.usuario ? ` · Usuario: ${lastAttendance.usuario}` : ""}
+                    {lastAttendance.membresia ? ` · Membresía: ${lastAttendance.membresia}` : ""}
+                    {" · "}
+                    {formatTime(lastAttendance)}
+                  </span>
                 </strong>
               ) : (
                 <strong>{isLoading ? "Cargando registros..." : "Aún no hay asistencias para esta fecha"}</strong>
@@ -536,7 +549,12 @@ export default function Asistencia() {
                         <tr key={attendance.id}>
                           <td>{formatAttendanceDate(attendance)}</td>
                           <td>{formatTime(attendance)}</td>
-                          <td><span className="attendanceClientCell"><span className="attendanceAvatar">{getInitials(attendance.nombre)}</span><strong>{attendance.nombre || "Cliente"}</strong></span></td>
+                          <td>
+                            <span className="attendanceClientCell">
+                              <span className="attendanceAvatar">{getInitials(attendance.nombre)}</span>
+                              <strong>{attendance.nombre || "Cliente"}</strong>
+                            </span>
+                          </td>
                           <td><span className="attendanceMembership attendanceMembershipActive">{attendance.membresia || "Sin membresía"}</span></td>
                         </tr>
                       ))}
@@ -635,7 +653,10 @@ export default function Asistencia() {
                 {recentAttendances.map((attendance) => (
                   <div className="attendanceRecentItem" key={attendance.id}>
                     <span className="attendanceAvatar">{getInitials(attendance.nombre)}</span>
-                    <strong>{attendance.nombre || "Cliente"}</strong>
+                    <div className="attendanceRecentClient">
+                      <strong>{attendance.nombre || "Cliente"}</strong>
+                      <span>{attendance.membresia || "Sin membresía"}</span>
+                    </div>
                     <span className="attendanceRecentId">Usuario: {attendance.usuario || "—"}</span>
                     <time>{formatTime(attendance)}</time>
                     <span className="attendanceRegistered"><i /> Registrada</span>

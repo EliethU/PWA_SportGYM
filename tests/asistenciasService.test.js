@@ -64,6 +64,8 @@ describe("📅 Asistencias Service", () => {
       clienteId: "client-123",
       uid: "uid-123",
       registroQr: true,
+      membresia: "Mensual",
+      hora: expect.stringMatching(/^([01]\d|2[0-3]):[0-5]\d$/),
       creadoEn: "server-timestamp",
     }));
     expect(transaction.set.mock.calls[0][0].id).toMatch(/_client-123_qr$/);

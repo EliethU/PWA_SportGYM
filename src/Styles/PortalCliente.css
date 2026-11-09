@@ -123,6 +123,79 @@
   opacity: 0.7;
 }
 
+.clientCurrentAttendance {
+  margin-top: 16px;
+  padding: 18px 22px;
+  border: 1px solid #e0e5e5;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.clientCurrentAttendanceHeading,
+.clientCurrentAttendanceType {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.clientCurrentAttendanceHeading {
+  color: #078747;
+}
+
+.clientCurrentAttendanceHeading h2 {
+  margin: 0;
+  color: #172326;
+  font-size: 16px;
+}
+
+.clientCurrentAttendanceHeading p,
+.clientCurrentAttendanceEmpty {
+  margin: 4px 0 0;
+  color: #697778;
+  font-size: 12px;
+}
+
+.clientCurrentAttendanceList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.clientCurrentAttendanceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 190px;
+  padding: 11px 13px;
+  border: 1px solid #dce9df;
+  border-radius: 7px;
+  background: #f7fbf8;
+}
+
+.clientCurrentAttendanceType {
+  color: #52625b;
+  font-size: 12px;
+}
+
+.clientCurrentAttendanceItem strong {
+  color: #087b46;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.clientCurrentAttendanceDetails {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+}
+
+.clientCurrentAttendanceDetails span {
+  color: #697778;
+  font-size: 11px;
+}
+
 .clientPortalAttendanceSuccess {
   padding: 13px 16px;
   border: 1px solid #c9e8d4;

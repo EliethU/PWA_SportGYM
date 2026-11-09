@@ -228,6 +228,7 @@ describe("Casos de prueba PWA e integración", () => {
       mockRegisterClientAttendance.mockResolvedValue({
         alreadyRegistered: false,
         hora: "08:30",
+        dateKey: "2026-11-08",
       });
 
       render(
@@ -247,6 +248,9 @@ describe("Casos de prueba PWA e integración", () => {
       );
 
       expect(await screen.findByText(/Asistencia registrada correctamente a las 08:30/)).toBeInTheDocument();
+      expect(await screen.findByRole("region", { name: "Asistencia actual" })).toHaveTextContent("QR");
+      expect(screen.getByRole("region", { name: "Asistencia actual" })).toHaveTextContent("08:30");
+      expect(screen.getByRole("region", { name: "Asistencia actual" })).toHaveTextContent("Mensual");
       expect(mockRegisterClientAttendance).toHaveBeenCalledWith(
         expect.objectContaining({ id: "perfil-cliente-1" }),
         "cliente-1",

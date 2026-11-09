@@ -684,10 +684,24 @@
   border-bottom: 1px solid #f0f3f1;
 }
 
+.attendanceRecentClient {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
 .attendanceRecentItem strong {
   overflow: hidden;
   color: #263630;
   font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attendanceRecentClient span {
+  overflow: hidden;
+  color: #718078;
+  font-size: 9px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
