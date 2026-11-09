@@ -114,31 +114,64 @@ function getManaguaTime(date) {
   return `${values.hour}:${values.minute}`;
 }
 
+function isClientMembershipActive(client, now = new Date()) {
+  const membership = String(client?.membresia || client?.tipoMembresia || "").trim();
+  const normalize = (value) => String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase();
+  const paymentStatus = normalize(
+    client?.estadoPago || client?.pagoEstado || client?.estadoTransaccion,
+  );
+  const clientStatus = normalize(client?.estado);
+  const activePaymentStatus = ["activa", "activo", "pagad", "paid", "vigente"];
+  const expirationValue = client?.fechaVencimiento || client?.fechaFin || client?.fechaExpiracion;
+  let expirationDateKey = null;
+
+  if (typeof expirationValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(expirationValue)) {
+    expirationDateKey = expirationValue;
+  } else if (expirationValue) {
+    const expirationDate = typeof expirationValue?.toDate === "function"
+      ? expirationValue.toDate()
+      : expirationValue instanceof Date
+        ? expirationValue
+        : new Date(expirationValue);
+    expirationDateKey = Number.isNaN(expirationDate.getTime())
+      ? ""
+      : getManaguaDateKey(expirationDate);
+  }
+
+  return Boolean(
+    membership
+      && activePaymentStatus.some((status) => paymentStatus.includes(status))
+      && !["inactiv", "suspendid"].some((status) => clientStatus.includes(status))
+      && expirationDateKey !== ""
+      && (!expirationDateKey || expirationDateKey >= getManaguaDateKey(now)),
+  );
+}
+
 async function saveAttendance({ client, clientId, uid = "" }) {
   const now = new Date();
   const dateKey = getManaguaDateKey(now);
   const hora = getManaguaTime(now);
   const attendanceCollection = db.collection("asistencias");
   const attendanceRef = attendanceCollection.doc(`${dateKey}_${clientId}`);
+  const qrAttendanceRef = attendanceCollection.doc(`${dateKey}_${clientId}_qr`);
   const legacyAttendanceRef = uid ? attendanceCollection.doc(`${dateKey}_${uid}`) : null;
 
   return db.runTransaction(async (transaction) => {
     const existingAttendance = await transaction.get(attendanceRef);
+    const qrAttendance = uid ? await transaction.get(qrAttendanceRef) : null;
     const legacyAttendance = legacyAttendanceRef
       && legacyAttendanceRef.path !== attendanceRef.path
+      && legacyAttendanceRef.path !== qrAttendanceRef.path
       ? await transaction.get(legacyAttendanceRef)
       : null;
-    const previousAttendance = existingAttendance.exists
-      ? existingAttendance
-      : legacyAttendance?.exists
-        ? legacyAttendance
-        : null;
-
-    if (previousAttendance) {
-      return { alreadyRegistered: true, hora: previousAttendance.data().hora, dateKey };
+    if (qrAttendance?.exists) {
+      return { alreadyRegistered: true, hora: qrAttendance.data().hora, dateKey };
     }
 
-    transaction.create(attendanceRef, {
+    const attendanceData = {
       uid,
       clienteId: clientId,
       nombre: String(client.nombre || "").trim(),
@@ -147,9 +180,24 @@ async function saveAttendance({ client, clientId, uid = "" }) {
       estadoMembresia: String(client.estadoPago || client.estado || "Activa").trim(),
       fechaClave: dateKey,
       hora,
-      ...(uid ? {} : { registroManual: true }),
+      ...(uid ? { registroQr: true } : { registroManual: true }),
       creadoEn: FieldValue.serverTimestamp(),
-    });
+    };
+
+    if (existingAttendance.exists) {
+      if (existingAttendance.data().registroManual && uid) {
+        transaction.create(qrAttendanceRef, attendanceData);
+        return { alreadyRegistered: false, hora, dateKey, qrAfterManual: true };
+      }
+
+      return { alreadyRegistered: true, hora: existingAttendance.data().hora, dateKey };
+    }
+
+    if (legacyAttendance?.exists) {
+      return { alreadyRegistered: true, hora: legacyAttendance.data().hora, dateKey };
+    }
+
+    transaction.create(attendanceRef, attendanceData);
     return { alreadyRegistered: false, hora, dateKey };
   });
 }
@@ -171,6 +219,9 @@ exports.registrarAsistencia = onCall(async (request) => {
     const client = clientSnapshot.data();
     if (!clientSnapshot.exists || client?.uid !== uid) {
       throw new HttpsError("failed-precondition", "No se encontró un perfil de cliente válido.");
+    }
+    if (!isClientMembershipActive(client)) {
+      throw new HttpsError("permission-denied", "Solo se puede registrar asistencia con una membresía activa.");
     }
 
     return await saveAttendance({ client, clientId: profile.clienteId, uid });

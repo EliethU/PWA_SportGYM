@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">2.54% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/118</span>
+                <span class='fraction'>0/118</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">2.88% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/104</span>
+                <span class='fraction'>0/104</span>
             </div>
         
             
@@ -502,16 +502,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -520,20 +510,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -545,7 +533,19 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -910,7 +910,7 @@ import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Clientes.css";
 &nbsp;
-const getClientPaymentStatus = <span class="fstat-no" title="function not covered" >(c</span>lient) =&gt; {
+const getClientPaymentStatus = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(c</span>lient) =&gt; {</span>
   const rawStatus = <span class="cstat-no" title="statement not covered" >String(</span>
     client.estadoPago || client.pagoEstado || client.estadoTransaccion || client.estado || "",
   )
@@ -941,7 +941,7 @@ const getClientPaymentStatus = <span class="fstat-no" title="function not covere
 <span class="cstat-no" title="statement not covered" >  return "pendiente";</span>
 };
 &nbsp;
-const formatDate = <span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; {
+const formatDate = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  if (!value) <span class="cstat-no" title="statement not covered" >return "-";</span></span>
 <span class="cstat-no" title="statement not covered" >  if (typeof value === "string" &amp;&amp; /^\d{4}-\d{2}-\d{2}$/.test(value)) {</span>
     const [, year, month, day] = <span class="cstat-no" title="statement not covered" >value.match(/^(\d{4})-(\d{2})-(\d{2})$/);</span>
@@ -953,7 +953,7 @@ const formatDate = <span class="fstat-no" title="function not covered" >(v</span
 <span class="cstat-no" title="statement not covered" >  return new Intl.DateTimeFormat("es", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);</span>
 };
 &nbsp;
-const formatMembership = <span class="fstat-no" title="function not covered" >(m</span>embership) =&gt;
+const formatMembership = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(m</span>embership) =&gt;</span>
 <span class="cstat-no" title="statement not covered" >  membership ? membership.charAt(0).toUpperCase() + membership.slice(1) : "-";</span>
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >Clientes(</span>) {
@@ -1294,7 +1294,7 @@ export default function <span class="fstat-no" title="function not covered" >Cli
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-21T19:15:32.960Z
+                at 2026-11-09T01:36:04.824Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

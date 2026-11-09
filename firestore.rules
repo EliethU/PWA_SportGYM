@@ -4,7 +4,10 @@ rules_version = '2';
 // usuarios/{uid}: uid, email, rol (admin|cliente), clienteId, creadoEn.
 // clientes/{id}: uid, nombre, telefono, correo, usuario, membresia,
 // fechaInicio, notas, estado, estadoPago, contrasena, creadoEn. Client records
-// are readable as a collection only by administrators.
+// are readable by administrators and by an authenticated client whose UID or
+// email matches the profile.
+// asistencias/{fecha_clienteId}: uid, clienteId, nombre, usuario, membresia,
+// estadoMembresia, fechaClave (YYYY-MM-DD), hora (HH:mm), registroQr, creadoEn.
 // Administrative collections (planes, pagos, ventas, gastos, inventario, etc.)
 // are accessed only by an administrator.
 service cloud.firestore {
@@ -21,6 +24,134 @@ service cloud.firestore {
 
     function isOwner(uid) {
       return signedIn() && request.auth.uid == uid;
+    }
+
+    function getClientAccountPath() {
+      return /databases/$(database)/documents/usuarios/$(request.auth.uid);
+    }
+
+    function isOwnAttendanceDocument(attendanceId) {
+      let accountPath = getClientAccountPath();
+      let account = get(accountPath).data;
+      return signedIn()
+        && exists(accountPath)
+        && account.rol == 'cliente'
+        && account.clienteId is string
+        && account.clienteId.size() > 0
+        && account.clienteId.matches('^[A-Za-z0-9_-]{1,128}$')
+        && request.auth.uid.matches('^[A-Za-z0-9_-]{1,128}$')
+        && (
+          attendanceId.matches('^\\d{4}-\\d{2}-\\d{2}_' + account.clienteId + '(_qr)?$')
+          || attendanceId.matches('^\\d{4}-\\d{2}-\\d{2}_' + request.auth.uid + '$')
+        );
+    }
+
+    function managuaDateKey() {
+      let localDate = request.time - duration.value(6, 'h');
+      let month = localDate.month();
+      let day = localDate.day();
+      return string(localDate.year())
+        + '-' + (month < 10 ? '0' : '') + string(month)
+        + '-' + (day < 10 ? '0' : '') + string(day);
+    }
+
+    function hasActiveClientMembership(client) {
+      let membership = ('membresia' in client && client.membresia is string)
+        ? client.membresia
+        : (('tipoMembresia' in client && client.tipoMembresia is string)
+          ? client.tipoMembresia
+          : '');
+      let paymentStatus = ('estadoPago' in client && client.estadoPago is string)
+        ? client.estadoPago.lower()
+        : '';
+      let clientStatus = ('estado' in client && client.estado is string)
+        ? client.estado.lower()
+        : '';
+      return membership.size() > 0
+        && paymentStatus in ['pagado', 'paid', 'activo', 'activa', 'vigente']
+        && clientStatus != 'inactivo'
+        && clientStatus != 'suspendido'
+        && (
+          !('fechaVencimiento' in client)
+          || (
+            client.fechaVencimiento is string
+            && (
+              client.fechaVencimiento == ''
+              || (
+                client.fechaVencimiento.matches('^\\d{4}-\\d{2}-\\d{2}$')
+                && client.fechaVencimiento >= managuaDateKey()
+              )
+            )
+          )
+        );
+    }
+
+    function isValidClientQrAttendance(attendanceId, data) {
+      let accountPath = getClientAccountPath();
+      let account = get(accountPath).data;
+      let clientPath = /databases/$(database)/documents/clientes/$(account.clienteId);
+      let client = get(clientPath).data;
+      let clientName = ('nombre' in client && client.nombre is string)
+        ? client.nombre.trim()
+        : '';
+      let clientUsername = ('usuario' in client && client.usuario is string)
+        ? client.usuario.trim()
+        : (('username' in client && client.username is string) ? client.username.trim() : '');
+      let clientMembership = ('membresia' in client && client.membresia is string)
+        ? client.membresia.trim()
+        : (('tipoMembresia' in client && client.tipoMembresia is string) ? client.tipoMembresia.trim() : '');
+      let clientMembershipState = ('estadoPago' in client && client.estadoPago is string && client.estadoPago != '')
+        ? client.estadoPago.trim()
+        : (('estado' in client && client.estado is string && client.estado != '')
+          ? client.estado.trim()
+          : 'Activa');
+      return signedIn()
+        && exists(accountPath)
+        && account.rol == 'cliente'
+        && account.clienteId is string
+        && account.clienteId.size() > 0
+        && exists(clientPath)
+        && client.uid == request.auth.uid
+        && hasActiveClientMembership(client)
+        && data.keys().hasAll([
+          'uid', 'clienteId', 'nombre', 'usuario', 'membresia',
+          'estadoMembresia', 'fechaClave', 'hora', 'registroQr', 'creadoEn'
+        ])
+        && data.keys().hasOnly([
+          'uid', 'clienteId', 'nombre', 'usuario', 'membresia',
+          'estadoMembresia', 'fechaClave', 'hora', 'registroQr', 'creadoEn'
+        ])
+        && data.uid == request.auth.uid
+        && data.clienteId == account.clienteId
+        && data.fechaClave == managuaDateKey()
+        && data.hora is string
+        && data.hora.matches('^([01]\\d|2[0-3]):[0-5]\\d$')
+        && data.nombre is string
+        && data.nombre.size() <= 120
+        && data.nombre == clientName
+        && data.usuario is string
+        && data.usuario.size() <= 80
+        && data.usuario == clientUsername
+        && data.membresia is string
+        && data.membresia.size() <= 80
+        && data.membresia == clientMembership
+        && data.estadoMembresia is string
+        && data.estadoMembresia.size() <= 40
+        && data.estadoMembresia == clientMembershipState
+        && data.registroQr == true
+        && data.creadoEn == request.time
+        && attendanceId == data.fechaClave + '_' + account.clienteId + '_qr';
+    }
+
+    function isAuthenticatedClientProfile(data) {
+      return signedIn()
+        && (
+          data.uid == request.auth.uid
+          || (
+            request.auth.token.email is string
+            && data.correo == request.auth.token.email
+          )
+        );
     }
 
     function validShortString(data, field, maxLength) {
@@ -79,10 +210,17 @@ service cloud.firestore {
     }
 
     match /clientes/{clienteId} {
-      allow get: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
-      allow list: if isAdmin();
+      allow get: if isAdmin() || isAuthenticatedClientProfile(resource.data);
+      allow list: if isAdmin() || isAuthenticatedClientProfile(resource.data);
       allow create, update: if isAdmin() && validClient(request.resource.data);
       allow delete: if isAdmin();
+    }
+
+    match /asistencias/{attendanceId} {
+      allow get: if isAdmin() || isOwnAttendanceDocument(attendanceId);
+      allow list: if isAdmin();
+      allow create: if isAdmin() || isValidClientQrAttendance(attendanceId, request.resource.data);
+      allow update, delete: if isAdmin();
     }
 
     match /{document=**} {

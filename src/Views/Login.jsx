@@ -47,7 +47,7 @@ const Login = () => {
         navigate("/terminos");
       } else if (role === "cliente") {
         const requestedPath = location.state?.from;
-        const destination = requestedPath?.pathname === "/cliente"
+        const destination = ["/cliente", "/cliente/registrar-asistencia"].includes(requestedPath?.pathname)
           ? `${requestedPath.pathname}${requestedPath.search || ""}`
           : "/cliente";
         navigate(destination, { replace: true });

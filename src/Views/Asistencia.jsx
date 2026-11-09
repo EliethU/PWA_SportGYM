@@ -150,7 +150,7 @@ export default function Asistencia() {
   const [qrData, setQrData] = useState("");
   const qrUrl = useMemo(() => {
     const appUrl = (import.meta.env.VITE_APP_URL || window.location.origin).replace(/\/+$/, "");
-    return `${appUrl}/cliente?registrarAsistencia=1`;
+    return `${appUrl}/cliente/registrar-asistencia`;
   }, []);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);

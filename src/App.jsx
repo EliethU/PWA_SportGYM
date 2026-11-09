@@ -45,6 +45,7 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route element={<ProtectedRoute requiredRole="cliente" />}>
               <Route path="/cliente" element={<PortalCliente />} />
+              <Route path="/cliente/registrar-asistencia" element={<PortalCliente />} />
             </Route>
             <Route element={<ProtectedRoute requiredRole="admin" />}>
               <Route path="/terminos" element={<Terminos />} />

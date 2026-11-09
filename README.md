@@ -2,9 +2,9 @@
 
 ## Control de asistencia
 
-La vista administrativa **Asistencia** genera un QR permanente que enlaza con el portal del cliente. El cliente debe iniciar sesión; una Cloud Function obtiene su perfil autenticado y guarda como máximo una asistencia diaria en `asistencias`. El panel administrativo escucha esos registros en tiempo real.
+La vista administrativa **Asistencia** genera un QR permanente que enlaza con la ruta `/cliente/registrar-asistencia`. El cliente debe iniciar sesión; la app registra la visita directamente en Firestore y las reglas limitan la operación al perfil autenticado del cliente con membresía vigente. Si la asistencia se anotó manualmente, el primer escaneo del QR del día agrega un registro QR; los siguientes escaneos no duplican ese registro. El panel administrativo escucha esos registros en tiempo real. Los QR anteriores que usen `?registrarAsistencia=1` siguen funcionando; vuelve a descargar e imprimir el QR si el anterior solo abre `/cliente`.
 
-Configura `VITE_APP_URL` con la URL definitiva del sitio antes de compilar y publicar para que el QR impreso siga apuntando al mismo dominio. Si se omite, se utiliza el origen actual de la aplicación. Publica la función con `npm --prefix functions run deploy` desde la raíz del proyecto.
+Configura `VITE_APP_URL` con la URL definitiva del sitio antes de compilar y publicar para que el QR impreso siga apuntando al mismo dominio. Si se omite, se utiliza el origen actual de la aplicación. Para que el QR use el registro directo, publica el frontend actualizado.
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 

@@ -20,7 +20,7 @@ const mockAddDoc = jest.fn();
 const mockUpdateDoc = jest.fn();
 const mockDeleteDoc = jest.fn();
 const mockServerTimestamp = jest.fn(() => "mock-timestamp");
-const mockHttpsCallable = jest.fn();
+const mockRegisterClientAttendance = jest.fn();
 const mockUseAuth = jest.fn();
 
 jest.mock("firebase/auth", () => ({
@@ -38,9 +38,8 @@ jest.mock("firebase/firestore", () => ({
   updateDoc: (...args) => mockUpdateDoc(...args),
 }));
 
-jest.mock("firebase/functions", () => ({
-  getFunctions: jest.fn(() => ({})),
-  httpsCallable: (...args) => mockHttpsCallable(...args),
+jest.mock("../src/services/asistenciasService", () => ({
+  registerClientAttendance: (...args) => mockRegisterClientAttendance(...args),
 }));
 
 jest.mock("../src/assets/database/firebaseconfig", () => ({
@@ -84,6 +83,45 @@ describe("Casos de prueba PWA e integración", () => {
   });
 
   describe("PWA-001: acceso autorizado y rechazo de credenciales inválidas", () => {
+    test("mantiene la ruta de escaneo al iniciar sesión como cliente", async () => {
+      mockSignIn.mockResolvedValue({ user: { uid: "cliente-1" } });
+      mockGetDoc.mockResolvedValue({
+        exists: () => true,
+        data: () => ({ rol: "cliente" }),
+      });
+
+      render(
+        <MemoryRouter initialEntries={[{
+          pathname: "/",
+          state: { from: { pathname: "/cliente/registrar-asistencia" } },
+        }]}
+        >
+          <Routes>
+            <Route
+              path="*"
+              element={(
+                <>
+                  <Login />
+                  <CurrentPath />
+                </>
+              )}
+            />
+          </Routes>
+        </MemoryRouter>,
+      );
+      fireEvent.change(screen.getByPlaceholderText("Correo electrónico"), {
+        target: { value: "cliente@example.com" },
+      });
+      fireEvent.change(screen.getByPlaceholderText("Contraseña"), {
+        target: { value: "password-correcta" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: /Iniciar sesión/ }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("current-path")).toHaveTextContent("/cliente/registrar-asistencia");
+      });
+    });
+
     test("permite el acceso válido y dirige al usuario según su rol", async () => {
       mockSignIn.mockResolvedValue({ user: { uid: "admin-1" } });
       mockGetDoc.mockResolvedValue({
@@ -167,6 +205,104 @@ describe("Casos de prueba PWA e integración", () => {
   });
 
   describe("INT-003: asistencia visible y aviso de duplicidad", () => {
+    test("registra automáticamente al abrir la ruta del QR", async () => {
+      mockUseAuth.mockReturnValue({
+        user: { uid: "cliente-1", displayName: "Cliente A", email: "a@example.com" },
+        logout: jest.fn(),
+      });
+      mockGetDoc.mockImplementation(async (reference) => {
+        if (reference.collectionName === "usuarios") {
+          return { data: () => ({ clienteId: "perfil-cliente-1" }) };
+        }
+        return {
+          id: "perfil-cliente-1",
+          exists: () => true,
+          data: () => ({
+            nombre: "Cliente A",
+            membresia: "Mensual",
+            estadoPago: "pagado",
+            correo: "a@example.com",
+          }),
+        };
+      });
+      mockRegisterClientAttendance.mockResolvedValue({
+        alreadyRegistered: false,
+        hora: "08:30",
+      });
+
+      render(
+        <MemoryRouter initialEntries={["/cliente/registrar-asistencia"]}>
+          <Routes>
+            <Route
+              path="*"
+              element={(
+                <>
+                  <PortalCliente />
+                  <CurrentPath />
+                </>
+              )}
+            />
+          </Routes>
+        </MemoryRouter>,
+      );
+
+      expect(await screen.findByText(/Asistencia registrada correctamente a las 08:30/)).toBeInTheDocument();
+      expect(mockRegisterClientAttendance).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "perfil-cliente-1" }),
+        "cliente-1",
+      );
+      expect(mockRegisterClientAttendance).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(screen.getByTestId("current-path")).toHaveTextContent("/cliente");
+      });
+    });
+
+    test("mantiene visible el error si falla el registro automático del QR", async () => {
+      mockUseAuth.mockReturnValue({
+        user: { uid: "cliente-1", displayName: "Cliente A", email: "a@example.com" },
+        logout: jest.fn(),
+      });
+      mockGetDoc.mockImplementation(async (reference) => {
+        if (reference.collectionName === "usuarios") {
+          return { data: () => ({ clienteId: "perfil-cliente-1" }) };
+        }
+        return {
+          exists: () => true,
+          data: () => ({
+            nombre: "Cliente A",
+            membresia: "Mensual",
+            estadoPago: "pagado",
+            correo: "a@example.com",
+          }),
+        };
+      });
+      mockRegisterClientAttendance.mockRejectedValue({
+        code: "permission-denied",
+        message: "Firebase no permitió registrar la asistencia.",
+      });
+
+      render(
+        <MemoryRouter initialEntries={["/cliente/registrar-asistencia"]}>
+          <Routes>
+            <Route
+              path="*"
+              element={(
+                <>
+                  <PortalCliente />
+                  <CurrentPath />
+                </>
+              )}
+            />
+          </Routes>
+        </MemoryRouter>,
+      );
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "Esta cuenta no puede registrar asistencia. Verifica que su perfil tenga una membresía pagada y vigente.",
+      );
+      expect(screen.getByTestId("current-path")).toHaveTextContent("/cliente/registrar-asistencia");
+    });
+
     test("informa que la asistencia diaria ya estaba registrada", async () => {
       mockUseAuth.mockReturnValue({
         user: { uid: "cliente-1", displayName: "Cliente A", email: "a@example.com" },
@@ -186,13 +322,10 @@ describe("Casos de prueba PWA e integración", () => {
           }),
         };
       });
-      const registerAttendance = jest.fn().mockResolvedValue({
-        data: {
-          alreadyRegistered: true,
-          hora: "08:30",
-        },
+      mockRegisterClientAttendance.mockResolvedValue({
+        alreadyRegistered: true,
+        hora: "08:30",
       });
-      mockHttpsCallable.mockReturnValue(registerAttendance);
 
       render(
         <MemoryRouter initialEntries={["/cliente"]}>
@@ -203,7 +336,7 @@ describe("Casos de prueba PWA e integración", () => {
       fireEvent.click(await screen.findByRole("button", { name: /Registrar asistencia/ }));
 
       expect(await screen.findByText(/ya estaba registrada \(08:30\)/)).toBeInTheDocument();
-      expect(registerAttendance).toHaveBeenCalledTimes(1);
+      expect(mockRegisterClientAttendance).toHaveBeenCalledTimes(1);
     });
   });
 

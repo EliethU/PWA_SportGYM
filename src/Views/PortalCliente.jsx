@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { CalendarDays, CheckCircle2, CreditCard, LogOut, UserRound } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../assets/database/authcontext";
@@ -18,6 +18,7 @@ const formatDate = (value) => {
 
 export default function PortalCliente() {
   const { user, logout } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [client, setClient] = useState(null);
@@ -33,17 +34,32 @@ export default function PortalCliente() {
     setAttendanceMessage("");
     setIsRegisteringAttendance(true);
     try {
-      const result = await registerClientAttendance();
+      const result = await registerClientAttendance(client, user.uid);
       setAttendanceMessage(result.alreadyRegistered
         ? `Tu asistencia de hoy ya estaba registrada (${result.hora}).`
         : `Asistencia registrada correctamente a las ${result.hora}.`);
+      return true;
     } catch (attendanceRequestError) {
       console.error("No se pudo registrar la asistencia del cliente:", attendanceRequestError);
-      setAttendanceError(attendanceRequestError.message || "No se pudo registrar tu asistencia. Inténtalo de nuevo.");
+      const errorCode = typeof attendanceRequestError?.code === "string"
+        ? attendanceRequestError.code.split("/").pop()
+        : "";
+      const errorMessages = {
+        "unauthenticated": "Tu sesión no está activa. Inicia sesión con la cuenta del cliente y vuelve a escanear el QR.",
+        "permission-denied": "Esta cuenta no puede registrar asistencia. Verifica que su perfil tenga una membresía pagada y vigente.",
+        "failed-precondition": "No se encontró un perfil de cliente válido vinculado a esta cuenta.",
+        "unavailable": "No hay conexión con Firebase. Revisa internet e inténtalo de nuevo.",
+      };
+      setAttendanceError(
+        errorMessages[errorCode]
+          || attendanceRequestError.message
+          || "No se pudo registrar tu asistencia. Inténtalo de nuevo.",
+      );
+      return false;
     } finally {
       setIsRegisteringAttendance(false);
     }
-  }, []);
+  }, [client, user.uid]);
 
   useEffect(() => {
     let active = true;
@@ -56,7 +72,7 @@ export default function PortalCliente() {
 
         const clientSnapshot = await getDoc(doc(db, "clientes", clientId));
         if (!clientSnapshot.exists()) throw new Error("No se encontró el perfil del cliente.");
-        if (active) setClient(clientSnapshot.data());
+        if (active) setClient({ ...clientSnapshot.data(), id: clientSnapshot.id });
       } catch (loadError) {
         console.error("Error al cargar el perfil del cliente:", loadError);
         if (active) setError("No se pudo cargar tu información. Contacta al administrador.");
@@ -72,10 +88,14 @@ export default function PortalCliente() {
   }, [user.uid]);
 
   useEffect(() => {
-    if (!client || searchParams.get("registrarAsistencia") !== "1" || automaticAttendanceAttempted.current) return;
+    const isQrAttendanceRequest = location.pathname === "/cliente/registrar-asistencia"
+      || searchParams.get("registrarAsistencia") === "1";
+    if (!client || !isQrAttendanceRequest || automaticAttendanceAttempted.current) return;
     automaticAttendanceAttempted.current = true;
-    recordAttendance().finally(() => navigate("/cliente", { replace: true }));
-  }, [client, navigate, recordAttendance, searchParams]);
+    recordAttendance().then((registered) => {
+      if (registered) navigate("/cliente", { replace: true });
+    });
+  }, [client, location.pathname, navigate, recordAttendance, searchParams]);
 
   const handleLogout = async () => {
     await logout();
@@ -132,7 +152,7 @@ export default function PortalCliente() {
           <section className="clientAttendancePanel" aria-label="Registrar asistencia">
             <div>
               <h2>Asistencia al gimnasio</h2>
-              <p>Registra tu visita con tu cuenta. Solo se permite una asistencia por día.</p>
+                  <p>Registra tu visita con tu cuenta. Si ya fue anotada manualmente, el escaneo del QR agrega tu registro.</p>
             </div>
             <button
               type="button"

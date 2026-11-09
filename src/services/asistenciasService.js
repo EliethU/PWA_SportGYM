@@ -1,4 +1,3 @@
-import { getFunctions, httpsCallable } from "firebase/functions";
 import {
   collection,
   doc,
@@ -6,9 +5,8 @@ import {
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
-import { appfirebase, db } from "../assets/database/firebaseconfig";
+import { db } from "../assets/database/firebaseconfig";
 
-const functions = getFunctions(appfirebase);
 const MANAGUA_TIME_ZONE = "America/Managua";
 const normalizeStatus = (value) => String(value || "")
   .normalize("NFD")
@@ -83,10 +81,64 @@ export const subscribeToAttendances = (onAttendances, onError) => onSnapshot(
   onError,
 );
 
-export const registerClientAttendance = async () => {
-  const registerAttendance = httpsCallable(functions, "registrarAsistencia");
-  const response = await registerAttendance();
-  return response.data;
+export const registerClientAttendance = async (client, uid) => {
+  const clientId = typeof client?.id === "string" ? client.id.trim() : "";
+  if (!uid || !clientId || clientId.length > 128 || clientId.includes("/")) {
+    throw new Error("No se encontró un perfil de cliente válido.");
+  }
+  if (client.uid !== uid) {
+    throw new Error("Esta cuenta no está vinculada al perfil de cliente.");
+  }
+  if (!isClientMembershipActive(client)) {
+    throw new Error("Solo se puede registrar asistencia con una membresía activa.");
+  }
+
+  const { dateKey, hora } = getManaguaAttendanceTime();
+  const attendanceCollection = collection(db, "asistencias");
+  const attendanceReference = doc(attendanceCollection, `${dateKey}_${clientId}`);
+  const qrAttendanceReference = doc(attendanceCollection, `${dateKey}_${clientId}_qr`);
+  const legacyAttendanceReference = doc(attendanceCollection, `${dateKey}_${uid}`);
+
+  return runTransaction(db, async (transaction) => {
+    const existingAttendance = await transaction.get(attendanceReference);
+    const qrAttendance = await transaction.get(qrAttendanceReference);
+    const legacyAttendance = legacyAttendanceReference.path !== attendanceReference.path
+      ? await transaction.get(legacyAttendanceReference)
+      : null;
+
+    if (qrAttendance.exists()) {
+      return { alreadyRegistered: true, hora: qrAttendance.data()?.hora || "—", dateKey };
+    }
+
+    const attendanceData = {
+      uid,
+      clienteId: clientId,
+      nombre: String(client.nombre || "").trim(),
+      usuario: String(client.usuario || client.username || "").trim(),
+      membresia: String(client.membresia || client.tipoMembresia || "").trim(),
+      estadoMembresia: String(client.estadoPago || client.estado || "Activa").trim(),
+      fechaClave: dateKey,
+      hora,
+      registroQr: true,
+      creadoEn: serverTimestamp(),
+    };
+
+    if (existingAttendance.exists() && !existingAttendance.data()?.registroManual) {
+      return { alreadyRegistered: true, hora: existingAttendance.data()?.hora || "—", dateKey };
+    }
+
+    if (legacyAttendance?.exists() && !legacyAttendance.data()?.registroManual) {
+      return { alreadyRegistered: true, hora: legacyAttendance.data()?.hora || "—", dateKey };
+    }
+
+    transaction.set(qrAttendanceReference, attendanceData);
+    return {
+      alreadyRegistered: false,
+      hora,
+      dateKey,
+      ...(existingAttendance.exists() || legacyAttendance?.exists() ? { qrAfterManual: true } : {}),
+    };
+  });
 };
 
 export const registerManualAttendance = async (client) => {
