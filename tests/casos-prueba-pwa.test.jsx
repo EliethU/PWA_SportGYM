@@ -9,7 +9,6 @@ import {
   updateProduct,
 } from "../src/services/productosService";
 import { registerClientAttendance } from "../src/services/asistenciasService";
-import { useAuth } from "../src/assets/database/authcontext";
 
 const mockSignIn = jest.fn();
 const mockSignOut = jest.fn();
@@ -22,10 +21,21 @@ const mockDeleteDoc = jest.fn();
 const mockServerTimestamp = jest.fn(() => "mock-timestamp");
 const mockRegisterClientAttendance = jest.fn();
 const mockUseAuth = jest.fn();
+const mockQrScannerStart = jest.fn();
+const mockQrScannerStop = jest.fn();
 
 jest.mock("firebase/auth", () => ({
   signInWithEmailAndPassword: (...args) => mockSignIn(...args),
   signOut: (...args) => mockSignOut(...args),
+}));
+
+jest.mock("html5-qrcode", () => ({
+  Html5Qrcode: jest.fn().mockImplementation(() => ({
+    start: (...args) => mockQrScannerStart(...args),
+    stop: (...args) => mockQrScannerStop(...args),
+    clear: jest.fn(),
+    isScanning: true,
+  })),
 }));
 
 jest.mock("firebase/firestore", () => ({
@@ -80,6 +90,8 @@ function renderLogin() {
 describe("Casos de prueba PWA e integración", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockQrScannerStart.mockResolvedValue(null);
+    mockQrScannerStop.mockResolvedValue();
   });
 
   describe("PWA-001: acceso autorizado y rechazo de credenciales inválidas", () => {
@@ -337,10 +349,56 @@ describe("Casos de prueba PWA e integración", () => {
         </MemoryRouter>,
       );
 
-      fireEvent.click(await screen.findByRole("button", { name: /Registrar asistencia/ }));
+      fireEvent.click(await screen.findByRole("button", { name: /Registrar sin escanear/ }));
 
       expect(await screen.findByText(/ya estaba registrada \(08:30\)/)).toBeInTheDocument();
       expect(mockRegisterClientAttendance).toHaveBeenCalledTimes(1);
+    });
+
+    test("registra asistencia al escanear el QR del gimnasio desde la cámara del portal", async () => {
+      mockUseAuth.mockReturnValue({
+        user: { uid: "cliente-1", displayName: "Cliente A", email: "a@example.com" },
+        logout: jest.fn(),
+      });
+      mockGetDoc.mockImplementation(async (reference) => {
+        if (reference.collectionName === "usuarios") {
+          return { data: () => ({ clienteId: "perfil-cliente-1" }) };
+        }
+        return {
+          id: "perfil-cliente-1",
+          exists: () => true,
+          data: () => ({
+            nombre: "Cliente A",
+            membresia: "Mensual",
+            estadoPago: "pagado",
+            correo: "a@example.com",
+          }),
+        };
+      });
+      mockRegisterClientAttendance.mockResolvedValue({
+        alreadyRegistered: false,
+        hora: "08:30",
+        dateKey: "2026-11-09",
+      });
+
+      render(
+        <MemoryRouter initialEntries={["/cliente"]}>
+          <PortalCliente />
+        </MemoryRouter>,
+      );
+
+      fireEvent.click(await screen.findByRole("button", { name: "Escanear código QR" }));
+      await waitFor(() => expect(mockQrScannerStart).toHaveBeenCalled());
+      const onQrCodeDetected = mockQrScannerStart.mock.calls[0][2];
+      await onQrCodeDetected("https://sportgym-2b2f8.web.app/cliente/registrar-asistencia");
+
+      expect(mockRegisterClientAttendance).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "perfil-cliente-1" }),
+        "cliente-1",
+      );
+      expect(await screen.findByText("Asistencia registrada correctamente a las 08:30.")).toBeInTheDocument();
+      expect(screen.getByRole("region", { name: "Asistencia actual" })).toHaveTextContent("08:30");
+      expect(mockQrScannerStop).toHaveBeenCalled();
     });
   });
 

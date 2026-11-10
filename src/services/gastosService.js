@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteField, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "../assets/database/firebaseconfig";
 
@@ -97,4 +97,10 @@ export const markExpenseAsPaid = async (expenseId, metodo) => updateDoc(doc(db, 
   estado: "Pagado",
   metodo,
   pagadoEn: serverTimestamp(),
+});
+
+export const updateExpense = async (expenseId, expense, paidAt) => updateDoc(doc(db, "gastos", expenseId), {
+  ...expense,
+  pagadoEn: expense.estado === "Pagado" ? paidAt || serverTimestamp() : deleteField(),
+  actualizadoEn: serverTimestamp(),
 });

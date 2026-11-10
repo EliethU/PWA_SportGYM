@@ -152,7 +152,7 @@ export default function Asistencia() {
   const [isClientsLoading, setIsClientsLoading] = useState(true);
   const [qrData, setQrData] = useState("");
   const qrUrl = useMemo(() => {
-    const appUrl = (import.meta.env.VITE_APP_URL || window.location.origin).replace(/\/+$/, "");
+    const appUrl = (import.meta.env.VITE_APP_URL || "https://sportgym-2b2f8.web.app").replace(/\/+$/, "");
     return `${appUrl}/cliente/registrar-asistencia`;
   }, []);
   const [search, setSearch] = useState("");

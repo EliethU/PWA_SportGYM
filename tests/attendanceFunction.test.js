@@ -88,6 +88,8 @@ describe("Cloud Function registrarAsistencia", () => {
         clienteId: "client-1",
         uid: "uid-1",
         registroQr: true,
+        fechaClave: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        hora: expect.stringMatching(/^([01]\d|2[0-3]):[0-5]\d$/),
       }),
     );
   });

@@ -17,11 +17,13 @@ import {
   Eye,
   X,
   CircleDollarSign,
+  Pencil,
+  Save,
 } from "lucide-react";
 import Encabezado from "../Components/Encabezado";
 import FacturaGasto from "../Components/FacturaGasto";
 import Pagination, { PAGE_SIZE } from "../Components/Pagination";
-import { markExpenseAsPaid, subscribeToExpenses } from "../services/gastosService";
+import { markExpenseAsPaid, subscribeToExpenses, updateExpense } from "../services/gastosService";
 import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Gastos.css";
@@ -60,6 +62,10 @@ const formatDate = (value) => {
     ? new Intl.DateTimeFormat("es-NI", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date)
     : "-";
 };
+const getExpenseDateValue = (expense) => {
+  const date = parseDate(getExpenseDate(expense));
+  return date ? getLocalDateValue(date) : "";
+};
 const normalize = (value) => String(value ?? "")
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
@@ -83,6 +89,10 @@ export default function Gastos() {
   const [feedback, setFeedback] = useState(location.state?.feedback || "");
   const [feedbackType] = useState(location.state?.feedbackType || "success");
   const [updatingExpenseId, setUpdatingExpenseId] = useState("");
+  const [editingExpense, setEditingExpense] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [editError, setEditError] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   useEffect(() => subscribeToExpenses(
     (updatedExpenses) => {
@@ -163,6 +173,61 @@ export default function Gastos() {
       setError("No se pudo registrar el pago. Verifica la conexión y los permisos de Firestore.");
     } finally {
       setUpdatingExpenseId("");
+    }
+  };
+
+  const openEditDialog = (expense) => {
+    setEditingExpense(expense);
+    setEditForm({
+      fecha: getExpenseDateValue(expense),
+      concepto: expense.concepto || expense.descripcion || "",
+      categoria: expense.categoria || "",
+      proveedor: expense.proveedor || "",
+      monto: String(getExpenseAmount(expense)),
+      estado: getExpenseStatus(expense),
+      metodo: getExpenseMethod(expense),
+      observaciones: expense.observaciones || "",
+    });
+    setEditError("");
+  };
+
+  const handleEditChange = (event) => {
+    const { name, value } = event.target;
+    setEditForm((current) => ({ ...current, [name]: value }));
+    setEditError("");
+  };
+
+  const handleSaveEdit = async (event) => {
+    event.preventDefault();
+    const amount = Number(editForm.monto);
+    if (!editForm.fecha || !editForm.concepto.trim() || !editForm.categoria.trim()
+      || !editForm.proveedor.trim() || !editForm.estado || !editForm.metodo
+      || !Number.isFinite(amount) || amount <= 0) {
+      setEditError("Completa los campos obligatorios e ingresa un monto válido mayor que cero.");
+      return;
+    }
+
+    setIsSavingEdit(true);
+    setEditError("");
+    setError("");
+    try {
+      await updateExpense(editingExpense.id, {
+        fecha: editForm.fecha,
+        concepto: editForm.concepto.trim(),
+        categoria: editForm.categoria.trim(),
+        proveedor: editForm.proveedor.trim(),
+        monto: amount,
+        estado: editForm.estado,
+        metodo: editForm.metodo,
+        observaciones: editForm.observaciones.trim(),
+      }, editingExpense.pagadoEn);
+      setEditingExpense(null);
+      setFeedback("El gasto se actualizó correctamente.");
+    } catch (saveError) {
+      console.error("Error al actualizar el gasto:", saveError);
+      setEditError("No se pudo actualizar el gasto. Verifica la conexión y los permisos de Firestore.");
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -271,6 +336,9 @@ export default function Gastos() {
                             <button type="button" className="expenseViewButton" onClick={() => setSelectedExpense(expense)} title="Visualizar factura" aria-label={`Visualizar factura de ${getExpenseConcept(expense)}`}>
                               <Eye size={17} />
                             </button>
+                            <button type="button" className="expenseEditButton" onClick={() => openEditDialog(expense)} title="Editar gasto" aria-label={`Editar ${getExpenseConcept(expense)}`}>
+                              <Pencil size={16} />
+                            </button>
                             {status === "Pendiente" && (
                               <button type="button" className="expensePayButton" onClick={() => handleRegisterPayment(expense)} disabled={updatingExpenseId === expense.id}>
                                 {updatingExpenseId === expense.id ? "Guardando..." : "Registrar pago"}
@@ -301,6 +369,67 @@ export default function Gastos() {
             <button type="button" className="expenseInvoiceClose" onClick={() => setSelectedExpense(null)} aria-label="Cerrar factura"><X size={20} /></button>
             <FacturaGasto expense={selectedExpense} />
           </section>
+        </div>
+      )}
+      {editingExpense && (
+        <div className="expenseEditOverlay" onMouseDown={(event) => {
+          if (event.target === event.currentTarget && !isSavingEdit) setEditingExpense(null);
+        }}>
+          <form className="expenseEditDialog" onSubmit={handleSaveEdit} role="dialog" aria-modal="true" aria-labelledby="expense-edit-title">
+            <header className="expenseEditHeading">
+              <div>
+                <span>GASTOS DEL NEGOCIO</span>
+                <h2 id="expense-edit-title">Editar gasto</h2>
+              </div>
+              <button type="button" className="expenseEditClose" onClick={() => setEditingExpense(null)} disabled={isSavingEdit} aria-label="Cerrar edición"><X size={20} /></button>
+            </header>
+            <div className="expenseEditFields">
+              <label className="expenseEditField">
+                <span>Fecha *</span>
+                <input type="date" name="fecha" value={editForm.fecha} onChange={handleEditChange} required />
+              </label>
+              <label className="expenseEditField">
+                <span>Concepto *</span>
+                <input type="text" name="concepto" value={editForm.concepto} onChange={handleEditChange} maxLength="120" required />
+              </label>
+              <label className="expenseEditField">
+                <span>Categoría *</span>
+                <input type="text" name="categoria" value={editForm.categoria} onChange={handleEditChange} maxLength="60" required />
+              </label>
+              <label className="expenseEditField">
+                <span>Proveedor *</span>
+                <input type="text" name="proveedor" value={editForm.proveedor} onChange={handleEditChange} maxLength="100" required />
+              </label>
+              <label className="expenseEditField">
+                <span>Monto *</span>
+                <input type="number" name="monto" value={editForm.monto} onChange={handleEditChange} min="0.01" step="0.01" required />
+              </label>
+              <label className="expenseEditField">
+                <span>Estado *</span>
+                <select name="estado" value={editForm.estado} onChange={handleEditChange} required>
+                  <option value="Pagado">Pagado</option>
+                  <option value="Pendiente">Pendiente</option>
+                </select>
+              </label>
+              <label className="expenseEditField">
+                <span>Método *</span>
+                <select name="metodo" value={editForm.metodo} onChange={handleEditChange} required>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                </select>
+              </label>
+              <label className="expenseEditField expenseEditObservations">
+                <span>Observaciones</span>
+                <textarea name="observaciones" value={editForm.observaciones} onChange={handleEditChange} maxLength="500" rows="3" />
+              </label>
+            </div>
+            {editingExpense.imageUrl && <a className="expenseEditReceiptLink" href={editingExpense.imageUrl} target="_blank" rel="noreferrer">Ver comprobante actual (se conservará al guardar)</a>}
+            {editError && <p className="expenseEditError" role="alert">{editError}</p>}
+            <div className="expenseEditActions">
+              <button type="button" className="cancelButton" onClick={() => setEditingExpense(null)} disabled={isSavingEdit}>Cancelar</button>
+              <button type="submit" className="saveButton" disabled={isSavingEdit}><Save size={17} />{isSavingEdit ? "Guardando..." : "Guardar cambios"}</button>
+            </div>
+          </form>
         </div>
       )}
     </div>

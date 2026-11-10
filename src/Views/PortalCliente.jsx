@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { CalendarDays, CheckCircle2, Clock3, CreditCard, LogOut, QrCode, UserRound } from "lucide-react";
+import {
+  CalendarDays,
+  Camera,
+  CheckCircle2,
+  Clock3,
+  CreditCard,
+  LogOut,
+  QrCode,
+  UserRound,
+  X,
+} from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../assets/database/authcontext";
 import { db } from "../assets/database/firebaseconfig";
@@ -27,6 +37,16 @@ const getManaguaDateKey = (date = new Date()) => {
   return `${values.year}-${values.month}-${values.day}`;
 };
 
+const isAttendanceQrCode = (value) => {
+  try {
+    const url = new URL(value);
+    return url.pathname.replace(/\/+$/, "") === "/cliente/registrar-asistencia"
+      || url.searchParams.get("registrarAsistencia") === "1";
+  } catch {
+    return false;
+  }
+};
+
 export default function PortalCliente() {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -40,7 +60,10 @@ export default function PortalCliente() {
   const [isRegisteringAttendance, setIsRegisteringAttendance] = useState(false);
   const [currentAttendances, setCurrentAttendances] = useState([]);
   const [isAttendanceLoading, setIsAttendanceLoading] = useState(true);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannerError, setScannerError] = useState("");
   const automaticAttendanceAttempted = useRef(false);
+  const scannerHandledCode = useRef(false);
 
   const recordAttendance = useCallback(async () => {
     setAttendanceError("");
@@ -90,6 +113,63 @@ export default function PortalCliente() {
       setIsRegisteringAttendance(false);
     }
   }, [client, user.uid]);
+
+  useEffect(() => {
+    if (!isScannerOpen || !client) return undefined;
+
+    let active = true;
+    let scanner;
+    const startScanner = async () => {
+      try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        if (!active) return;
+        scanner = new Html5Qrcode("client-attendance-qr-reader", { verbose: false });
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 240, height: 240 } },
+          async (decodedText) => {
+            if (!active || scannerHandledCode.current) return;
+            if (!isAttendanceQrCode(decodedText)) {
+              setScannerError("Este no es el código QR de asistencia del gimnasio.");
+              return;
+            }
+
+            scannerHandledCode.current = true;
+            try {
+              await scanner.stop();
+              scanner.clear();
+            } catch (stopError) {
+              console.error("No se pudo detener la cámara después del escaneo:", stopError);
+            }
+            if (!active) return;
+            setIsScannerOpen(false);
+            await recordAttendance();
+          },
+          () => {},
+        );
+        if (!active && scanner.isScanning) await scanner.stop();
+      } catch (scannerStartError) {
+        console.error("No se pudo iniciar el lector QR:", scannerStartError);
+        if (active) {
+          setScannerError(
+            scannerStartError?.name === "NotAllowedError"
+              ? "Permite el acceso a la cámara en el navegador e inténtalo de nuevo."
+              : "No se pudo abrir la cámara. Usa una conexión segura y revisa sus permisos.",
+          );
+        }
+      }
+    };
+
+    startScanner();
+    return () => {
+      active = false;
+      if (scanner?.isScanning) {
+        scanner.stop()
+          .then(() => scanner.clear())
+          .catch((stopError) => console.error("No se pudo cerrar el lector QR:", stopError));
+      }
+    };
+  }, [client, isScannerOpen, recordAttendance]);
 
   useEffect(() => {
     let active = true;
@@ -226,18 +306,53 @@ export default function PortalCliente() {
           <section className="clientAttendancePanel" aria-label="Registrar asistencia">
             <div>
               <h2>Asistencia al gimnasio</h2>
-                  <p>Registra tu visita con tu cuenta. Si ya fue anotada manualmente, el escaneo del QR agrega tu registro.</p>
+              <p>Escanea el código QR del gimnasio para registrar tu visita y guardar la hora.</p>
             </div>
-            <button
-              type="button"
-              className="clientAttendanceButton"
-              onClick={() => void recordAttendance()}
-              disabled={isRegisteringAttendance}
-            >
-              <CheckCircle2 size={18} />
-              {isRegisteringAttendance ? "Registrando..." : "Registrar asistencia"}
-            </button>
+            <div className="clientAttendanceActions">
+              <button
+                type="button"
+                className="clientAttendanceButton"
+                onClick={() => {
+                  scannerHandledCode.current = false;
+                  setScannerError("");
+                  setIsScannerOpen(true);
+                }}
+                disabled={isRegisteringAttendance || isScannerOpen}
+              >
+                <Camera size={18} />
+                {isScannerOpen ? "Cámara activa..." : "Escanear código QR"}
+              </button>
+              <button
+                type="button"
+                className="clientAttendanceButton clientAttendanceButtonSecondary"
+                onClick={() => void recordAttendance()}
+                disabled={isRegisteringAttendance || isScannerOpen}
+              >
+                <CheckCircle2 size={18} />
+                {isRegisteringAttendance ? "Registrando..." : "Registrar sin escanear"}
+              </button>
+            </div>
           </section>
+          {isScannerOpen && (
+            <section className="clientQrScanner" aria-label="Lector QR de asistencia">
+              <div className="clientQrScannerHeading">
+                <div>
+                  <h2>Escanea el código del gimnasio</h2>
+                  <p>Apunta la cámara al QR de asistencia.</p>
+                </div>
+                <button
+                  type="button"
+                  className="clientQrScannerClose"
+                  aria-label="Cerrar cámara"
+                  onClick={() => setIsScannerOpen(false)}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div id="client-attendance-qr-reader" />
+              {scannerError && <p className="clientPortalError" role="alert">{scannerError}</p>}
+            </section>
+          )}
           <section className="clientCurrentAttendance" aria-label="Asistencia actual">
             <div className="clientCurrentAttendanceHeading">
               <Clock3 size={19} />

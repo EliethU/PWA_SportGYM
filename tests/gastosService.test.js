@@ -1,6 +1,7 @@
 jest.mock("firebase/firestore", () => ({
   addDoc: jest.fn(),
   collection: jest.fn(() => ({})),
+  deleteField: jest.fn(() => "deleted"),
   doc: jest.fn(),
   onSnapshot: jest.fn(() => jest.fn()),
   serverTimestamp: jest.fn(() => new Date()),
@@ -20,10 +21,12 @@ jest.mock("../src/assets/database/firebaseconfig", () => ({
   storage: {},
 }));
 
+import { updateDoc } from "firebase/firestore";
 import {
   subscribeToExpenses,
   subscribeToExpenseCategories,
   subscribeToExpenseProviders,
+  updateExpense,
   validateExpenseReceipt,
 } from "../src/services/gastosService";
 
@@ -77,5 +80,17 @@ describe("💰 Gastos Service", () => {
 
   test("subscribeToExpenseProviders - función existe", () => {
     expect(typeof subscribeToExpenseProviders).toBe("function");
+  });
+
+  test("updateExpense - actualiza los datos y limpia la fecha de pago si queda pendiente", async () => {
+    const expense = { concepto: "Mantenimiento", estado: "Pendiente", monto: 250 };
+
+    await updateExpense("expense-1", expense);
+
+    expect(updateDoc).toHaveBeenCalledWith(undefined, {
+      ...expense,
+      pagadoEn: "deleted",
+      actualizadoEn: expect.any(Date),
+    });
   });
 });
