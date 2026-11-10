@@ -328,12 +328,12 @@ export default function Gastos() {
                         <td>{formatDate(getExpenseDate(expense))}</td>
                         <td className="expenseConceptCell">
                           {getExpenseConcept(expense)}
-                          {expense.comprobanteEstado && expense.comprobanteEstado !== "Cargado" && (
+                          {expense.comprobanteEstado === "Error de carga" && (
                             <span
-                              className={`expenseReceiptStatus ${expense.comprobanteEstado === "Error de carga" ? "expenseReceiptStatusError" : ""}`}
-                              role={expense.comprobanteEstado === "Error de carga" ? "alert" : "status"}
+                              className="expenseReceiptStatus expenseReceiptStatusError"
+                              role="alert"
                             >
-                              {expense.comprobanteEstado === "Error de carga" ? "Error al cargar comprobante" : "Comprobante subiendo..."}
+                              Error al cargar comprobante
                             </span>
                           )}
                         </td>

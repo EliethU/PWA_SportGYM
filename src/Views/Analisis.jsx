@@ -294,7 +294,7 @@ export default function Analisis() {
       }
     }
     const productsByRevenue = [...productTotals.values()].sort((a, b) => b.revenue - a.revenue || b.quantity - a.quantity);
-    const clientsByPayments = [...clientTotals.values()].sort((a, b) => b.payments - a.payments || b.purchases - a.purchases);
+    const clientsByFrequency = [...clientTotals.values()].sort((a, b) => b.purchases - a.purchases || b.payments - a.payments);
     const income = salesIncome + paymentIncome;
     return {
       income,
@@ -309,7 +309,7 @@ export default function Analisis() {
       })),
       productChart: productsByRevenue.slice(0, 6),
       productRevenue: productsByRevenue.reduce((total, product) => total + product.revenue, 0),
-      clients: clientsByPayments,
+      clients: clientsByFrequency,
       salesIncome,
       paymentIncome,
     };
@@ -583,7 +583,7 @@ export default function Analisis() {
               <div className="analyticsPanelHeading">
                 <div>
                   <h2>Top clientes</h2>
-                  <p>Clientes con mayor valor en compras</p>
+                  <p>Clientes con mayor frecuencia de compra</p>
                 </div>
                 <Users size={19} />
               </div>
