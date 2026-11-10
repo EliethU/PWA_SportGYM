@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">9.85% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/71</span>
+                <span class='fraction'>7/71</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">11.66% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/60</span>
+                <span class='fraction'>7/60</span>
             </div>
         
             
@@ -337,7 +337,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -348,24 +348,24 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -581,7 +581,7 @@ import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/Pagos.css";
 &nbsp;
-const parseDate = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; {</span>
+const parseDate = <span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; {
 <span class="cstat-no" title="statement not covered" >  if (!value) <span class="cstat-no" title="statement not covered" >return null;</span></span>
 <span class="cstat-no" title="statement not covered" >  if (value?.toDate) <span class="cstat-no" title="statement not covered" >return value.toDate();</span></span>
 <span class="cstat-no" title="statement not covered" >  if (typeof value === "string" &amp;&amp; /^\d{4}-\d{2}-\d{2}$/.test(value)) {</span>
@@ -592,24 +592,24 @@ const parseDate = <span class="cstat-no" title="statement not covered" ><span cl
 <span class="cstat-no" title="statement not covered" >  return Number.isNaN(date.getTime()) ? null : date;</span>
 };
 &nbsp;
-const formatDate = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; {</span>
+const formatDate = <span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; {
   const date = <span class="cstat-no" title="statement not covered" >parseDate(value);</span>
 <span class="cstat-no" title="statement not covered" >  return date</span>
     ? new Intl.DateTimeFormat("es-NI", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date)
     : "-";
 };
 &nbsp;
-const formatMoney = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(a</span>mount) =&gt;</span>
+const formatMoney = <span class="fstat-no" title="function not covered" >(a</span>mount) =&gt;
 <span class="cstat-no" title="statement not covered" >  new Intl.NumberFormat("es-NI", { style: "currency", currency: "NIO" }).format(Number(amount) || 0);</span>
 &nbsp;
-const normalizeSearchValue = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; <span class="cstat-no" title="statement not covered" >String(value ?? "")</span></span>
+const normalizeSearchValue = <span class="fstat-no" title="function not covered" >(v</span>alue) =&gt; <span class="cstat-no" title="statement not covered" >String(value ?? "")</span>
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .toLocaleLowerCase();
 &nbsp;
-const getPaymentClientName = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>ayment) =&gt; <span class="cstat-no" title="statement not covered" >payment.nombreCliente || payment.clienteNombre || payment.cliente || "Cliente";</span></span>
-const getPaymentMembership = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>ayment) =&gt; <span class="cstat-no" title="statement not covered" >payment.nombreMembresia || payment.membresia || payment.concepto || "Membresía";</span></span>
-const getPaymentDate = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(p</span>ayment) =&gt; <span class="cstat-no" title="statement not covered" >payment.fechaPago || payment.fecha || payment.creadoEn;</span></span>
+const getPaymentClientName = <span class="fstat-no" title="function not covered" >(p</span>ayment) =&gt; <span class="cstat-no" title="statement not covered" >payment.nombreCliente || payment.clienteNombre || payment.cliente || "Cliente";</span>
+const getPaymentMembership = <span class="fstat-no" title="function not covered" >(p</span>ayment) =&gt; <span class="cstat-no" title="statement not covered" >payment.nombreMembresia || payment.membresia || payment.concepto || "Membresía";</span>
+const getPaymentDate = <span class="fstat-no" title="function not covered" >(p</span>ayment) =&gt; <span class="cstat-no" title="statement not covered" >payment.fechaPago || payment.fecha || payment.creadoEn;</span>
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >Pagos(</span>) {
   const navigate = <span class="cstat-no" title="statement not covered" >useNavigate();</span>
@@ -802,7 +802,7 @@ export default function <span class="fstat-no" title="function not covered" >Pag
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-09T01:36:04.824Z
+                at 2026-11-10T04:13:21.507Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

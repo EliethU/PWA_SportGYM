@@ -1,5 +1,6 @@
 .analyticsContent {
-  height: calc(100vh - 50px);
+  min-height: calc(100vh - 50px);
+  height: auto;
   padding: 18px;
 }
 
@@ -191,9 +192,24 @@
   white-space: nowrap;
 }
 
+.analyticsMetricCopy small {
+  color: var(--tinta-suave);
+  font-size: 10px;
+}
+
+.analyticsMetric-income {
+  --metric-color: var(--verde);
+  --metric-background: var(--verde-claro);
+}
+
+.analyticsMetric-profit {
+  --metric-color: var(--azul);
+  --metric-background: var(--azul-claro);
+}
+
 .analyticsCharts {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.03fr);
   gap: 12px;
   margin-bottom: 14px;
 }
@@ -231,48 +247,75 @@
 
 .analyticsBarChart {
   width: 100%;
-  height: 245px;
+  height: 210px;
 }
 
-.analyticsDonutChart {
-  width: 100%;
-  height: 175px;
-}
-
-.analyticsDonutLegend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 7px 12px;
-  padding-top: 8px;
-}
-
-.analyticsLegendRow,
-.analyticsLegendName {
+.analyticsChartLegend {
   display: flex;
-  min-width: 0;
-  align-items: center;
-}
-
-.analyticsLegendRow {
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 2px;
   color: var(--tinta);
   font-size: 11px;
 }
 
-.analyticsLegendName {
+.analyticsChartLegend span {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
-  overflow: hidden;
-  color: var(--tinta-suave);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.analyticsLegendName i {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 auto;
-  border-radius: 50%;
+.analyticsChartLegend i {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.analyticsChartLegend i.income {
+  background: var(--verde);
+}
+
+.analyticsChartLegend i.expense {
+  background: #f04444;
+}
+
+.analyticsProductChart {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 175px;
+  align-items: center;
+  gap: 12px;
+}
+
+.analyticsHorizontalBarChart {
+  height: 240px;
+}
+
+.analyticsProductInsight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  border-radius: 10px;
+  background: var(--verde-claro);
+  color: var(--verde);
+}
+
+.analyticsProductInsight div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analyticsProductInsight span {
+  color: var(--tinta-suave);
+  font-size: 10px;
+}
+
+.analyticsProductInsight strong {
+  color: var(--tinta);
+  font-size: 16px;
+  overflow-wrap: anywhere;
 }
 
 .analyticsEmpty {
@@ -285,9 +328,9 @@
   text-align: center;
 }
 
-.analyticsTables {
+.analyticsBottomGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
   padding-bottom: 12px;
 }
@@ -307,7 +350,7 @@
 }
 
 .analyticsTable th {
-  padding: 9px 8px;
+  padding: 8px 6px;
   border-bottom: 1px solid var(--borde);
   color: var(--tinta-suave);
   font-size: 10px;
@@ -316,8 +359,8 @@
 }
 
 .analyticsTable td {
-  max-width: 210px;
-  padding: 10px 8px;
+  max-width: 190px;
+  padding: 8px 6px;
   border-bottom: 1px solid #edf1eb;
   color: var(--tinta);
   font-size: 11px;
@@ -336,6 +379,74 @@
   text-overflow: ellipsis;
 }
 
+.analyticsShareBadge,
+.analyticsFrequencyBadge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #e4f6df;
+  color: #26751e;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.analyticsFrequencyBadge {
+  min-width: 44px;
+  background: #eef1ef;
+  color: #66756f;
+}
+
+.analyticsFrequencyBadge.high {
+  background: #e4f6df;
+  color: #26751e;
+}
+
+.analyticsFrequencyBadge.medium {
+  background: #fff0c8;
+  color: #946000;
+}
+
+.analyticsFinancialPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(155px, 0.62fr);
+  align-content: start;
+  column-gap: 12px;
+}
+
+.analyticsFinancialPanel .analyticsPanelHeading {
+  grid-column: 1 / -1;
+}
+
+.analyticsWaterfallChart {
+  min-width: 0;
+  height: 190px;
+}
+
+.analyticsInterpretation {
+  align-self: center;
+  padding: 12px;
+  border: 1px solid #e3eedb;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #eff8e9, #fff);
+}
+
+.analyticsInterpretation strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  color: #26751e;
+  font-size: 13px;
+}
+
+.analyticsInterpretation p {
+  margin: 0;
+  color: var(--tinta);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
 .analyticsTable .analyticsNoRows {
   max-width: none;
   padding: 20px 8px;
@@ -348,8 +459,20 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .analyticsCharts {
-    grid-template-columns: minmax(0, 1.35fr) minmax(260px, 1fr);
+  .analyticsProductChart {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .analyticsProductInsight {
+    padding: 9px 12px;
+  }
+
+  .analyticsBottomGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analyticsFinancialPanel {
+    grid-column: 1 / -1;
   }
 }
 
@@ -366,8 +489,12 @@
   }
 
   .analyticsCharts,
-  .analyticsTables {
+  .analyticsBottomGrid {
     grid-template-columns: 1fr;
+  }
+
+  .analyticsFinancialPanel {
+    grid-column: auto;
   }
 }
 
@@ -415,5 +542,21 @@
 
   .analyticsMetricCopy strong {
     font-size: 12px;
+  }
+
+  .analyticsMetricCopy small {
+    font-size: 9px;
+  }
+
+  .analyticsFinancialPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .analyticsInterpretation {
+    margin-top: 8px;
+  }
+
+  .analyticsHorizontalBarChart {
+    height: 220px;
   }
 }

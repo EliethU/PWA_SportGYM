@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">6.02% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/83</span>
+                <span class='fraction'>5/83</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">3.57% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>1/28</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">6.32% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/79</span>
+                <span class='fraction'>5/79</span>
             </div>
         
             
@@ -538,21 +538,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -979,13 +979,13 @@ import AdminSidebar from "../Components/AdminSidebar";
 import "../Styles/Home.css";
 import "../Styles/NuevoCliente.css";
 &nbsp;
-const registrationAppName = <span class="cstat-no" title="statement not covered" >"client-account-provisioning";</span>
-const registrationApp = <span class="cstat-no" title="statement not covered" >getApps().some(<span class="fstat-no" title="function not covered" >(f</span>irebaseApp) =&gt; <span class="cstat-no" title="statement not covered" >firebaseApp.name === registrationAppName)</span></span>
-  ? getApp(registrationAppName)
+const registrationAppName = "client-account-provisioning";
+const registrationApp = getApps().some(<span class="fstat-no" title="function not covered" >(f</span>irebaseApp) =&gt; <span class="cstat-no" title="statement not covered" >firebaseApp.name === registrationAppName)</span>
+  ? <span class="branch-0 cbranch-no" title="branch not covered" >getApp(registrationAppName)</span>
   : initializeApp(appfirebase.options, registrationAppName);
-const registrationAuth = <span class="cstat-no" title="statement not covered" >getAuth(registrationApp);</span>
+const registrationAuth = getAuth(registrationApp);
 &nbsp;
-const createUsernameBase = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(n</span>ame) =&gt;</span>
+const createUsernameBase = <span class="fstat-no" title="function not covered" >(n</span>ame) =&gt;
 <span class="cstat-no" title="statement not covered" >  name</span>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -993,7 +993,7 @@ const createUsernameBase = <span class="cstat-no" title="statement not covered" 
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 &nbsp;
-const createTemporaryPassword = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+const createTemporaryPassword = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
   const letters = <span class="cstat-no" title="statement not covered" >"abcdefghjkmnpqrstuvwxyz";</span>
   const digits = <span class="cstat-no" title="statement not covered" >"23456789";</span>
   const values = <span class="cstat-no" title="statement not covered" >new Uint32Array(8);</span>
@@ -1393,7 +1393,7 @@ export default function <span class="fstat-no" title="function not covered" >Nue
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-09T01:14:52.240Z
+                at 2026-11-10T04:13:22.005Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

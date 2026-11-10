@@ -1,35 +1,27 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { QrCode } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { collection, onSnapshot } from "firebase/firestore";
 import {
-  LayoutDashboard,
   Users,
-  CreditCard,
-  Wallet,
   ShoppingCart,
   Package,
-  Receipt,
-  FileText,
-  Settings,
-  LogOut,
   CalendarDays,
   Download,
   TrendingUp,
   TrendingDown,
   BadgeDollarSign,
-  CircleDollarSign,
   ChartNoAxesCombined,
   LoaderCircle,
+  Percent,
+  Coins,
+  Activity,
 } from "lucide-react";
 import {
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
-  Legend,
-  Pie,
-  PieChart,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -136,13 +128,14 @@ const formatRange = (start, end) => {
 };
 const toRecords = (snapshot) => snapshot.docs.map((document) => ({ id: document.id, ...document.data() }));
 
-function MetricCard({ title, value, icon: Icon, tone }) {
+function MetricCard({ title, value, detail, icon: Icon, tone }) {
   return (
     <article className={`analyticsMetric analyticsMetric-${tone}`}>
       <div className="analyticsMetricIcon"><Icon size={21} strokeWidth={2} /></div>
       <div className="analyticsMetricCopy">
         <span>{title}</span>
         <strong>{value}</strong>
+        <small>{detail}</small>
       </div>
     </article>
   );
@@ -300,17 +293,22 @@ export default function Analisis() {
         dayCursor.setDate(dayCursor.getDate() + 1);
       }
     }
-    const productsByQuantity = [...productTotals.values()].sort((a, b) => b.quantity - a.quantity || b.revenue - a.revenue);
+    const productsByRevenue = [...productTotals.values()].sort((a, b) => b.revenue - a.revenue || b.quantity - a.quantity);
     const clientsByPayments = [...clientTotals.values()].sort((a, b) => b.payments - a.payments || b.purchases - a.purchases);
     const income = salesIncome + paymentIncome;
     return {
       income,
       expenseTotal,
       netProfit: income - expenseTotal,
+      profitMargin: income > 0 ? ((income - expenseTotal) / income) * 100 : 0,
       salesCount: periodSales.length,
       chartData,
-      products: productsByQuantity,
-      productChart: productsByQuantity.slice(0, 6),
+      products: productsByRevenue.map((product) => ({
+        ...product,
+        share: salesIncome > 0 ? (product.revenue / salesIncome) * 100 : 0,
+      })),
+      productChart: productsByRevenue.slice(0, 6),
+      productRevenue: productsByRevenue.reduce((total, product) => total + product.revenue, 0),
       clients: clientsByPayments,
       salesIncome,
       paymentIncome,
@@ -454,88 +452,129 @@ export default function Analisis() {
           {isLoading && <p className="analyticsMessage"><LoaderCircle className="analyticsSpinner" size={16} /> Cargando datos financieros y comerciales…</p>}
 
           <div className="analyticsMetrics">
-            <MetricCard title="Ingresos totales" value={formatMoney(analytics.income)} icon={TrendingUp} tone="income" />
-            <MetricCard title="Gastos totales" value={formatMoney(analytics.expenseTotal)} icon={TrendingDown} tone="expense" />
-            <MetricCard title="Ganancia neta" value={formatMoney(analytics.netProfit)} icon={BadgeDollarSign} tone="profit" />
-            <MetricCard title="Ventas realizadas" value={analytics.salesCount.toLocaleString("es-NI")} icon={CircleDollarSign} tone="sales" />
+            <MetricCard title="Ingresos totales" value={formatMoney(analytics.income)} detail="Ventas y membresías" icon={TrendingUp} tone="income" />
+            <MetricCard title="Gastos totales" value={formatMoney(analytics.expenseTotal)} detail="Gastos registrados" icon={TrendingDown} tone="expense" />
+            <MetricCard title="Resultado neto" value={formatMoney(analytics.netProfit)} detail={`${analytics.salesCount.toLocaleString("es-NI")} ventas realizadas`} icon={BadgeDollarSign} tone="profit" />
+            <MetricCard title="Margen de ganancia" value={`${analytics.profitMargin.toFixed(1)}%`} detail="Utilidad sobre ingresos" icon={Percent} tone="sales" />
           </div>
 
           <div className="analyticsCharts">
             <article className="analyticsPanel">
               <div className="analyticsPanelHeading">
                 <div>
-                  <h2>Ingresos vs. gastos</h2>
-                  <p>Comparativo diario · {formatRange(startDate, endDate)}</p>
+                  <h2>Evolución de ingresos y gastos</h2>
+                  <p>Tendencia diaria del período: {formatRange(startDate, endDate)}</p>
                 </div>
-                <ChartNoAxesCombined size={19} />
+                <Activity size={19} />
               </div>
               {analytics.chartData.length ? (
                 <div className="analyticsBarChart">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analytics.chartData} margin={{ top: 8, right: 8, left: 4, bottom: 4 }}>
+                    <LineChart data={analytics.chartData} margin={{ top: 8, right: 10, left: 4, bottom: 4 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1E8DD" />
                       <XAxis dataKey="name" tick={{ fill: "#66756F", fontSize: 10 }} interval="preserveStartEnd" minTickGap={14} />
-                      <YAxis tick={{ fill: "#66756F", fontSize: 10 }} tickFormatter={(value) => (value >= 1000 ? `${Number((value / 1000).toFixed(1))}k` : value)} width={42} />
+                      <YAxis tick={{ fill: "#66756F", fontSize: 10 }} tickFormatter={(value) => (value >= 1000 ? `${Number((value / 1000).toFixed(1))}k` : value)} width={48} />
                       <Tooltip formatter={(value, name) => [formatMoney(value), name === "ingresos" ? "Ingresos" : "Gastos"]} labelFormatter={(label, payload) => payload?.[0]?.payload?.date || label} />
-                      <Legend formatter={(value) => value === "ingresos" ? "Ingresos" : "Gastos"} />
-                      <Bar dataKey="ingresos" name="ingresos" fill="#4C9A3A" radius={[4, 4, 0, 0]} maxBarSize={22} />
-                      <Bar dataKey="gastos" name="gastos" fill="#E0902B" radius={[4, 4, 0, 0]} maxBarSize={22} />
-                    </BarChart>
+                      <Line type="monotone" dataKey="ingresos" name="ingresos" stroke="#4C9A3A" strokeWidth={2.5} dot={{ r: 2.5, fill: "#4C9A3A" }} activeDot={{ r: 5 }} />
+                      <Line type="monotone" dataKey="gastos" name="gastos" stroke="#F04444" strokeWidth={2.5} dot={{ r: 2.5, fill: "#F04444" }} activeDot={{ r: 5 }} />
+                    </LineChart>
                   </ResponsiveContainer>
                 </div>
               ) : <EmptyChart message="No hay datos para mostrar en este período." />}
+              <div className="analyticsChartLegend">
+                <span><i className="income" />Ingresos</span>
+                <span><i className="expense" />Gastos</span>
+              </div>
             </article>
 
-            <article className="analyticsPanel">
+            <article className="analyticsPanel analyticsProductPanel">
               <div className="analyticsPanelHeading">
                 <div>
-                  <h2>Ventas por producto</h2>
-                  <p>Distribución por unidades vendidas</p>
+                  <h2>Ventas por producto (por ingresos)</h2>
+                  <p>Ingreso total por producto en el período</p>
                 </div>
                 <ShoppingCart size={19} />
               </div>
               {analytics.productChart.length ? (
-                <>
-                  <div className="analyticsDonutChart">
+                <div className="analyticsProductChart">
+                  <div className="analyticsBarChart analyticsHorizontalBarChart">
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie data={analytics.productChart} dataKey="quantity" nameKey="name" innerRadius="57%" outerRadius="83%" paddingAngle={3} stroke="none">
+                      <BarChart data={analytics.productChart} layout="vertical" margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E1E8DD" />
+                        <XAxis type="number" tick={{ fill: "#66756F", fontSize: 10 }} tickFormatter={(value) => (value >= 1000 ? `${Number((value / 1000).toFixed(1))}k` : value)} />
+                        <YAxis type="category" dataKey="name" width={112} tick={{ fill: "#14201F", fontSize: 10 }} />
+                        <Tooltip formatter={(value) => [formatMoney(value), "Ingresos"]} />
+                        <Bar dataKey="revenue" name="Ingresos" radius={[0, 5, 5, 0]} maxBarSize={20}>
                           {analytics.productChart.map((product, index) => <Cell key={product.name} fill={CHART_COLORS[index % CHART_COLORS.length]} />)}
-                        </Pie>
-                        <Tooltip formatter={(value, name) => [`${value} unidades`, name]} />
-                      </PieChart>
+                        </Bar>
+                      </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="analyticsDonutLegend">
-                    {analytics.productChart.map((product, index) => (
-                      <div className="analyticsLegendRow" key={product.name}>
-                        <span className="analyticsLegendName"><i style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />{product.name}</span>
-                        <strong>{product.quantity}</strong>
-                      </div>
-                    ))}
+                  <div className="analyticsProductInsight">
+                    <Coins size={22} />
+                    <div><span>Total en ventas</span><strong>{formatMoney(analytics.productRevenue)}</strong></div>
                   </div>
-                </>
+                </div>
               ) : <EmptyChart message="Aún no hay productos vendidos en este período." />}
             </article>
           </div>
 
-          <div className="analyticsTables">
+          <div className="analyticsBottomGrid">
+            <article className="analyticsPanel analyticsFinancialPanel">
+              <div className="analyticsPanelHeading">
+                <div>
+                  <h2>Análisis del resultado financiero</h2>
+                  <p>Composición de ingresos, gastos y resultado neto</p>
+                </div>
+                <ChartNoAxesCombined size={19} />
+              </div>
+              <div className="analyticsWaterfallChart">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { name: "Ingresos", base: 0, value: analytics.income, fill: "#4C9A3A" },
+                      { name: "Gastos", base: Math.min(analytics.netProfit, analytics.income), value: analytics.expenseTotal, fill: "#F04444" },
+                      { name: "Resultado neto", base: 0, value: analytics.netProfit, fill: "#168BD2" },
+                    ]}
+                    margin={{ top: 14, right: 4, left: 2, bottom: 4 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E1E8DD" />
+                    <XAxis dataKey="name" tick={{ fill: "#14201F", fontSize: 10, fontWeight: 600 }} />
+                    <YAxis tick={{ fill: "#66756F", fontSize: 10 }} tickFormatter={(value) => (value >= 1000 ? `${Number((value / 1000).toFixed(1))}k` : value)} width={48} />
+                    <Tooltip formatter={(value) => formatMoney(value)} />
+                    <Bar dataKey="base" stackId="financial" fill="transparent" />
+                    <Bar dataKey="value" stackId="financial" radius={[3, 3, 0, 0]} maxBarSize={58}>
+                      {[
+                        { fill: "#4C9A3A" },
+                        { fill: "#F04444" },
+                        { fill: "#168BD2" },
+                      ].map((item, index) => <Cell key={index} fill={item.fill} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="analyticsInterpretation">
+                <strong><TrendingUp size={17} /> Interpretación</strong>
+                <p>Por cada <b>C$1.00</b> de ingreso, se obtiene <b>C${(analytics.profitMargin / 100).toFixed(2)}</b> de utilidad; equivalente a un <b>{analytics.profitMargin.toFixed(1)}%</b> de margen de ganancia.</p>
+              </div>
+            </article>
+
             <article className="analyticsPanel analyticsTablePanel">
               <div className="analyticsPanelHeading">
                 <div>
                   <h2>Productos más vendidos</h2>
-                  <p>Unidades e ingreso generado</p>
+                  <p>Por unidades y participación en ingresos</p>
                 </div>
                 <Package size={19} />
               </div>
               <div className="analyticsTableScroll">
                 <table className="analyticsTable">
-                  <thead><tr><th>Producto</th><th>Cantidad</th><th>Ingreso</th></tr></thead>
+                  <thead><tr><th>Producto</th><th>Unidades</th><th>Ingreso</th><th>Participación</th></tr></thead>
                   <tbody>
                     {analytics.products.slice(0, 8).map((product) => (
-                      <tr key={product.name}><td>{product.name}</td><td>{product.quantity}</td><td>{formatMoney(product.revenue)}</td></tr>
+                      <tr key={product.name}><td>{product.name}</td><td>{product.quantity}</td><td>{formatMoney(product.revenue)}</td><td><span className="analyticsShareBadge">{product.share.toFixed(1)}%</span></td></tr>
                     ))}
-                    {!analytics.products.length && <tr><td className="analyticsNoRows" colSpan="3">No hay productos vendidos en este período.</td></tr>}
+                    {!analytics.products.length && <tr><td className="analyticsNoRows" colSpan="4">No hay productos vendidos en este período.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -544,18 +583,18 @@ export default function Analisis() {
               <div className="analyticsPanelHeading">
                 <div>
                   <h2>Top clientes</h2>
-                  <p>Compras y total de pagos del período</p>
+                  <p>Clientes con mayor valor en compras</p>
                 </div>
                 <Users size={19} />
               </div>
               <div className="analyticsTableScroll">
                 <table className="analyticsTable">
-                  <thead><tr><th>Cliente</th><th>Compras</th><th>Total de pagos</th></tr></thead>
+                  <thead><tr><th>Cliente</th><th>Compras</th><th>Total de pagos</th><th>Frecuencia</th></tr></thead>
                   <tbody>
                     {analytics.clients.slice(0, 8).map((client, index) => (
-                      <tr key={`${client.name}-${index}`}><td>{client.name}</td><td>{client.purchases}</td><td>{formatMoney(client.payments)}</td></tr>
+                      <tr key={`${client.name}-${index}`}><td>{client.name}</td><td>{client.purchases}</td><td>{formatMoney(client.payments)}</td><td><span className={`analyticsFrequencyBadge ${client.purchases >= 3 ? "high" : client.purchases > 0 ? "medium" : ""}`}>{client.purchases >= 3 ? "Alta" : client.purchases > 0 ? "Media" : "—"}</span></td></tr>
                     ))}
-                    {!analytics.clients.length && <tr><td className="analyticsNoRows" colSpan="3">No hay actividad de clientes en este período.</td></tr>}
+                    {!analytics.clients.length && <tr><td className="analyticsNoRows" colSpan="4">No hay actividad de clientes en este período.</td></tr>}
                   </tbody>
                 </table>
               </div>
