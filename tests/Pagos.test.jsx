@@ -1,7 +1,12 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import Pagos from "../src/Views/Pagos";
+
+function PaymentEditDestination() {
+  const location = useLocation();
+  return <p>Pago seleccionado: {location.state.payment.id} {location.search}</p>;
+}
 
 jest.mock("firebase/firestore", () => ({
   collection: jest.fn(() => ({})),
@@ -40,5 +45,20 @@ describe("Pagos", () => {
     expect(screen.getByText("Mostrando 31-31 de 31")).toBeInTheDocument();
     expect(screen.getByText("Cliente 31")).toBeInTheDocument();
     expect(screen.getAllByRole("row")).toHaveLength(2);
+  });
+
+  test("opens the selected payment in edit mode from the actions", () => {
+    render(
+      <MemoryRouter initialEntries={["/pagos"]}>
+        <Routes>
+          <Route path="/pagos" element={<Pagos />} />
+          <Route path="/nuevo-pago" element={<PaymentEditDestination />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar pago de Cliente 01" }));
+
+    expect(screen.getByText("Pago seleccionado: payment-1 ?editar=payment-1")).toBeInTheDocument();
   });
 });

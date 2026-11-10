@@ -326,7 +326,17 @@ export default function Gastos() {
                     return (
                       <tr key={expense.id}>
                         <td>{formatDate(getExpenseDate(expense))}</td>
-                        <td className="expenseConceptCell">{getExpenseConcept(expense)}</td>
+                        <td className="expenseConceptCell">
+                          {getExpenseConcept(expense)}
+                          {expense.comprobanteEstado && expense.comprobanteEstado !== "Cargado" && (
+                            <span
+                              className={`expenseReceiptStatus ${expense.comprobanteEstado === "Error de carga" ? "expenseReceiptStatusError" : ""}`}
+                              role={expense.comprobanteEstado === "Error de carga" ? "alert" : "status"}
+                            >
+                              {expense.comprobanteEstado === "Error de carga" ? "Error al cargar comprobante" : "Comprobante subiendo..."}
+                            </span>
+                          )}
+                        </td>
                         <td>{getExpenseCategory(expense)}</td>
                         <td className="expenseAmountCell">{formatMoney(getExpenseAmount(expense))}</td>
                         <td><span className={`expenseStatusBadge ${status === "Pagado" ? "expenseStatusPaid" : "expenseStatusPending"}`}>{status}</span></td>

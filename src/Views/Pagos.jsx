@@ -16,6 +16,7 @@ import {
   Plus,
   Eye,
   Download,
+  Pencil,
   X,
 } from "lucide-react";
 import { collection, onSnapshot } from "firebase/firestore";
@@ -190,6 +191,15 @@ export default function Pagos() {
                         <div className="paymentActions">
                           <button type="button" className="paymentActionButton paymentViewButton" onClick={() => setSelectedPayment(payment)} title="Visualizar pago" aria-label={`Visualizar pago de ${getPaymentClientName(payment)}`}>
                             <Eye size={17} />
+                          </button>
+                          <button
+                            type="button"
+                            className="paymentActionButton paymentEditButton"
+                            onClick={() => navigate(`/nuevo-pago?editar=${encodeURIComponent(payment.id)}`, { state: { payment } })}
+                            title="Editar pago"
+                            aria-label={`Editar pago de ${getPaymentClientName(payment)}`}
+                          >
+                            <Pencil size={17} />
                           </button>
                           <button type="button" className="paymentActionButton paymentDownloadButton" onClick={() => handleDownloadInvoice(payment)} title="Descargar factura PDF" aria-label={`Descargar factura de ${getPaymentClientName(payment)}`}>
                             <Download size={17} />

@@ -188,6 +188,15 @@
   background: #e3f0f8;
 }
 
+.paymentEditButton {
+  color: #b7791f;
+}
+
+.paymentEditButton:hover {
+  border-color: #f0d7aa;
+  background: #fff8e9;
+}
+
 .paymentDownloadButton {
   color: #4c9a3a;
 }

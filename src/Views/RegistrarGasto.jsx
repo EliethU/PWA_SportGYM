@@ -183,10 +183,12 @@ export default function RegistrarGasto() {
       }, receiptFile);
       navigate("/gastos", {
         state: {
-          feedback: result.receiptUploaded
-            ? "Gasto registrado correctamente."
-            : "El gasto se guardó en Firebase, pero no se pudo subir el comprobante. Puedes intentar adjuntarlo nuevamente.",
-          feedbackType: result.receiptUploaded ? "success" : "warning",
+          feedback: result.receiptPending
+            ? "Gasto registrado correctamente. El comprobante se está cargando."
+            : result.receiptUploaded
+              ? "Gasto registrado correctamente."
+              : "El gasto se guardó en Firebase, pero no se pudo subir el comprobante. Puedes intentar adjuntarlo nuevamente.",
+          feedbackType: result.receiptPending || result.receiptUploaded ? "success" : "warning",
         },
       });
     } catch (saveError) {

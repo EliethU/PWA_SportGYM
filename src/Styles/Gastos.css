@@ -279,6 +279,18 @@
   font-weight: 600;
 }
 
+.expenseReceiptStatus {
+  display: block;
+  margin-top: 4px;
+  color: #8a641c;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.expenseReceiptStatusError {
+  color: #a72f2f;
+}
+
 .expenseAmountCell {
   font-weight: 700;
   white-space: nowrap;

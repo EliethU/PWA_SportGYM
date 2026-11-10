@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { QrCode } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -19,7 +19,7 @@ import {
   Save,
   X,
 } from "lucide-react";
-import { collection, doc, onSnapshot, runTransaction, serverTimestamp } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, runTransaction, serverTimestamp } from "firebase/firestore";
 import Encabezado from "../Components/Encabezado";
 import { db } from "../assets/database/firebaseconfig.jsx";
 import AdminSidebar from "../Components/AdminSidebar";
@@ -42,6 +42,11 @@ const parseDate = (value) => {
   }
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const getDateInputValue = (value) => {
+  const date = parseDate(value);
+  return date ? getLocalDateValue(date) : getLocalDateValue();
 };
 
 const addDaysToDate = (value, days) => {
@@ -74,6 +79,12 @@ const getEmissionTime = (date) => new Intl.DateTimeFormat("es-NI", {
 
 export default function NuevoPago() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const editPaymentId = new URLSearchParams(location.search).get("editar");
+  const isEditing = Boolean(editPaymentId);
+  const [editingPayment, setEditingPayment] = useState(() => (
+    location.state?.payment?.id === editPaymentId ? location.state.payment : null
+  ));
   const [clients, setClients] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [clientQuery, setClientQuery] = useState("");
@@ -87,8 +98,43 @@ export default function NuevoPago() {
     notas: "",
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(Boolean(
+    editPaymentId && location.state?.payment?.id !== editPaymentId,
+  ));
   const [error, setError] = useState("");
   const [dataError, setDataError] = useState("");
+
+  useEffect(() => {
+    if (!editPaymentId) return;
+    if (location.state?.payment?.id === editPaymentId) {
+      setEditingPayment(location.state.payment);
+      setIsLoadingPayment(false);
+      return;
+    }
+
+    let isActive = true;
+    setIsLoadingPayment(true);
+    getDoc(doc(db, "pagos", editPaymentId))
+      .then((paymentSnapshot) => {
+        if (!isActive) return;
+        if (!paymentSnapshot.exists()) {
+          setDataError("No se encontró el pago que deseas editar.");
+          return;
+        }
+        setEditingPayment({ id: paymentSnapshot.id, ...paymentSnapshot.data() });
+      })
+      .catch((loadError) => {
+        console.error("Error al cargar el pago para editar:", loadError);
+        if (isActive) setDataError("No se pudo cargar el pago que deseas editar.");
+      })
+      .finally(() => {
+        if (isActive) setIsLoadingPayment(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [editPaymentId, location.state]);
 
   useEffect(() => {
     const unsubscribeClients = onSnapshot(
@@ -114,8 +160,37 @@ export default function NuevoPago() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!editingPayment) return;
+    setSelectedClientId(editingPayment.clienteId || "");
+    setFormData({
+      membresiaId: editingPayment.membresiaId || "",
+      fechaPago: getDateInputValue(editingPayment.fechaPago || editingPayment.fecha),
+      monto: editingPayment.monto == null ? "" : String(editingPayment.monto),
+      metodoPago: editingPayment.metodoPago || "",
+      notas: editingPayment.notas || "",
+    });
+  }, [editingPayment]);
+
+  useEffect(() => {
+    if (!editingPayment || editingPayment.clienteId || selectedClientId || !clients.length) return;
+    const paymentClient = clients.find((client) =>
+      normalize(getClientName(client)) === normalize(editingPayment.nombreCliente || editingPayment.clienteNombre),
+    );
+    if (paymentClient) setSelectedClientId(paymentClient.id);
+  }, [clients, editingPayment, selectedClientId]);
+
   const selectedClient = clients.find((client) => client.id === selectedClientId);
   const selectedMembership = memberships.find((membership) => membership.id === formData.membresiaId);
+  useEffect(() => {
+    if (!editingPayment || formData.membresiaId || !memberships.length) return;
+    const matchingMembership = memberships.find((membership) =>
+      normalize(membership.nombre) === normalize(editingPayment.nombreMembresia || editingPayment.membresia),
+    );
+    if (matchingMembership) {
+      setFormData((currentData) => ({ ...currentData, membresiaId: matchingMembership.id }));
+    }
+  }, [editingPayment, formData.membresiaId, memberships]);
   const expirationDate = selectedMembership
     ? addDaysToDate(formData.fechaPago, selectedMembership.duracion)
     : "";
@@ -176,46 +251,72 @@ export default function NuevoPago() {
 
     setIsSaving(true);
     try {
-      const issuedAt = new Date();
-      const paymentRef = doc(collection(db, "pagos"));
-      const counterRef = doc(db, "contadores", "pagos");
       const clientRef = doc(db, "clientes", client.id);
 
-      await runTransaction(db, async (transaction) => {
-        const counterSnapshot = await transaction.get(counterRef);
-        const nextNumber = Number(counterSnapshot.data()?.ultimoNumero || 0) + 1;
-        const invoiceNumber = `PAY-${String(nextNumber).padStart(6, "0")}`;
-        transaction.set(counterRef, {
-          ultimoNumero: nextNumber,
-          actualizadoEn: serverTimestamp(),
-        }, { merge: true });
-        transaction.set(paymentRef, {
-          clienteId: client.id,
-          nombreCliente: getClientName(client),
-          membresiaId: membership.id,
-          nombreMembresia: membership.nombre || "Membresía",
-          monto: amount,
-          fechaPago: formData.fechaPago,
-          fechaVencimiento: expirationDate,
-          metodoPago: formData.metodoPago,
-          notas: formData.notas.trim(),
-          numeroFactura: invoiceNumber,
-          fechaEmision: getLocalDateValue(issuedAt),
-          horaEmision: getEmissionTime(issuedAt),
-          creadoEn: serverTimestamp(),
+      if (editingPayment) {
+        await runTransaction(db, async (transaction) => {
+          transaction.update(doc(db, "pagos", editingPayment.id), {
+            clienteId: client.id,
+            nombreCliente: getClientName(client),
+            membresiaId: membership.id,
+            nombreMembresia: membership.nombre || "Membresía",
+            monto: amount,
+            fechaPago: formData.fechaPago,
+            fechaVencimiento: expirationDate,
+            metodoPago: formData.metodoPago,
+            notas: formData.notas.trim(),
+          });
+          transaction.update(clientRef, {
+            membresia: membership.nombre || "",
+            estadoPago: "pagado",
+            fechaInicio: formData.fechaPago,
+            fechaVencimiento: expirationDate,
+          });
         });
-        transaction.update(clientRef, {
-          membresia: membership.nombre || "",
-          estadoPago: "pagado",
-          fechaInicio: formData.fechaPago,
-          fechaVencimiento: expirationDate,
+      } else {
+        const issuedAt = new Date();
+        const paymentRef = doc(collection(db, "pagos"));
+        const counterRef = doc(db, "contadores", "pagos");
+        await runTransaction(db, async (transaction) => {
+          const counterSnapshot = await transaction.get(counterRef);
+          const nextNumber = Number(counterSnapshot.data()?.ultimoNumero || 0) + 1;
+          const invoiceNumber = `PAY-${String(nextNumber).padStart(6, "0")}`;
+          transaction.set(counterRef, {
+            ultimoNumero: nextNumber,
+            actualizadoEn: serverTimestamp(),
+          }, { merge: true });
+          transaction.set(paymentRef, {
+            clienteId: client.id,
+            nombreCliente: getClientName(client),
+            membresiaId: membership.id,
+            nombreMembresia: membership.nombre || "Membresía",
+            monto: amount,
+            fechaPago: formData.fechaPago,
+            fechaVencimiento: expirationDate,
+            metodoPago: formData.metodoPago,
+            notas: formData.notas.trim(),
+            numeroFactura: invoiceNumber,
+            fechaEmision: getLocalDateValue(issuedAt),
+            horaEmision: getEmissionTime(issuedAt),
+            creadoEn: serverTimestamp(),
+          });
+          transaction.update(clientRef, {
+            membresia: membership.nombre || "",
+            estadoPago: "pagado",
+            fechaInicio: formData.fechaPago,
+            fechaVencimiento: expirationDate,
+          });
         });
-      });
+      }
 
-      navigate("/pagos", { state: { feedback: "El pago se registró correctamente." } });
+      navigate("/pagos", {
+        state: { feedback: editingPayment ? "El pago se actualizó correctamente." : "El pago se registró correctamente." },
+      });
     } catch (saveError) {
-      console.error("Error al registrar el pago:", saveError);
-      setError("No se pudo registrar el pago. Verifica la sesión y los permisos de administrador.");
+      console.error(isEditing ? "Error al actualizar el pago:" : "Error al registrar el pago:", saveError);
+      setError(isEditing
+        ? "No se pudo actualizar el pago. Verifica la sesión y los permisos de administrador."
+        : "No se pudo registrar el pago. Verifica la sesión y los permisos de administrador.");
     } finally {
       setIsSaving(false);
     }
@@ -226,7 +327,10 @@ export default function NuevoPago() {
       <AdminSidebar />
 
       <main className="main">
-        <Encabezado title="Nuevo pago" description="Registra el pago de una membresía" />
+        <Encabezado
+          title={isEditing ? "Editar pago" : "Nuevo pago"}
+          description={isEditing ? "Actualiza la información del pago" : "Registra el pago de una membresía"}
+        />
         <section className="content">
           <button type="button" className="newPaymentBackButton" onClick={() => navigate("/pagos")}>
             <ArrowLeft size={17} />
@@ -236,13 +340,17 @@ export default function NuevoPago() {
           <div className="newPaymentContent">
             <div className="newPaymentHeading">
               <div>
-                <span className="newPaymentEyebrow">REGISTRO DE PAGO</span>
+                <span className="newPaymentEyebrow">{isEditing ? "EDICIÓN DE PAGO" : "REGISTRO DE PAGO"}</span>
                 <h2>Información del pago</h2>
               </div>
               <span className="newPaymentRequired">* Campos obligatorios</span>
             </div>
 
-            {dataError && <p className="newPaymentNotice newPaymentNoticeError" role="alert">{dataError}</p>}
+            {(dataError || isLoadingPayment) && (
+              <p className="newPaymentNotice newPaymentNoticeError" role="alert">
+                {isLoadingPayment ? "Cargando los datos del pago..." : dataError}
+              </p>
+            )}
 
             <form className="newPaymentForm" onSubmit={handleSubmit}>
               <section className="newPaymentSection">
@@ -256,9 +364,11 @@ export default function NuevoPago() {
                           <strong>{getClientName(selectedClient)}</strong>
                           <span>{selectedClient.telefono || selectedClient.correo || "Cliente seleccionado"}</span>
                         </div>
-                        <button type="button" onClick={clearClient} aria-label="Cambiar cliente" title="Cambiar cliente">
-                          <X size={17} />
-                        </button>
+                        {!isEditing && (
+                          <button type="button" onClick={clearClient} aria-label="Cambiar cliente" title="Cambiar cliente">
+                            <X size={17} />
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <div className="newPaymentClientSearch">
@@ -400,9 +510,9 @@ export default function NuevoPago() {
                 <button type="button" className="newPaymentCancelButton" onClick={() => navigate("/pagos")}>
                   Cancelar
                 </button>
-                <button type="submit" className="newPaymentSaveButton" disabled={isSaving || !clients.length || !memberships.length}>
+                <button type="submit" className="newPaymentSaveButton" disabled={isSaving || isLoadingPayment || (isEditing && !editingPayment) || !clients.length || !memberships.length}>
                   <Save size={17} />
-                  <span>{isSaving ? "Registrando..." : "Registrar pago"}</span>
+                  <span>{isSaving ? (isEditing ? "Actualizando..." : "Registrando...") : (isEditing ? "Guardar cambios" : "Registrar pago")}</span>
                 </button>
               </div>
             </form>

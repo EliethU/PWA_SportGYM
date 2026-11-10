@@ -22,15 +22,24 @@ jest.mock("../src/assets/database/firebaseconfig", () => ({
 }));
 
 import { updateDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
+import { getDownloadURL, uploadBytes } from "firebase/storage";
 import {
+  createExpense,
   subscribeToExpenses,
   subscribeToExpenseCategories,
   subscribeToExpenseProviders,
   updateExpense,
   validateExpenseReceipt,
 } from "../src/services/gastosService";
+import { waitFor } from "@testing-library/react";
 
 describe("💰 Gastos Service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    doc.mockReset();
+  });
+
   describe("validateExpenseReceipt", () => {
     test("requiere un archivo de comprobante", () => {
       expect(validateExpenseReceipt(null)).toBe("Debes adjuntar la imagen del comprobante.");
@@ -80,6 +89,34 @@ describe("💰 Gastos Service", () => {
 
   test("subscribeToExpenseProviders - función existe", () => {
     expect(typeof subscribeToExpenseProviders).toBe("function");
+  });
+
+  test("guarda el gasto y devuelve antes de terminar la carga del comprobante", async () => {
+    const expenseRef = { id: "expense-1" };
+    let finishUpload;
+    doc.mockReturnValue(expenseRef);
+    setDoc.mockResolvedValue(undefined);
+    uploadBytes.mockReturnValue(new Promise((resolve) => {
+      finishUpload = resolve;
+    }));
+    getDownloadURL.mockResolvedValue("https://example.test/receipt.jpg");
+
+    const result = await createExpense(
+      { concepto: "Mantenimiento", monto: 250 },
+      { type: "image/jpeg", size: 1000 },
+    );
+
+    expect(result).toEqual({ id: "expense-1", receiptUploaded: false, receiptPending: true });
+    expect(setDoc).toHaveBeenCalledWith(expenseRef, expect.objectContaining({
+      comprobanteEstado: "Subiendo",
+    }));
+    expect(uploadBytes).toHaveBeenCalled();
+
+    finishUpload();
+    await waitFor(() => expect(updateDoc).toHaveBeenCalledWith(expenseRef, expect.objectContaining({
+      comprobanteEstado: "Cargado",
+      imageUrl: "https://example.test/receipt.jpg",
+    })));
   });
 
   test("updateExpense - actualiza los datos y limpia la fecha de pago si queda pendiente", async () => {

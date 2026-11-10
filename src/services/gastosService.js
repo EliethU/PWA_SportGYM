@@ -57,20 +57,7 @@ const uploadExpenseReceipt = async (file) => {
   return { imagePath, imageUrl: await getDownloadURL(imageRef) };
 };
 
-export const createExpense = async (expense, receiptFile) => {
-  const receiptError = validateExpenseReceipt(receiptFile);
-  if (receiptError) throw new Error(receiptError);
-
-  const expenseRef = doc(collection(db, "gastos"));
-  await setDoc(expenseRef, {
-    ...expense,
-    imageUrl: "",
-    imagePath: "",
-    comprobanteEstado: "Pendiente de carga",
-    numeroFactura: `GAS-${expenseRef.id.slice(0, 8).toUpperCase()}`,
-    creadoEn: serverTimestamp(),
-  });
-
+const uploadExpenseReceiptInBackground = async (expenseRef, receiptFile) => {
   let uploadedReceipt;
   try {
     uploadedReceipt = await uploadExpenseReceipt(receiptFile);
@@ -89,8 +76,33 @@ export const createExpense = async (expense, receiptFile) => {
       }
     }
     console.error("El gasto se guardó en Firestore, pero no se pudo guardar el comprobante:", receiptUploadError);
-    return { id: expenseRef.id, receiptUploaded: false };
+    try {
+      await updateDoc(expenseRef, {
+        comprobanteEstado: "Error de carga",
+        actualizadoEn: serverTimestamp(),
+      });
+    } catch (statusError) {
+      console.error("No se pudo actualizar el estado del comprobante:", statusError);
+    }
   }
+};
+
+export const createExpense = async (expense, receiptFile) => {
+  const receiptError = validateExpenseReceipt(receiptFile);
+  if (receiptError) throw new Error(receiptError);
+
+  const expenseRef = doc(collection(db, "gastos"));
+  await setDoc(expenseRef, {
+    ...expense,
+    imageUrl: "",
+    imagePath: "",
+    comprobanteEstado: "Subiendo",
+    numeroFactura: `GAS-${expenseRef.id.slice(0, 8).toUpperCase()}`,
+    creadoEn: serverTimestamp(),
+  });
+
+  void uploadExpenseReceiptInBackground(expenseRef, receiptFile);
+  return { id: expenseRef.id, receiptUploaded: false, receiptPending: true };
 };
 
 export const markExpenseAsPaid = async (expenseId, metodo) => updateDoc(doc(db, "gastos", expenseId), {
